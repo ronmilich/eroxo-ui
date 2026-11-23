@@ -1,6 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
+    "paths": { "eroxo-ui": ["../src/index.tsx"] },
     "types": ["vite/client", "node"]
   },
   "exclude": ["node_modules", "dist"]

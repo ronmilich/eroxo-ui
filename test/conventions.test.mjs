@@ -39,6 +39,11 @@ test('Oxlint checks library-authored JSX data attributes and permits forwarded p
     const { diagnostics } = JSON.parse(rejected.stdout)
     assert.equal(diagnostics.length, 5)
     for (const diagnostic of diagnostics) assert.match(diagnostic.code, /eroxo.*data-attribute/)
+    const legacy = lint(
+      "export { render } from 'solid-js/web'; import { splitProps } from 'solid-js'; export { splitProps }",
+    )
+    assert.equal(legacy.status, 1, legacy.stderr + legacy.stdout)
+    assert.match(legacy.stdout, /no-restricted-imports/)
   } finally {
     rmSync(dir, { recursive: true, force: true })
   }

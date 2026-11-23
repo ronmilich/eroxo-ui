@@ -4,14 +4,20 @@ Eroxo UI is a SolidJS 2 component library. The free `eroxo-ui` core is MIT licen
 
 ## Local development
 
-Use Node.js 22.22.2+ on the 22.x line, 24.15.0+ on the 24.x line, or 26+, with pnpm 12.21.0.
+Use the Node version in [.node-version](.node-version) to reproduce CI and pnpm 12.21.0 from the root manifest. Supported contributor runtimes are listed in `engines.node`.
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-The playground runs at `http://localhost:3000`. Run `pnpm test` for the browser and SSR suites, `pnpm lint` for linting and type checks, and `pnpm build` to generate the package in `dist/`.
+The playground runs at `http://localhost:3000`. Run `pnpm lint` for linting, strict type checks and the runtime dependency policy. Run `pnpm test` for the policy, component and SSR tests. Use `pnpm build` for the library and `pnpm build:docs` for the playground.
+
+## Workspace
+
+The root is the public `eroxo-ui` package. The private Vite docs app in `dev/` resolves public imports to live library source during development. `fixtures/spa/` and `fixtures/ssr/` reserve independent consumer projects for the packed-package checks in UL-08. The private `scripts/` workspace holds repository checks. All projects share one pnpm lockfile.
+
+The [library roadmap](docs/ui-library-roadmap.md) is maintained here and supplies the milestone status used by TaoTale.
 
 ## Using the library
 

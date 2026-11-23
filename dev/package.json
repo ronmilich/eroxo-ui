@@ -1,0 +1,16 @@
+{
+  "name": "@eroxo-ui/docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@solidjs/vite-plugin": "^3.0.1",
+    "@solidjs/web": "^2.0.3",
+    "eroxo-ui": "workspace:*",
+    "solid-js": "^2.0.3",
+    "vite": "^8.3.8"
+  }
+}

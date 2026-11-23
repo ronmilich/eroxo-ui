@@ -212,6 +212,30 @@ importers:
         specifier: ^5.1.1
         version: 5.1.1(@types/node@26.6.6)(jsdom@31.0.1)(vite@8.3.8(@types/node@26.6.6))
 
+  dev:
+    devDependencies:
+      '@solidjs/vite-plugin':
+        specifier: ^3.0.1
+        version: 3.0.1(@solidjs/web@2.0.3(solid-js@2.0.3))(solid-js@2.0.3)(vite@8.3.8(@types/node@26.6.6))
+      '@solidjs/web':
+        specifier: ^2.0.3
+        version: 2.0.3(solid-js@2.0.3)
+      eroxo-ui:
+        specifier: workspace:*
+        version: link:..
+      solid-js:
+        specifier: ^2.0.3
+        version: 2.0.3
+      vite:
+        specifier: ^8.3.8
+        version: 8.3.8(@types/node@26.6.6)
+
+  fixtures/spa: {}
+
+  fixtures/ssr: {}
+
+  scripts: {}
+
 packages:
 
   '@ampproject/remapping@2.3.0':

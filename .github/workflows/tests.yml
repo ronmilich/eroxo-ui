@@ -21,22 +21,25 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v7
         with:
-          node-version: 26
+          node-version-file: .node-version
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Lint and typecheck
+        run: pnpm lint
+
+      - name: Check formatting
+        run: pnpm format:check
+
       - name: Build
         run: pnpm run build
 
       - name: Build playground
-        run: pnpm exec vite build dev
+        run: pnpm build:docs
 
       - name: Test
         run: pnpm run test
         env:
           CI: true
-
-      - name: Lint
-        run: pnpm run lint

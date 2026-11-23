@@ -11,7 +11,8 @@ app.config.timestamp_*.js
 .env*.local
 
 # dependencies
-/node_modules
+node_modules/
+.pnpm-store/
 
 # IDEs and editors
 /.idea
