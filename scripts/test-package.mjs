@@ -148,6 +148,7 @@ async function checkPage(browser, url, ssr) {
       @media (prefers-color-scheme: dark) {
         :root { color-scheme: dark; background: #161925; color: white; }
         main { --erx-color-text: white; }
+        button { appearance: none; background: white; color: #161925; border: 1px solid white; }
       }
       html { zoom: 2; }
     `,
