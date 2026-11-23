@@ -279,8 +279,8 @@ The following table is authoritative. Copy its values into the theme source; do 
 | Component | Default | Hover / focus / selected | Invalid / status |
 |---|---|---|---|
 | Button: `solid` variant, `primary` tone | primary + on-primary | primary-hover, primary-pressed, focus-ring | Destructive (`danger` tone) uses error + on-error |
-| Button: secondary roles | secondary + on-secondary | secondary-hover, secondary-pressed | Keep border secondary-border |
-| Button: `ghost` variant | Transparent + on-ghost | ghost-hover, ghost-pressed | Visible keyboard focus |
+| Button: solid neutral | secondary + on-secondary | secondary-hover, secondary-pressed | Keep border secondary-border |
+| Button: ghost neutral | Transparent + on-ghost | ghost-hover, ghost-pressed | Visible keyboard focus |
 | TextField / Textarea | input-bg, input-text, input-border | input-border-hover, input-border-focus, focus-ring | input-border-error + message |
 | Checkbox / Radio | border-interactive, primary | focus-ring; selected state includes check or dot | Semantic invalid text |
 | Switch | switch-track-off, switch-track-on, switch-thumb | focus + visible thumb position | On/off always has accessible label |
@@ -293,7 +293,7 @@ The following table is authoritative. Copy its values into the theme source; do 
 | Skeleton | skeleton-base, skeleton-shimmer | Reduced-motion: static base | Hidden from accessibility tree if decorative |
 | Pagination | secondary, item-selected | Visible selected/active state | Accessible current-page indication |
 
-Buttons express their treatment with `data-erx-variant` (`solid`, `soft`, `outline`, `ghost` or `text`) and their color intent with `data-erx-tone`. Which variant and tone use the secondary roles, and the rest of the variant-by-tone color mapping, are settled in UL-06.
+Buttons express their treatment with `data-erx-variant` (`solid`, `soft`, `outline`, `ghost` or `text`) and their color intent with `data-erx-tone`. Section 3 of the [UL-06 component rulebook](eroxo-iris-component-anatomy-api-spec.md) defines the component subsets, defaults and color mapping.
 
 ## 7. Special-purpose colors — complete contract
 
@@ -667,7 +667,6 @@ Selection colors are opt-in: Eroxo ships no global `::selection` rule. An app th
 
 - **Naming grammar and tiers (D5):** the token naming grammar that shows each tier; whether semantic tokens may hold literal values (92 of the 258 semantic hex values in this specification aren't in the primitive palette); and a cap on the component tier, which includes component-local aliases such as `--erx-button-bg`. Settled in UL-06 and UL-12.
 - **Tooltip border (D8):** this specification defines `--erx-color-tooltip-border`; ERX-DS-SHAPE-001 gives tooltips no border. The designer settles it in UL-12.
-- **Button variants (D3):** each component's variant subset and the variant-by-tone color mapping, including which variant and tone use the secondary roles. Settled in UL-06.
 - **Portal fallback (C7):** whether any overlay can't use the top layer and needs a portal that carries the resolved semantic variables. Settled by the UL-05 native-first ADR.
 - **Tokens folder and generator (record gaps):** `src/styles/tokens/` and the generator are provisional. UL-13 picks one tokens folder and one generator.
 - **Custom theme fallback (record gaps):** what happens when a custom theme such as `[data-erx-theme="acme"]` omits a token. Settled in UL-13.

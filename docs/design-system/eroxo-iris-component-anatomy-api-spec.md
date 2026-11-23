@@ -1,13 +1,13 @@
 # Eroxo Iris — Component Anatomy & API Conventions
 
 **Specification ID:** ERX-DS-COMPONENT-001  
-**Version:** 0.2.0  
+**Version:** 0.3.0\
 **Decision date:** 23 November 2026  
-**Status:** Public API design contract approved; reference code and conformance pending integration  
+**Status:** Approved by the owner for UL-06\
 **Owner:** Eroxo UI  
 **Target:** SolidJS 2, TypeScript, ESM, SSR, static CSS, WCAG 2.2 AA
 
-> **0.2.0 (23 November 2026):** revised to match the approved [Iris reconciliation record](reconciliation.md): C1, C2, C3, C7, C9, D1, D4, D9, D10 and D14, and the record's gaps on build outputs and missing companion files. Choices it leaves open are listed under "Open items after 0.2.0".
+> **0.3.0 (23 November 2026)** resolves the UL-06 questions in the [Iris reconciliation](reconciliation.md). The [architecture decisions](../adr/README.md) govern build, CSS delivery and native overlays.
 
 > **Normative language:** MUST and MUST NOT are contractual requirements; SHOULD is a strong default; MAY is optional. This is a design baseline, not evidence that an implementation has passed production verification. The companion ZIP is not yet in the repository; it is a reference implementation, not a complete accessible component library.
 
@@ -20,14 +20,14 @@
 | Semantic style | `variant`, `tone`, `size`; named component-specific props only when necessary |
 | Size | `sm`, `md`, `lg`; inherited density selects default; explicit size overrides density |
 | Polymorphism | **Selective** `as`, with element-specific types and semantics; never universal on all components |
-| Customization | Documented CSS variables, stable part classes (`erx-<component>`, `erx-<component>__<part>`), `class` and `style`; `data-erx-slot` only if UL-06 finds a use that classes don't cover |
+| Customization | Documented CSS variables, stable part classes (`erx-<component>`, `erx-<component>__<part>`), `class` and `style`; library parts are identified by class |
 | State | `open/defaultOpen/onOpenChange`, `checked/defaultChecked/onCheckedChange`, `value/defaultValue/onValueChange` |
 | SolidJS conventions | Preserve reactive props; native event behavior; ref forwarding; `onSettled` and `onCleanup`; SSR-safe modules |
 | Public stability | Exports, TypeScript signatures, documented parts/slots/state attributes and CSS variables are versioned |
 | Behavior ownership | In-house behavior primitives; no required third-party headless UI framework |
-| Default appearance | Eroxo Iris foundations; `unstyled` not required for 1.0 |
+| Default appearance | Eroxo Iris foundations; 1.0 ships styled components only |
 
-**Relationship to the roadmap:** This spec supplies the conventions for UL-06 and the consumer styling contract for UL-19. The UL-04 technical spike is done ([report](../ul-04-spike.md)), and UL-05 still governs the structural ADRs. The package's public API MUST match the final accepted ADRs if they differ; record an explicit superseding decision rather than silently diverging. The approved [Iris reconciliation record](reconciliation.md) is such a decision; 0.2.0 applies it.
+This is the UL-06 rulebook for component authors and the CSS contract that TaoTale can consume through TAO-09/10. UL-19 verifies customization against shipped components.
 
 **Foundation dependencies:** ERX-DS-COLOR-001, ERX-DS-TYPE-001, ERX-DS-SPACE-001, ERX-DS-SHAPE-001, ERX-DS-DEPTH-001, ERX-DS-MOTION-001 and ERX-DS-ICON-001. This specification consumes their tokens; it does not redefine their values.
 
@@ -46,7 +46,7 @@
 
 **Namespace rule:** prefer `Dialog.Root`, `Dialog.Trigger`, `Dialog.Content`, `Dialog.Title` etc. Also export named parts (`DialogRoot`, `DialogTrigger`, `DialogContent`) from documented entry points. Group objects MUST be defined without eagerly importing unrelated implementation families where that would harm tree-shaking. Components with a public standalone name MUST NOT introduce a redundant `Root` unless there is a compound form.
 
-**Part naming:** Root, Trigger, Portal (only if the UL-05 native-first ADR names an overlay that can't use the top layer), Overlay, Positioner, Content, Header, Title, Description, Footer, Close, Indicator, Item, ItemIndicator and Label only when meaningful; keep these words consistent across patterns. A part MUST document whether it creates an element, provides context, or controls rendering.
+**Part naming:** Root, Trigger, Overlay, Positioner, Content, Header, Title, Description, Footer, Close, Indicator, Item, ItemIndicator and Label only when meaningful; keep these words consistent across patterns. A part MUST document whether it creates an element, provides context, or controls rendering.
 
 ## 3. API spelling, naming, defaults and sizing
 
@@ -64,9 +64,27 @@
 | Full-width | `fullWidth` | Components whose width can reasonably stretch |
 | Logical positions | `start`, `end`, or named slots | Prefer logical start/end over physical left/right |
 
-**Tone-to-colors contract:** `danger` maps to existing Iris error/destructive semantic tokens; `success`, `warning` and `info` likewise reuse existing color roles. `tone` is not a new palette; mapping belongs to each component's styling. Default Button: `variant="solid"`, `tone="primary"`; other components MUST define their own defaults explicitly in their reference page.
+### Treatment and intent by component
 
-**Variant availability:** Button and IconButton MAY expose all five. Badge MAY support `solid`/`soft`/`outline`; TextField SHOULD expose only meaningful field treatments; dialogs and tooltips MUST NOT receive nonsensical button variants. An unsupported variant MUST be rejected by TypeScript, not ignored silently.
+| Component | Variants | Tones and defaults |
+| --- | --- | --- |
+| Button, IconButton | `solid`, `soft`, `outline`, `ghost`, `text` | All six tones. Default Button is solid primary. Default IconButton is ghost neutral and requires an accessible name. |
+| Badge, Chip, Tag | `solid`, `soft`, `outline` | All six tones. Default is soft neutral. |
+| Alert / Callout, Toast | Fixed feedback treatment | Default neutral. Also accept success, warning, danger and info. Announce status with text and appropriate semantics. |
+| AlertDialog, DropdownMenu.Item | Fixed overlay / item treatment | Default neutral. Use `danger` for a destructive confirmation or menu action. |
+| Other 1.0 components | Fixed treatment | Use the component's semantic roles, such as field borders and invalid state, link colors, or overlay surfaces. Any additional style axis requires a documented change to this table. |
+
+The following names are suffixes of `--erx-color-`. The status family `S` is `success`, `warning`, `error` (public tone `danger`) or `info`. A slash separates fill and foreground.
+
+| Variant | Primary | Neutral | Status |
+| --- | --- | --- | --- |
+| solid | primary / on-primary | secondary / on-secondary, secondary-border | S / on-S |
+| soft | item-selected / item-selected-text | secondary / on-secondary (Badge uses neutral-badge-bg / neutral-badge-text) | S-soft / S-text |
+| outline | transparent / link, item-selected-border | transparent / on-secondary, border-interactive | transparent / S-text, S-border |
+| ghost | transparent / link | transparent / on-ghost | transparent / S-text |
+| text | transparent / link | transparent / on-secondary | transparent / S-text |
+
+Solid actions use the fill family's hover and pressed roles. Soft, outline and ghost actions use ghost-hover and ghost-pressed surfaces, retaining their tone foreground. Text actions retain a transparent fill, underline on interaction and use link-hover for primary. Soft and text actions have no visible resting border. Passive badges have no activation states. Always use the focus-ring role for keyboard focus and the disabled roles on disabled controls. UL-13 checks contrast across themes and surfaces, including boundaries that identify a control. Render supported axes as `data-erx-variant` and `data-erx-tone`. Public types reject unsupported combinations.
 
 **Density:** nearest `data-erx-density` scope determines the default effective control size; explicit `size` wins. Effective control minimum heights: sm 32px, md 40px, lg 48px. Density MUST NOT alter typography scale, corner radii or semantic focus-ring geometry. Use the existing spacing CSS mapping rather than duplicating it in component JavaScript.
 
@@ -104,7 +122,7 @@ Solid uses native DOM events, with both delegated `onClick`-style and direct `on
 
 ## 6. Refs, native attributes and DOM transparency
 
-Every rendered root or meaningful compound part SHOULD forward an appropriately typed Solid `ref` to its actual DOM element. For example, `Button` forwards `HTMLButtonElement`, and `Dialog.Content`, the part that renders the native `<dialog>`, forwards `HTMLDialogElement` and carries the `erx-dialog` class that the scroll-lock rule (ERX-DS-BEHAVIOR-001 §9) targets. `Icon` forwards `SVGSVGElement`. Callback refs MUST be composed when the library also needs its own element reference.
+Every rendered root or meaningful compound part SHOULD forward an appropriately typed Solid `ref` to its actual DOM element. For example, `Button` forwards `HTMLButtonElement`, and `Dialog.Content`, the part that renders the native `<dialog>`, forwards `HTMLDialogElement` and carries the `erx-dialog` class that the scroll-lock rule targets. `AlertDialog.Content` forwards the same element type with its own `erx-alert-dialog` class. The document selector is `html:has(.erx-dialog:modal, .erx-alert-dialog:modal)`. `Icon` forwards `SVGSVGElement`. Callback refs MUST be composed when the library also needs its own element reference.
 
 **DOM forwarding rules:** native `id`, `title`, `tabIndex`, `aria-*`, `data-*`, native event handlers, `class`, `style` and input-specific attributes MUST forward when valid for that element. Internal props (`variant`, `tone`, `size`, semantic state callbacks) MUST NOT leak as unknown native DOM attributes. Native and library-required ARIA relationships MUST be merged intentionally; do not overwrite consumer labeling without a documented reason or permit contradictory labels silently.
 
@@ -126,17 +144,16 @@ An anchor rendering MUST NOT automatically add `role="button"` or implement Spac
 
 ## 8. Slot, state and styling selectors
 
-Each rendered, externally styleable part MUST have a stable public class with a documented name: `erx-<component>` on the root and `erx-<component>__<part>` on parts, for example `erx-button`, `erx-button__label`, `erx-dialog`. These classes are versioned public API, as approved in UL-04. Part-name examples: `trigger`, `content`, `title`, `description`, `indicator`, `icon-start`, `icon-end`, `item`. `data-erx-slot` is provisional: it stays only if UL-06 finds a use that classes don't cover.
+Each rendered, externally styleable part MUST have a stable public class with a documented name: `erx-<component>` on the root and `erx-<component>__<part>` on parts, for example `erx-button`, `erx-button__label`, `erx-dialog`. These classes are versioned public API, as approved in UL-04. Part-name examples: `trigger`, `content`, `title`, `description`, `indicator`, `icon-start`, `icon-end`, `item`. Use the stable class for part selection. Library components do not emit a parallel `data-erx-slot` attribute. Consumer-provided data attributes still forward to the element.
 
 | Attribute | Contract |
 | --- | --- |
-| `data-erx-slot` | Provisional part name, kept only if UL-06 finds a use that classes don't cover; public and semver-governed if kept |
 | `data-erx-state` | Logical state, e.g. `open`, `closed`, `checked`, `unchecked`, `indeterminate`, `active` |
 | `data-erx-presence` | Motion lifecycle only: `entering`, `open`, `exiting` when relevant |
 | `data-erx-disabled` | Present with an empty value when disabled |
 | `data-erx-invalid` | Present when invalid |
 | `data-erx-loading` | Present when loading |
-| `data-erx-size` | Resolved `sm`, `md`, or `lg`, not merely the optional input prop |
+| `data-erx-size` | Explicit `sm`, `md` or `lg` only. Omit when size is inherited from the density scope |
 | `data-erx-variant` | Resolved supported variant |
 | `data-erx-tone` | Resolved supported semantic tone |
 | `data-erx-side` | Resolved physical placement after positioning, RTL and collision correction |
@@ -145,6 +162,8 @@ Each rendered, externally styleable part MUST have a stable public class with a 
 **Never conflate:** `data-erx-state="closed"` may coexist briefly with `data-erx-presence="exiting"`; accessibility state must match the actual interaction state rather than animation opacity. `data-erx-*` attributes MUST NOT replace real native `disabled`, `aria-expanded`, `aria-checked`, etc. For state selector compatibility, do not silently rename to unprefixed `data-state` or `data-slot`.
 
 **CSS layering:** use the shared `@layer erx.tokens`, `@layer erx.components` foundation; every library stylesheet starts with the order statement `@layer erx.tokens, erx.components;`. Any additional layer ordering must be defined by UL-05 and be consistent across packages. `--erx-` CSS custom properties are public only when documented. Components read them with a fallback at the declaration site, for example `var(--erx-button-bg, var(--erx-color-primary))`, and never declare a public `--erx-<component>-*` variable on their own element. Internal implementation variables use private `--_erx-*` names and should have their own non-public documentation/status. Theming is through static CSS and nested theme scopes; no runtime CSS-in-JS, no Tailwind requirement, no `!important` in shipped component styles. Prefer logical `margin-inline`, `padding-inline` and insets for RTL. `:focus-visible`, forced-colors and reduced-motion modes must remain functional under customization.
+
+**Token ownership.** Foundation names start with their family (for example `--erx-color-primary` and `--erx-control-height-md`). Scope-owned density aliases always begin with `--erx-density-`, such as `--erx-density-card-padding`. Reserve `--erx-<component>-<property>` for a consumer override read at its use site. For example, Card can read `var(--erx-card-padding, var(--erx-density-card-padding))`. Prefer a shared semantic role or a part class first. Allow up to four documented override hooks per component family. An additional hook needs a recorded use case and owner approval. UL-12 inventories foundation tiers and literals in the token source.
 
 **Customization precedence:** consumer unlayered CSS normally takes precedence over library declarations in normal layered styles; specificity and origin still apply. Each component MUST publish its part classes, state attributes, semantic component variables, and customization examples. A `classes` map MAY be added for multi-part non-compound components when direct part props are unavailable; it is not mandatory everywhere.
 
@@ -206,6 +225,7 @@ interface StyledControlOptions {
 // Native element props must narrow with the rendered element.
 type ButtonButtonProps = StyledControlOptions & {
   as?: 'button';
+  href?: never;
   type?: 'button' | 'submit' | 'reset';
   disabled?: boolean;
   children?: JSX.Element;
@@ -213,10 +233,11 @@ type ButtonButtonProps = StyledControlOptions & {
 
 type ButtonAnchorProps = StyledControlOptions & {
   as: 'a';
+  type?: never;
   href: string;
   disabled?: boolean; // Eroxo-managed semantic disabled state
   children?: JSX.Element;
-} & Omit<JSX.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'>;
+} & Omit<JSX.AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'type'>;
 
 type ButtonProps = ButtonButtonProps | ButtonAnchorProps;
 ```
@@ -226,8 +247,13 @@ The example is an **API sketch**, not a guarantee that every DOM attribute colli
 ## 13. Reference markup and semantics
 
 ```tsx
-// Atomic with semantic styling
-<Button variant="soft" tone="primary" size="md">Save</Button>
+// Native form and ref forwarding. The browser submits the form after onClick.
+<Button type="submit" variant="soft" tone="primary" ref={saveRef} onClick={onSaveClick}>
+  Save
+</Button>
+
+// Solid calls recordAction("settings", event) for this bound handler.
+<Button onClick={[recordAction, "settings"]}>Settings</Button>
 
 // Controlled
 <Switch checked={enabled()} onCheckedChange={setEnabled} />
@@ -242,8 +268,15 @@ The example is an **API sketch**, not a guarantee that every DOM attribute colli
   </Dialog.Content>
 </Dialog.Root>
 
-// Public slot styling
-<Dialog.Content class="app-dialog-content">...</Dialog.Content>
+// The parent can keep the modal open until changes have been saved.
+<Dialog.Root open={open()} onOpenChange={next => { if (next || !dirty()) setOpen(next) }}>
+  <Dialog.Trigger>Edit profile</Dialog.Trigger>
+  <Dialog.Content class="app-dialog-content" ref={dialogRef}>
+    <Dialog.Title>Edit profile</Dialog.Title>
+    <Dialog.Description>Review and save your changes.</Dialog.Description>
+    <Dialog.Close>Close</Dialog.Close>
+  </Dialog.Content>
+</Dialog.Root>
 
 // Link semantics, not fake-button semantics
 <Button as="a" href="/dashboard" variant="text">Dashboard</Button>
@@ -259,7 +292,7 @@ A compound Dialog example in this document expresses public anatomy, **not** a c
 
 **Deprecation policy:** during 0.x, every breaking change MUST carry a migration note, versioned changelog entry and an explicit owner decision. After 1.0, follow semantic versioning; do not remove a public alias without a documented deprecation period unless correcting a security/accessibility emergency. Any exceptions should state impacted consumers and supported migration steps.
 
-**Package integration:** ship preserved JSX under the `solid` export condition, plus compiled DOM and SSR builds compiled as hydratable; in UL-04, non-hydratable compiled builds rendered but never hydrated, with no warning. The `node` condition may point Node-based test runners at the server build; UL-08 settles it. Component-specific export paths, correct `types`/`solid`/`node`/`default` conditions, CSS stylesheet exports, tree-shaking and the `sideEffects` metadata need independent verification in Vite SPA and Vite SSR fixtures; do not assume those already work because source tests pass.
+**Package integration:** ship preserved JSX under the `solid` export condition, plus compiled DOM and SSR builds compiled as hydratable; in UL-04, non-hydratable compiled builds rendered but never hydrated, with no warning. The `node` condition selects SSR and `browser` selects DOM as specified in ADR 03. UL-08 validates both in packed consumer fixtures. Component-specific export paths, correct `types`/`solid`/`node`/`default` conditions, CSS stylesheet exports, tree-shaking and the `sideEffects` metadata need independent verification in Vite SPA and Vite SSR fixtures; do not assume those already work because source tests pass.
 
 ## 15. Validation matrix and release gates
 
@@ -279,18 +312,13 @@ A compound Dialog example in this document expresses public anatomy, **not** a c
 | Packaging | Consumer fixtures load CSS; Button import excludes overlay engine; peer matrix green |
 | Browsers | Playwright Chromium, Firefox and WebKit, 200% zoom and small viewport checks |
 
-**Local kit checks** verify a subset only (contract JSON, pure TypeScript helpers and reference CSS); the kit is not yet in the repository. Solid JSX integration, browser, SSR and accessibility checks MUST run in the actual library consumer fixtures before any production claim.
+Run `pnpm lint` before submitting a component. Oxlint checks directly authored JSX data attributes and literal size, variant and tone names in library source. Stylelint checks the layer-order declaration, class and data-selector spelling, custom property names and references, and forbidden `!important` in `src/**/*.css`. The package manifest check requires the root and explicit flat kebab-case JS or CSS entries with targets under `./dist/`. Wildcards, internal entry points and source paths fail. `pnpm test:conventions` exercises accepted and rejected examples. Component milestones verify runtime behavior, dynamic attributes, contrast and CSS inheritance in the fixtures above.
 
-## 16. Implementation sequence and outstanding engineering gates
+## 16. Decision and consequences
 
-1. **UL-04/UL-05:** UL-04 is done ([report](../ul-04-spike.md)): it validated native-first behavior and Solid packaging, but did not exercise selective polymorphism. UL-05 settles ADRs if evidence contradicts this draft.
-2. **UL-06:** publish API conventions, naming and lint rules; add contract tests for shared vocabulary.
-3. **UL-07/UL-08:** set up strict TypeScript, CSS cascade export, published artifact tests, proper CSS side-effect metadata.
-4. **UL-09:** establish three-browser, SSR, accessibility and test harness before building complex behavior.
-5. **UL-14/UL-19:** implement state/event/ref utilities (UL-14, Core component utilities) and five-layer styling contract (UL-19); verify theme scopes and public slots.
-6. **UL-20 onward:** apply the contract per component, publish props/parts/keyboard tables, maintain migration notes.
+Keep a single styled API in 1.0. Atomic controls expose their native root, and compound parts expose coordinated state and individually styleable elements. A universal polymorphic root or headless switch would require separate accessibility and typing contracts for each rendering path. Stable part classes already identify each styleable element, so a second part selector would add another public name to maintain. A distinct density prefix lets a consumer change an entire scope or override one component independently. Separate modal classes let Dialog and AlertDialog evolve their styling while sharing the browser's modal scroll lock.
 
-**Outstanding implementation decisions (not blocking the design document):** (a) exact grouped-export bundling strategy, (b) literal Button `as` typing and router adapter policy, (c) native vs delegated event composition in each primitive, (d) CSS side-effect/export layout. These require evidence, not another visual-design questionnaire.
+The owner approved these decisions on 23 November 2026. [TT-035 records the TaoTale handoff](https://github.com/ronmilich/taotale/commit/0426446). UL-08 verifies export resolution and CSS delivery, UL-14 implements shared utilities, UL-19 verifies the customization contract and UL-25 tests nested native dialogs and focus restoration.
 
 ## 17. Source references and design provenance
 
@@ -299,15 +327,8 @@ A compound Dialog example in this document expresses public anatomy, **not** a c
 - W3C: [WAI-ARIA Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/), [WCAG 2.2](https://www.w3.org/TR/WCAG22/).
 - Related Eroxo visual foundations: Color, Typography, Spacing & Sizing, Shape & Borders, Elevation & Depth, Motion & Interactions, Iconography (v0.2.0).
 
-**Approval note:** The four architecture/design choices are locked by the owner. The technical conventions in this document are accepted defaults subject to verification against Solid 2 and final ADRs. This artifact intentionally does not modify the GitHub repository.
+## Remaining verification
 
-## Open items after 0.2.0
-
-- **`entering` presence phase** (D11): whether presence tracks `entering` at all; the `data-erx-presence` row keeps `entering`, `open` and `exiting` until then. Settled in UL-25.
-- **Variant subsets and the variant-by-tone color mapping** (D3): which of `solid`, `soft`, `outline`, `ghost` and `text` each component supports, and how variant and tone map to colors. Settled in UL-06.
-- **`data-erx-slot`** (D4): it stays alongside the part classes only if UL-06 finds a use that classes don't cover. Settled in UL-06.
-- **Token naming and the component tier** (D5): a naming grammar that shows a token's tier, including whether `--erx-<component>-<property>` names an override hook or a density token, and a cap on the component tier. Settled in UL-06 and UL-12.
-- **Portal part** (C7): needed only if the UL-05 native-first ADR names an overlay that can't use the top layer. Settled by that ADR.
-- **`node` export condition** (record gap on build outputs, from UL-04): whether it points Node-based test runners at the server build. Settled in UL-08.
-- **Implementation kit** (record gap, missing companion files): the owner adds the ZIP, with its reference utilities, example Button, contract JSON and reference CSS, and recorded provenance under the clean-room rules ([UL-03](../ul-03-commercial.md)) for any reference code; otherwise the kit stays a plan. Settled by the owner.
-- **AlertDialog and the scroll lock** (C5, D9): the scroll-lock rule matches `.erx-dialog:modal`, but an AlertDialog's `<dialog>` would carry `erx-alert-dialog`. Either it also carries `erx-dialog`, or the rule gains a second selector. Settled in UL-06 and UL-25.
+- UL-12 inventories and validates foundation tokens against the grammar in §8.
+- UL-25 verifies modal scroll lock and the entering presence phase against the supported browser matrix.
+- The optional reference kit mentioned in earlier revisions has not been integrated. The contract and repository checks above are usable independently of that kit.

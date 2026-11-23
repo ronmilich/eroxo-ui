@@ -29,7 +29,7 @@
 
 - **Spacing primitive:** fixed nominal interval such as `--erx-space-4` (16px equivalent).
 - **Explicit size primitive:** dimensions for `sm`, `md`, `lg`, e.g. `--erx-control-height-lg` (a *minimum* of 48px).
-- **Density semantic token:** active mapping on the nearest `[data-erx-density]` scope, e.g. `--erx-control-default-min-block-size` or `--erx-card-padding`.
+- **Density semantic token:** active mapping on the nearest `[data-erx-density]` scope, e.g. `--erx-density-control-default-min-block-size` or `--erx-density-card-padding`.
 - **Component geometry:** component CSS consumes those tokens; `data-erx-size="lg"` is an explicit size override.
 - **Scope:** ordinary DOM ancestor with `data-erx-density`, or the element itself. Overlays render in the browser's top layer in place, so they stay descendants of their scope and inherit its density; a portal fallback, if the UL-05 native-first ADR ever needs one, is only a descendant if the actual DOM placement preserves ancestry.
 
@@ -128,7 +128,7 @@ All quantities below are nominal pixels except the first row (size name). These 
 | Table cell padding inline | 12 | 16 | 20 |
 | List-row gap | 6 | 8 | 10 |
 
-**Generated token grammar:** `--erx-{role}` for the role names in the table (e.g. `--erx-card-padding`, `--erx-form-gap`, `--erx-field-label-gap`, `--erx-table-cell-padding-inline`). Density also sets `--erx-control-default-{min-block-size|padding-inline|padding-block|gap|icon-size}` to the selected size primitives. The active mapping controls un-sized components, card/dialog padding and layout rhythm; an explicit control size overrides its own axes **but must not unexpectedly change the containing card's density**.
+**Generated token grammar:** `--erx-density-{role}` for the role names in the table (e.g. `--erx-density-card-padding`, `--erx-density-form-gap`, `--erx-density-field-label-gap`, `--erx-density-table-cell-padding-inline`). Density also sets `--erx-density-control-default-{min-block-size|padding-inline|padding-block|gap|icon-size}` to the selected size primitives. The active mapping controls un-sized components, card/dialog padding and layout rhythm; an explicit control size overrides its own axes **but must not unexpectedly change the containing card's density**.
 
 ### 5.1 Density-sensitive versus invariant properties
 
@@ -159,16 +159,16 @@ All quantities below are nominal pixels except the first row (size name). These 
     --erx-control-height-lg: 3rem;
   }
   :root, [data-erx-density="standard"] {
-    --erx-control-default-min-block-size: var(--erx-control-height-md);
-    --erx-card-padding: 1.25rem;
+    --erx-density-control-default-min-block-size: var(--erx-control-height-md);
+    --erx-density-card-padding: 1.25rem;
   }
   [data-erx-density="compact"] {
-    --erx-control-default-min-block-size: var(--erx-control-height-sm);
-    --erx-card-padding: 1rem;
+    --erx-density-control-default-min-block-size: var(--erx-control-height-sm);
+    --erx-density-card-padding: 1rem;
   }
   [data-erx-density="comfortable"] {
-    --erx-control-default-min-block-size: var(--erx-control-height-lg);
-    --erx-card-padding: 1.5rem;
+    --erx-density-control-default-min-block-size: var(--erx-control-height-lg);
+    --erx-density-card-padding: 1.5rem;
   }
 }
 ```
@@ -186,10 +186,10 @@ The **real generated stylesheet** includes every token in Sections 3–5. Values
     display: inline-flex;
     align-items: center;
     min-inline-size: 0;
-    min-block-size: var(--erx-control-default-min-block-size);
-    padding-block: var(--erx-control-default-padding-block);
-    padding-inline: var(--erx-control-default-padding-inline);
-    gap: var(--erx-control-default-gap);
+    min-block-size: var(--erx-density-control-default-min-block-size);
+    padding-block: var(--erx-density-control-default-padding-block);
+    padding-inline: var(--erx-density-control-default-padding-inline);
+    gap: var(--erx-density-control-default-gap);
     font-size: var(--erx-type-ui-strong-size);
     line-height: var(--erx-type-ui-strong-line-height);
     color: var(--erx-color-on-primary);
@@ -209,9 +209,9 @@ A complete reference `sm/md/lg` button stylesheet and SolidJS usage sketch are p
 
 ### 6.3 Custom-property inheritance pitfall
 
-CSS variables are inherited **as computed values**. If `--erx-control-default-min-block-size` is computed on an ancestor using `var(--erx-control-height-md)`, changing only `--erx-control-height-md` on a descendant **will not retroactively recompute the inherited default alias**.
+CSS variables are inherited **as computed values**. If `--erx-density-control-default-min-block-size` is computed on an ancestor using `var(--erx-control-height-md)`, changing only `--erx-control-height-md` on a descendant **will not retroactively recompute the inherited default alias**.
 
-Therefore, a nested density scope MUST re-declare its default aliases locally (the generated CSS does so). For a local size adjustment, either set `data-erx-size` explicitly, re-declare `--erx-control-default-min-block-size` on that scope/element, or override the component's public size variable according to the customization API. Do not rely on descendant primitive overrides alone. Verify with computed styles in the browser.
+Therefore, a nested density scope MUST re-declare its default aliases locally (the generated CSS does so). For a local size adjustment, either set `data-erx-size` explicitly, re-declare `--erx-density-control-default-min-block-size` on that scope/element, or override the component's public size variable according to the customization API. Do not rely on descendant primitive overrides alone. Verify with computed styles in the browser.
 
 ### 6.4 Nested scopes and explicit control overrides
 
@@ -243,7 +243,7 @@ Eroxo's component package does not apply any global page width. It provides **op
 | `--erx-layout-popover-max-inline-size` | 384px | `24rem` |
 
 - **Readable content** 42rem is a reference text-column maximum; **wide content** 72rem is a reference page-container maximum. Do not force either on consumer `body` or `main`.
-- **Dialogs:** optional inline-width presets 28/36/48rem, constrained by the viewport and a margin. For example `inline-size: min(100%, var(--erx-layout-dialog-md))` plus `max-inline-size: calc(100vi - 2 * var(--erx-page-gutter))`; ensure padded viewports still reflow.
+- **Dialogs:** optional inline-width presets 28/36/48rem, constrained by the viewport and a margin. For example `inline-size: min(100%, var(--erx-layout-dialog-md))` plus `max-inline-size: calc(100vi - 2 * var(--erx-density-page-gutter))`; ensure padded viewports still reflow.
 - **Popover:** optional 12rem minimum / 24rem maximum where available space allows; never allow a minimum to force overflow below that width. Use placement and available-space information from the overlay primitive.
 - **Inputs and components in flex/grid:** set `min-inline-size: 0` where necessary; containers may use `minmax(0, 1fr)` and `max-inline-size: 100%` so narrow viewports don't overflow.
 - **Content expansion:** content-driven block size; dialogs or menus may scroll internally if large enough to preserve keyboard navigation and a perceivable close path. No hardcoded full-viewport heights.
@@ -383,7 +383,7 @@ Use `getComputedStyle`, element rectangles, keyboard and pointer interaction tes
 
 ## Open items after 0.2.0
 
-- **Density-role token names (D5):** the Section 5 table names its 17 density roles in prose. Only `--erx-card-padding`, `--erx-form-gap`, `--erx-field-label-gap`, `--erx-table-cell-padding-inline`, `--erx-page-gutter` and the `--erx-control-default-*` family are spelled out, and "Form vertical gap" becomes `--erx-form-gap`, so the remaining names can't be derived. The naming grammar that shows each tier (including whether `--erx-<component>-<property>` names such as `--erx-card-padding` are density tokens or override hooks) and a cap on the component tier are settled in UL-06 and UL-12.
+- **Density-role token names (D5):** the Section 5 table names its 17 density roles in prose. Only `--erx-density-card-padding`, `--erx-density-form-gap`, `--erx-density-field-label-gap`, `--erx-density-table-cell-padding-inline`, `--erx-density-page-gutter` and the `--erx-density-control-default-*` family are spelled out, and "Form vertical gap" becomes `--erx-density-form-gap`, so the remaining names can't be derived. UL-12 enumerates the remaining roles under the density prefix in the [UL-06 component rulebook](eroxo-iris-component-anatomy-api-spec.md).
 - **Portal fallback (C7):** whether any overlay can't use the top layer and needs a portal, which would then have to apply density explicitly. Settled by the UL-05 native-first ADR.
 - **Tokens folder and generator (record gaps):** `tokens/spacing.json` and `scripts/generate-spacing.mjs` are provisional. UL-13 picks one tokens folder and one generator.
 - **Missing companion files (record gaps):** the token JSON, the reference `sm/md/lg` button stylesheet and SolidJS usage sketch, and the `DensityScope` reference example are not in the repository. The owner adds them, or UL-13 generates the token JSON from the tables in this specification.

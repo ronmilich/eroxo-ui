@@ -12,11 +12,11 @@ These nine specifications define Eroxo UI's default design language (Iris) and i
 | [Motion and interactions](eroxo-iris-motion-interactions-spec.md) | ERX-DS-MOTION-001 | 0.2.0 |
 | [Iconography](eroxo-iris-iconography-spec.md) | ERX-DS-ICON-001 | 0.2.0 |
 | [Behavior and accessibility](eroxo-iris-behavior-accessibility-spec.md) | ERX-DS-BEHAVIOR-001 | 0.2.0 |
-| [Component anatomy and API](eroxo-iris-component-anatomy-api-spec.md) | ERX-DS-COMPONENT-001 | 0.2.0 |
+| [Component anatomy and API](eroxo-iris-component-anatomy-api-spec.md) | ERX-DS-COMPONENT-001 | 0.3.0 |
 
 ## How they relate to other decisions
 
 - The [reconciliation record](reconciliation.md), approved on 23 November 2026, checked v0.1.0 against the recorded decisions (UL-01 to UL-04) and against each other. Version 0.2.0 folds in its resolutions.
-- Each spec lists the choices still open under "Open items after 0.2.0", with the milestone that settles each one.
+- The [UL-06 component rulebook](eroxo-iris-component-anatomy-api-spec.md) resolves the component API, part classes and density namespace in 0.3.0. Earlier reconciliation findings describe the 0.1.0 baseline.
 - Approved decision records, such as the [UL-04 report](../ul-04-spike.md) and later ADRs, take precedence. A spec's user-visible contract changes only through a written decision.
 - The [UI library roadmap](../ui-library-roadmap.md) uses these specs as inputs to UL-05, UL-06, UL-12, UL-13, UL-24 and UL-25.

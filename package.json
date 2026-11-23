@@ -33,12 +33,14 @@
   "scripts": {
     "dev": "vite serve dev",
     "build": "vite build && vite build --ssr src/index.tsx && tsc -p tsconfig.build.json",
-    "test": "pnpm test:client && pnpm test:ssr",
+    "test": "pnpm test:conventions && pnpm test:client && pnpm test:ssr",
+    "test:conventions": "node --test test/conventions.test.mjs",
     "test:client": "vitest run",
     "test:ssr": "vitest run --mode ssr",
     "prepublishOnly": "pnpm build",
     "format": "prettier --ignore-path .gitignore -w \"src/**/*.{js,ts,json,css,tsx,jsx}\" \"dev/**/*.{js,ts,json,css,tsx,jsx}\"",
-    "lint": "pnpm lint:code && pnpm lint:types",
+    "lint": "pnpm lint:code && pnpm lint:types && pnpm lint:conventions",
+    "lint:conventions": "stylelint \"src/**/*.css\" --allow-empty-input && node scripts/check-exports.mjs",
     "lint:code": "oxlint --type-aware --deny-warnings src test",
     "lint:types": "tsc --noEmit && tsc -p dev --noEmit",
     "update-deps": "pnpm up -Li"
@@ -48,14 +50,15 @@
     "solid-js": "^2.0.3"
   },
   "devDependencies": {
-    "@solidjs/web": "^2.0.3",
-    "solid-js": "^2.0.3",
     "@solidjs/vite-plugin": "^3.0.1",
+    "@solidjs/web": "^2.0.3",
     "@types/node": "^26.6.6",
     "jsdom": "^31.0.1",
     "oxlint": "^1.94.0",
     "oxlint-tsgolint": "^7.0.2008",
     "prettier": "3.10.1",
+    "solid-js": "^2.0.3",
+    "stylelint": "^18.1.0",
     "typescript": "^7.0.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.1"

@@ -1,5 +1,12 @@
 {
   "plugins": ["typescript", "vitest"],
+  "jsPlugins": ["./scripts/jsx-conventions.mjs"],
+  "overrides": [
+    {
+      "files": ["src/**/*.tsx", "src/**/*.jsx"],
+      "rules": { "eroxo/data-attribute": "error" }
+    }
+  ],
   "categories": { "correctness": "off" },
   "options": { "reportUnusedDisableDirectives": "warn" },
   "rules": {

@@ -149,7 +149,7 @@ Model a **logical tree**, not simply a z-index counter. A layer record includes 
 
 Prefer native modal `<dialog>` for inert background. A manual `inert` fallback exists only if the UL-05 native-first ADR names an overlay that can't use the top layer; in that fallback, record prior `inert`/ARIA values on each modified target, apply appropriate containment and restore **exact prior values** on final unlock. Never permanently overwrite application-supplied `aria-hidden` or `inert` attributes. Avoid applying `aria-hidden` to ancestors of the active dialog.
 
-Scroll lock is CSS only: `html:has(.erx-dialog:modal) { overflow: hidden; }`. It needs no reference counting: the rule matches while any modal dialog is open, so releasing one nested modal cannot unlock scrolling while another modal remains active. Tests MUST still verify that scrolling stays locked while another modal is open, that scroll position is preserved, that classic scrollbars cause no layout shift (open since UL-04; consider `scrollbar-gutter: stable`), and that the lock holds against touch scrolling on iPadOS. State restoration must handle disposal and aborted transitions.
+Scroll lock is CSS only: `html:has(.erx-dialog:modal, .erx-alert-dialog:modal) { overflow: hidden; }`. It needs no reference counting: the rule matches while any modal dialog is open, so releasing one nested modal cannot unlock scrolling while another modal remains active. Tests MUST still verify that scrolling stays locked while another modal is open, that scroll position is preserved, that classic scrollbars cause no layout shift (open since UL-04; consider `scrollbar-gutter: stable`), and that the lock holds against touch scrolling on iPadOS. State restoration must handle disposal and aborted transitions.
 
 **Accessibility invariant:** an overlay is not modal merely because it has a scrim or `aria-modal="true"`; it is modal only when background interaction is effectively blocked and keyboard focus remains contained.
 
@@ -209,7 +209,7 @@ A shared root coordinator MUST have explicit owner/dispose semantics. A `create*
 
 Internal primitives are not public v1 exports. Public API comprises component exports, compound parts, props, callbacks, slots, documented `data-erx-*` attributes, documented CSS variables and behavior guarantees. Consumers MUST be able to style all documented parts and override built-in strings, but MUST NOT depend on the internal registry's object shape or primitive names.
 
-Do not add public `createFocusScope` or `useOverlay` helpers before an explicit ADR and compatibility review. A later headless package can reuse internal pieces only after extracting stable contracts and measuring the cost of supporting them. Component-specific cancellable events should be named and typed consistently once UL-06's event rules are finalized; don't expose ad hoc low-level event hooks on each overlay.
+Do not add public `createFocusScope` or `useOverlay` helpers before an explicit ADR and compatibility review. A later headless package can reuse internal pieces only after extracting stable contracts and measuring the cost of supporting them. Component-specific cancellable events should be named and typed consistently under the [UL-06 component rulebook](eroxo-iris-component-anatomy-api-spec.md); don't expose ad hoc low-level event hooks on each overlay.
 
 ## 16. Failure handling and operational observability
 
@@ -284,4 +284,3 @@ The companion ZIP is not yet in the repository. It is to provide: (a) machine-re
 - **Layout shift with classic scrollbars** (C5, open since UL-04): whether the scroll lock shifts the layout when scrollbars take space; check on Windows and consider `scrollbar-gutter: stable`. Settled in UL-25.
 - **TalkBack** (D13): whether the manual screen-reader smoke tests include TalkBack. Settled in UL-05's support matrix.
 - **Companion ZIP** (record gap, missing companion files): the owner adds it, with recorded provenance under the clean-room rules ([UL-03](../ul-03-commercial.md)) for any reference code, or §19 stays a plan. Settled by the owner.
-- **AlertDialog and the scroll lock** (C5, D9): the scroll-lock rule matches `.erx-dialog:modal`, but an AlertDialog's `<dialog>` would carry `erx-alert-dialog`. Either it also carries `erx-dialog`, or the rule gains a second selector. Settled in UL-06 and UL-25.

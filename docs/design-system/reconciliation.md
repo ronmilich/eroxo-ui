@@ -120,3 +120,7 @@ The revision also found three questions this record didn't cover. Each is an ope
 - **Explicit `size` on an `Icon` inside a control:** whether it overrides the control's icon size. Settled in UL-20.
 
 Still with the owner: the missing companion files, and a design source for UL-12.
+
+## UL-06 follow-up
+
+On 23 November 2026 the owner approved [the component rulebook v0.3.0](eroxo-iris-component-anatomy-api-spec.md). Section 3 settles variant subsets and tone mapping (D3). Section 8 settles stable part classes (D4), density names and the component hook budget (D5). Section 6 identifies the native element and separate root classes for Dialog and AlertDialog (D9). UL-12 inventories foundation tokens and UL-25 verifies modal behavior. The decisions above retain the original review context.

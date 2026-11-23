@@ -230,8 +230,8 @@ This example consumes the three existing foundation systems. Production componen
 @layer erx.components {
   .erx-button {
     box-sizing: border-box;
-    min-block-size: var(--erx-control-default-min-block-size);
-    padding-inline: var(--erx-control-default-padding-inline);
+    min-block-size: var(--erx-density-control-default-min-block-size);
+    padding-inline: var(--erx-density-control-default-padding-inline);
     border: 0;
     border-radius: var(--erx-button-radius, var(--erx-radius-control));
     font-family: var(--erx-type-ui-strong-family, var(--erx-font-sans));
@@ -357,9 +357,8 @@ This document freezes the approved v0.2.0 geometry, not future elevation, motion
 
 ## Open items after 0.2.0
 
-- **Token naming grammar and tiers** (D5): the naming grammar that shows a token's tier, including whether primitives (`sm`, `md`) and roles (`field`, `tooltip`) keep sharing the `--erx-radius-*` namespace (§3, §5), and a cap on the component tier. Settled in UL-06 and UL-12.
+- **Token naming grammar and tiers** (D5): UL-12 reviews whether primitives (`sm`, `md`) and roles (`field`, `tooltip`) share the `--erx-radius-*` namespace (§3, §5). The [UL-06 component rulebook](eroxo-iris-component-anatomy-api-spec.md) sets the component hook budget.
 - **Tooltip border** (D8): COLOR defines `--erx-color-tooltip-border`, while §6 gives the tooltip no border by default. Settled by the designer in UL-12.
-- **Variant subsets and the variant-by-tone color mapping** (D3): which variants Button supports, the borders for `soft` and `text`, which §6 doesn't cover yet, and how variant and tone map to colors. Settled in UL-06.
 - **Portal fallback** (C7): whether any overlay can't use the top layer and so needs a portal, to which §10's portal caveat then applies. Settled by the UL-05 native-first ADR.
 - **Tokens folder and generator** (record gap on paths): `tokens/shape.json` and `scripts/generate-shape.mjs` (§14.1, §15) are provisional until one tokens folder and one generator are picked. Settled in UL-13.
 - **Fallback when a custom theme omits a token** (record gap): what a custom theme scope falls back to when it leaves out a shape token. Settled in UL-13.

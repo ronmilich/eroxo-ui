@@ -1,0 +1,13 @@
+{
+  "plugins": ["./scripts/css-layers.mjs"],
+  "rules": {
+    "eroxo/layer-order": true,
+    "custom-property-pattern": "^_?erx-[a-z0-9]+(?:-[a-z0-9]+)*$",
+    "selector-class-pattern": "^erx-[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:__[a-z][a-z0-9]*(?:-[a-z0-9]+)*)?$",
+    "selector-attribute-name-disallowed-list": [
+      "/^data-(?!erx-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$)/i",
+      "data-erx-slot"
+    ],
+    "declaration-no-important": true
+  }
+}

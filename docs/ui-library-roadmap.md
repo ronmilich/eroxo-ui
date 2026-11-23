@@ -163,7 +163,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-03 | Licence and commercial model | P0 | — | TAO-01–TAO-03 | In progress |
 | UL-04 | Technical spike (throwaway prototype) | P1 | — | — | Done |
 | UL-05 | Architecture decisions (ADRs) | P1 | — | (input to TAO-04) | Done |
-| UL-06 | API and styling conventions | P1 | — | — | Planned |
+| UL-06 | API and styling conventions | P1 | — | — | Done |
 | UL-07 | Repository and toolchain bootstrap | P1 | — | TAO-04–TAO-06 | Planned |
 | UL-08 | Build, packaging and consumer fixtures | P1 | — | — | Planned |
 | UL-09 | Test, conformance and CI infrastructure | P1 | — | — | Planned |
@@ -462,7 +462,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 
 
 
-**Goal:** One rulebook every component follows, so the 1.0 API is consistent. ERX-DS-COMPONENT-001, as amended by the approved [Iris reconciliation](design-system/reconciliation.md), is the draft rulebook.
+**Goal:** One rulebook every component follows, so the 1.0 API is consistent. The [component authoring rulebook](design-system/eroxo-iris-component-anatomy-api-spec.md) records the decisions and examples.
 
 
 
@@ -491,13 +491,13 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 
 
 **Exit criteria**
-- [ ] Conventions document published.
-- [ ] Lint rules written wherever the conventions can be automated (prefix, `!important`, export patterns).
+- [x] Component rulebook v0.3.0 approved by the owner on 23 November 2026. [TT-035 records the handoff to TaoTale](https://github.com/ronmilich/taotale/commit/0426446).
+- [x] `pnpm lint` checks CSS and JSX naming, CSS layer order, `!important` and public export patterns. `pnpm test:conventions` exercises the rules.
 
 
 
 
-**Depends on:** UL-02, UL-05
+**Depends on:** The approved UL-02 name, package and prefix decisions, and the accepted UL-05 ADRs. UL-02 reservations remain deferred.
 
 
 
