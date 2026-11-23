@@ -1,6 +1,6 @@
 # eroxo-ui
 
-SolidJS 2 component library. The package uses the working name `eroxo-ui` while the public name is being selected.
+Eroxo UI is a SolidJS 2 component library. The free `eroxo-ui` core is MIT licensed. The [product charter](docs/ul-01-charter.md) defines the planned 1.0 catalog. Everything ships free for the initial release. The owner will review the business model afterward.
 
 ## Local development
 
