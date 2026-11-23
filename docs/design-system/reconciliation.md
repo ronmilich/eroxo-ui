@@ -96,7 +96,7 @@ Each was approved as recommended.
 
 Approved with the decisions above and applied to the [roadmap](../ui-library-roadmap.md) on 23 November 2026; its status line links here.
 
-- **UL-05 (ADRs):** its inputs are the UL-04 report and this record, and BEHAVIOR-001 supplies the behavior-layer and native-first content. The icons item now names the Lucide subset (D7); the motion decision covers C8 and D11. UL-05 still waits for UL-03's legal review.
+- **UL-05 (ADRs):** its inputs are the UL-04 report and this record, and BEHAVIOR-001 supplies the behavior-layer and native-first content. The icons item now names the Lucide subset (D7); the motion decision covers C8 and D11. The owner subsequently authorized [UL-05](../adr/README.md) to proceed while UL-03 legal work is deferred.
 - **UL-06 (conventions):** COMPONENT-001 is the draft rulebook. Once C1, C9 and D3, D4, D9, D10 and D14 are folded in, what remains is lint rules. Its scope now uses `data-erx-*` state attributes and the D10 lifecycle rule.
 - **UL-12 (design language):** the seven foundation specs are its draft token specification. To close it, fold in D2, D6 and D12 (choosing a 90 or 120 ms tooltip exit), write the naming grammar (D5), settle the tooltip border (D8) and add the design source. Its dependency on UL-06 stays.
 - **UL-13 (theme CSS):** one tokens folder and one generator. Generate the CSS from the token JSON once the companion files are added or regenerated. Its scope already covers this.
@@ -115,7 +115,7 @@ Three points were clarified while folding the resolutions in:
 
 The revision also found three questions this record didn't cover. Each is an open item in the specs concerned:
 
-- **CSS export names:** COLOR, TYPE and SPACE propose per-family token stylesheets such as `eroxo-ui/colors.css`, while UL-04 recommended `tokens.css`, a full stylesheet and per-component CSS. Settled by UL-05's CSS-delivery ADR.
+- **CSS export names.** [UL-05 CSS delivery](../adr/04-css.md) specifies automatic component styles with shared tokens, an explicit `eroxo-ui/tokens.css` export and the full `eroxo-ui/styles.css` export.
 - **AlertDialog and the scroll lock:** the rule matches `.erx-dialog:modal`, so an AlertDialog's `<dialog>` must also carry `erx-dialog`, or the rule needs a second selector. Settled in UL-06 and UL-25.
 - **Explicit `size` on an `Icon` inside a control:** whether it overrides the control's icon size. Settled in UL-20.
 

@@ -285,8 +285,7 @@ export function Button(props: ButtonProps) {
 
 ```css
 /* App entry: after Eroxo package publishes the stylesheet exports */
-@import "eroxo-ui/colors.css";
-@import "eroxo-ui/typography.css";
+@import "eroxo-ui/tokens.css";
 
 /* An explicit app-level override; plain, unlayered CSS wins. */
 .my-brand-scope {
@@ -399,6 +398,5 @@ Do not apply `scrollHeight <= clientHeight` indiscriminately to editable textare
 - **Tokens folder and generator** (record gap on paths): the token paths in §2.1 and §10, such as `tokens/typography.json`, are provisional until one tokens folder and one generator are picked. Settled in UL-13.
 - **Fallback when a custom theme omits a token** (record gap): what a custom theme scope falls back to when it leaves out a typography token. Settled in UL-13.
 - **Missing companion files** (record gap): the token JSON (`eroxo-iris.typography.tokens.json`), the reference CSS (`eroxo-iris.typography.css`) and the language specimen (`test/fixtures/typography-languages.html`) aren't in the repository. Settled by the owner, who adds them, or in UL-13, which may generate the token JSON from this specification's tables.
-- **CSS export names** (found during the 0.2.0 revision; the record doesn't cover it): this spec proposes per-family token stylesheets such as `eroxo-ui/typography.css`, while UL-04 recommended `tokens.css`, a full stylesheet and per-component CSS. Settled by UL-05's CSS-delivery ADR.
 
 *End of normative specification.*

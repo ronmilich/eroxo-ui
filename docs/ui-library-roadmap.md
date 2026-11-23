@@ -3,7 +3,7 @@
 
 
 
-**Status:** Phase P0 in progress; UL-04 done; the Iris design specs are reconciled ([record](design-system/reconciliation.md)). Owner decisions and pending external checks are recorded below (23 November 2026).
+**Status:** Phase P0 remains open. UL-04 is done, the Iris design specs are [reconciled](design-system/reconciliation.md), and [UL-05 architecture decisions](adr/README.md) are approved.
 
 
 
@@ -162,7 +162,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-02 | Name selection and brand reservation | P0 | — | — | In progress |
 | UL-03 | Licence and commercial model | P0 | — | TAO-01–TAO-03 | In progress |
 | UL-04 | Technical spike (throwaway prototype) | P1 | — | — | Done |
-| UL-05 | Architecture decisions (ADRs) | P1 | — | (input to TAO-04) | Planned |
+| UL-05 | Architecture decisions (ADRs) | P1 | — | (input to TAO-04) | Done |
 | UL-06 | API and styling conventions | P1 | — | — | Planned |
 | UL-07 | Repository and toolchain bootstrap | P1 | — | TAO-04–TAO-06 | Planned |
 | UL-08 | Build, packaging and consumer fixtures | P1 | — | — | Planned |
@@ -409,6 +409,8 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 
 #### UL-05 — Architecture decisions (ADRs)
 
+[Architecture decisions and TaoTale handoff](adr/README.md)
+
 
 
 
@@ -444,13 +446,13 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 
 
 **Exit criteria**
-- [ ] All ADRs merged, each with alternatives and consequences.
-- [ ] Repository topology and pre-release consumption model handed to TaoTale; they are a hard input to TAO-04.
+- [x] All ADRs merged, each with alternatives and consequences.
+- [x] Repository topology and pre-release consumption model handed to TaoTale in TT-034; they are a hard input to TAO-04.
 
 
 
 
-**Depends on:** UL-03, UL-04
+**Depends on:** UL-04 and the recorded UL-03 initial distribution decision. On 23 November 2026 the owner authorized UL-05 to proceed while UL-03 legal work remains deferred.
 
 
 

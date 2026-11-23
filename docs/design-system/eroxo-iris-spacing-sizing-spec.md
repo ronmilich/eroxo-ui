@@ -292,7 +292,7 @@ The visible icon box size varies by component size (`16/18/20px`), but whether a
 
 **Overlays:** a Dialog/Popover/Tooltip renders in the browser's top layer in place, so it stays inside the density scope in the DOM and inherits its active density, theme and local CSS overrides. Tests MUST cover nested density and theme while overlays are open. A portal fallback, if the UL-05 native-first ADR ever names an overlay that can't use the top layer, would render outside the density scope: it MUST then apply density explicitly by propagating the nearest resolved theme/density/custom CSS values to the portal root. Merely copying `data-erx-density` can be insufficient when consumers customized individual spacing variables on ancestors.
 
-**Library distribution:** token CSS exports are proposed as `eroxo-ui/colors.css`, `eroxo-ui/typography.css` and `eroxo-ui/spacing.css` after a build/consumer-fixture decision. These are **future paths, not currently published starter exports**. Ensure the package `sideEffects` field retains imported CSS; the starter currently has `"sideEffects": false`, which needs deliberate review when CSS is shipped.
+[UL-05 CSS delivery](../adr/04-css.md) specifies automatic component styles with shared tokens, an explicit `eroxo-ui/tokens.css` export and the full `eroxo-ui/styles.css` export. UL-08 verifies retention in a packed consumer.
 
 ## 11. Verification strategy and test matrix
 
@@ -342,7 +342,7 @@ Use `getComputedStyle`, element rectangles, keyboard and pointer interaction tes
 | 6 | `DensityScope` or future ThemeProvider integration | Nested scopes; CSR/SSR behavior verified |
 | 7 | Overlay and table fixtures | Top-layer density inheritance and dense content verified |
 | 8 | Browser test matrix + docs | 3 browsers, zoom, bidi, touch, localization documented |
-| 9 | Package build + consumer smoke test | `eroxo-ui/spacing.css` exports and bundler CSS retention verified |
+| 9 | Package build + consumer smoke test | `eroxo-ui/tokens.css` exports and bundler CSS retention verified |
 
 **Compatibility with roadmap:** This design contract contributes to **UL-12** token taxonomy and **UL-13** theme styles; its API and CSS-selector conventions require the UL-04 decisions (done; see the [UL-04 report](../ul-04-spike.md)) and the UL-05/06 architecture decisions. The theme provider/overrides belong to **UL-18**, component customization to **UL-19**, and Button integration to **UL-20**. The approved 1.0 catalog does not change.
 
@@ -387,4 +387,3 @@ Use `getComputedStyle`, element rectangles, keyboard and pointer interaction tes
 - **Portal fallback (C7):** whether any overlay can't use the top layer and needs a portal, which would then have to apply density explicitly. Settled by the UL-05 native-first ADR.
 - **Tokens folder and generator (record gaps):** `tokens/spacing.json` and `scripts/generate-spacing.mjs` are provisional. UL-13 picks one tokens folder and one generator.
 - **Missing companion files (record gaps):** the token JSON, the reference `sm/md/lg` button stylesheet and SolidJS usage sketch, and the `DensityScope` reference example are not in the repository. The owner adds them, or UL-13 generates the token JSON from the tables in this specification.
-- **CSS export names** (found during the 0.2.0 revision; the record doesn't cover it): this spec proposes per-family token stylesheets such as `eroxo-ui/spacing.css`, while UL-04 recommended `tokens.css`, a full stylesheet and per-component CSS. Settled by UL-05's CSS-delivery ADR.
