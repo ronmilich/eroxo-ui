@@ -166,7 +166,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-04 | Technical spike (throwaway prototype) | P1 | — | — | Done |
 | UL-05 | Architecture decisions (ADRs) | P1 | — | (input to TAO-04) | Done |
 | UL-06 | API and styling conventions | P1 | — | — | Done |
-| UL-07 | Repository and toolchain bootstrap | P1 | — | TAO-04–TAO-06 | In progress |
+| UL-07 | Repository and toolchain bootstrap | P1 | — | TAO-04–TAO-06 | Done |
 | UL-08 | Build, packaging and consumer fixtures | P1 | — | — | Planned |
 | UL-09 | Test, conformance and CI infrastructure | P1 | — | — | Planned |
 | UL-10 | Release pipeline and supply-chain security | P1 | canary | — | Planned |
@@ -525,8 +525,10 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 
 
 **Exit criteria**
-- [ ] Fresh clone → install → lint → typecheck passes in CI.
+- [x] A [clean GitHub Actions checkout](https://github.com/ronmilich/eroxo-ui/actions/runs/45249181255) passed the frozen workspace install, lint, strict type checks, formatting, tests and both builds.
 - [x] The CLI rejects a manifest containing an unapproved runtime dependency. The regression test checks the nonzero exit and the offending field and package name for regular, optional, peer and bundled dependencies.
+
+The owner approved pull requests with a passing, up-to-date GitHub Actions `build` check and zero required reviews. GitHub enforces the rule for administrators and blocks force pushes and deletion of `main`. [TaoTale links to this roadmap](https://github.com/ronmilich/taotale/commit/9159df8) for TAO-04 through TAO-06.
 
 
 
