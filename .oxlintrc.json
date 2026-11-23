@@ -1,0 +1,18 @@
+{
+  "plugins": ["typescript", "vitest"],
+  "categories": { "correctness": "off" },
+  "options": { "reportUnusedDisableDirectives": "warn" },
+  "rules": {
+    "prefer-const": "warn",
+    "no-console": "warn",
+    "no-debugger": "warn",
+    "no-unused-vars": [
+      "warn",
+      { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_", "caughtErrorsIgnorePattern": "^_" }
+    ],
+    "typescript/no-unnecessary-type-assertion": "warn",
+    "typescript/no-unnecessary-condition": "warn",
+    "typescript/no-useless-empty-export": "warn",
+    "vitest/no-focused-tests": "warn"
+  }
+}
