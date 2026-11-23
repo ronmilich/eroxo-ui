@@ -10,7 +10,7 @@
 - An unmerged branch for the throwaway code.
 
 
-They are provisional. UL-05 ratifies or replaces them in its ADRs. The spike report will be added to this record when the spike ends.
+They are provisional. UL-05 ratifies or replaces them in its ADRs. The spike report is at the end of this record.
 
 
 ## 1 · Solid 2 only, with SSR tested outside SolidStart
@@ -97,10 +97,113 @@ The spike code lives on a `spike/ul-04` branch that is never merged and is tagge
 - The effort estimate for UL-14 to UL-17 and UL-24 to UL-26.
 
 
-## Spike report
+## Spike report · 23 November 2026
 
 
-Pending. It will be added here when the spike ends, with measurements, a recommendation per question and the behavior-layer effort estimate.
+The spike built the three planned components, packed them as a private tarball and installed them in a single-page app and an SSR app:
+- a Button in both CSS candidates;
+- a native Dialog, styled in both candidates;
+- a Tooltip with our own positioning code.
 
 
+A Playwright suite ran the same 27 checks in Chromium 151, Firefox 153 and WebKit 26.5. iPadOS 26.1 Safari was checked with real touch in the iOS Simulator. The code, tests and day-by-day notes are on the `spike/ul-04` branch, in `spike/README.md` and `spike/conformance/RESULTS.md`.
 
+
+### Recommendations
+
+
+| Question | Recommendation | Evidence |
+|---|---|---|
+| CSS approach | Candidate A: plain CSS with cascade layers, processed by Lightning CSS. | Both candidates themed and accepted overrides identically in all three engines. A's class names are stable and can be documented. B's depend on who compiles them (`erx-6sfvKa-root` from the library, `_root_1r6ea_5` from the consumer), and under the `solid` condition B needs CSS Modules support in the consumer's bundler. Sizes differ by less than 0.1 kB. |
+| CSS delivery | Both: each component imports its own stylesheet, and `tokens.css` and a full stylesheet are also exported. UL-05 decides whether components import the tokens themselves. | Per-component imports worked in Vite for preserved JSX and, after a 20-line build plugin, for compiled output. Vite kept the CSS even with `sideEffects: false`; keep the `**/*.css` setting for other bundlers. |
+| Build outputs | Ship preserved JSX under the `solid` condition, plus compiled DOM and SSR builds compiled as hydratable. | Vite consumers always used the JSX. Non-hydratable compiled builds rendered but never hydrated, with no warning. Hydratable ones worked for both SPA and SSR, for 0.5 kB more gzip. |
+| Browser policy | Keep Baseline Widely available. | Everything the components rely on is Widely available. All three engines also expose `closedby` and CSS anchor positioning, but neither is Widely available yet. |
+| SSR | Support SSR through `@solidjs/web`. Recheck SolidStart before UL-05. | Server rendering and hydration worked in all three engines with no console errors. |
+
+
+### Native or JavaScript, per primitive
+
+
+| Primitive | Recommendation | Our code in the spike |
+|---|---|---|
+| Modal dialog, inert background, stacking | Native `<dialog>` with `showModal()`. | None. |
+| Initial focus | Native: `autofocus`, or the first focusable element. | None. |
+| Focus containment | Native. Past the last element focus may reach the browser's own interface, but it never reached the page behind the dialog. | None. |
+| Escape | Native `cancel` event, reported through `onOpenChange`. | A few lines. |
+| Focus restoration | Native, plus a fallback for WebKit and Safari, which don't focus a clicked button and so have nothing to restore. | 3 lines. They need the trigger element: a Trigger part or a `returnFocus` option, to settle in UL-06. |
+| Outside click | JavaScript until `closedby` is Widely available. | About 10 lines. |
+| Scroll lock | CSS: `html:has(.erx-dialog:modal) { overflow: hidden }`. | None. It held against mouse-wheel input in all three engines and against real touch on iPadOS. |
+| Presence (exit animation) | JavaScript. | About 25 lines. They must ignore infinite animations and cap the wait at the animation's length. |
+| Portals and a z-index stack | Not needed for top-layer overlays. Theme inheritance works in place, including `::backdrop`. | None. |
+| Non-modal overlays | Popover API: `popover="manual"` for tooltips. | None. |
+| Positioning | Our own engine. CSS anchor positioning only as a later fast path. | About 100 lines. WebKit 26.5 placed a flipped anchor-positioned tooltip about 2,860 px off screen, and anchor positioning offers no arrow, edge margin or text-range anchor. |
+| Tooltip interaction | JavaScript on top of `:focus-visible` and `pointerType`. | About 110 lines. |
+
+
+### Measurements
+
+
+| Bundle, gzip | JavaScript | CSS |
+|---|---|---|
+| Solid runtime alone | 9.92 kB | none |
+| Button (A) | 12.19 kB | 1.10 kB |
+| Button (B) | 12.27 kB | 1.10 kB |
+| Button and Dialog | 13.31 kB | 1.54 kB |
+| Button and Tooltip | 14.30 kB | 1.50 kB |
+| All three | 15.23 kB | 1.88 kB |
+
+
+A Button-only import leaves the overlay code out, as the charter requires. The dialog's exit animation took 130–137 ms in the three engines, and 3 ms with reduced motion requested. The tooltip appeared 406–410 ms after hover, against a configured 400 ms.
+
+
+### Effort estimate for the behavior layer
+
+
+The unit is weeks of focused work for one developer, the roadmap's own unit, including each milestone's Definition of Done.
+
+
+| Milestone | Roadmap size | Estimate | Basis | Confidence |
+|---|---|---|---|---|
+| UL-14 Core component utilities | 1–2 | 1.5 | Not exercised. `createUniqueId` is SSR-safe and Solid 2 has `omit` and `merge`. Polymorphic typing is the main risk. | Low |
+| UL-15 Accessibility, motion and localisation | 1–2 | 1 | Reduced motion is plain CSS. The live region and locale provider were not exercised. | Low |
+| UL-16 Interaction primitives | 1–2 | 1.5 | `:focus-visible` and `pointerType` replaced custom modality tracking in the tooltip. The IME guard and its manual CJK checks remain. | Medium |
+| UL-17 Collection and navigation | 1–2 | 2.5–3 | Not exercised, and the platform offers no shortcut. | Low |
+| UL-24 Layering and dismissal | 1–2 | 1 | The top layer replaced portals, the z-index stack and theme plumbing for dialog and tooltip. Escape ordering across non-modal layers remains. | Medium-high |
+| UL-25 Focus, modality, scroll lock, presence | 1–2 | 1 | Native containment and inert background, CSS scroll lock including iPadOS, about 25 lines of presence logic and the focus fallback. | Medium-high |
+| UL-26 Positioning engine | 1–2 | 1.5 | The core took about 100 lines. Still missing: the size option, clipping ancestors, ResizeObserver updates, transforms and zoom, the on-screen keyboard and visual tests. | Medium |
+| Total | 7–14 | 10–10.5 | | |
+
+
+The total stays near the roadmap's midpoint, but the work moves from overlays to collections. Split UL-17 before starting it: roving tabindex, typeahead and the collection model first; virtual focus and selection second. UL-24 and UL-25 could merge into one milestone of about two weeks, since the top layer covers much of both.
+
+
+### Still open
+
+
+- **VoiceOver:** a manual check by the owner, using the checklist below.
+- **Desktop Firefox:** the suite used Playwright's Firefox build. A manual pass needs Firefox installed.
+- **Classic scrollbars:** layout shift on lock couldn't be measured on this Mac, which uses overlay scrollbars. Check on Windows and consider `scrollbar-gutter: stable`.
+- **Safari keyboard access:** Safari's Tab skips buttons unless the user turns on keyboard navigation for all controls. Documentation and tests should use Option+Tab.
+- **Server bundles:** compiled SSR output carries the tooltip's client-only code (3.0 kB gzip). For UL-08.
+- **The `node` export condition:** it may point Node-based test runners at the server build. For UL-08.
+- **Trigger API:** the tooltip's description and the dialog's focus fallback both need the trigger element. For UL-06.
+
+
+### VoiceOver checklist
+
+
+Turn VoiceOver on (Cmd+F5) and open the SPA test app in Safari. Record each result in this section.
+
+
+1. Move to "Open A" and press VO+Space. VoiceOver announces the dialog's title, its role and its description.
+2. Inside the dialog, VO+Right past the last control doesn't reach the page behind.
+3. Escape closes the dialog, and VoiceOver returns to "Open A".
+4. Open "Open nested", then "Open inner". Each dialog is announced, and Escape closes the inner one first.
+5. Press Option+Tab to the tooltip's "Save" button. VoiceOver reads "Saves the draft" as its description.
+6. The pending "Saving" button is announced as busy.
+
+
+### Exit criteria
+
+
+**Owner approval, 23 November 2026.** The owner approved this report and its recommendations, so the report and estimate criteria are met. Two items remain: archiving, which needs the `spike/ul-04` branch and its tag on GitHub, and running the VoiceOver checklist.

@@ -50,7 +50,7 @@ Taken from 08 §1–§5; they apply to every milestone.
 ### 2.1 Milestone rules
 
 
-- **Small:** each milestone has one reviewable outcome, sized for about 1–2 weeks of one developer. Split a milestone that grows beyond that before starting it. The UL-04 spike re-checks the sizes of the behavior-layer milestones.
+- **Small:** each milestone has one reviewable outcome, sized for about 1–2 weeks of one developer. Split a milestone that grows beyond that before starting it. The UL-04 spike re-checked the sizes of the behavior-layer milestones: split UL-17 before starting it, and consider merging UL-24 and UL-25 ([estimate](ul-04-spike.md#effort-estimate-for-the-behavior-layer)).
 - **Ordered:** milestones are numbered in execution order. A milestone starts only when everything in its *Depends on* list is Done.
 - **Released:** every code milestone from UL-20 onward ends with a published version. Earlier code milestones may publish canary builds, which are not for consumers.
 - **Need-driven:** primitives are built just before the components that need them. After the core set, components follow the design partner's needs (08 §9.3 step 5). There is no speculative catalog before 1.0.
@@ -291,8 +291,8 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 
 
 **Exit criteria**
-- [ ] Spike report with measurements, a recommendation per question, and a native-vs-JavaScript recommendation per primitive.
-- [ ] Effort estimate for the behavior layer (UL-14–UL-17, UL-24–UL-26), used to re-check milestone sizes.
+- [x] Spike report with measurements, a recommendation per question, and a native-vs-JavaScript recommendation per primitive. Approved by the owner on 23 November 2026.
+- [x] Effort estimate for the behavior layer (UL-14–UL-17, UL-24–UL-26), used to re-check milestone sizes.
 - [ ] Spike code archived on a tagged, unmerged `spike/ul-04` branch, not reused as product code.
 
 
@@ -624,6 +624,9 @@ This phase builds the foundation that a headless library would otherwise provide
 
 
 **Goal:** The keyboard models shared by radio groups, toggle groups, tabs, menus, listboxes and comboboxes.
+
+
+**Sizing (UL-04):** estimated at 2.5–3 weeks, beyond the 1–2 week rule. Split before starting: roving tabindex, typeahead and the collection model first; virtual focus and selection second.
 
 
 **Scope**

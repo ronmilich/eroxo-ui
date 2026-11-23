@@ -1,0 +1,7 @@
+{
+  "prettier.prettierPath": "./node_modules/prettier/index.cjs",
+  "prettier.ignorePath": ".gitignore",
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}
