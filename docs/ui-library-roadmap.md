@@ -3,7 +3,7 @@
 
 
 
-**Status:** Phase P0 in progress; UL-04 done. Owner decisions and pending external checks are recorded below (23 November 2026).
+**Status:** Phase P0 in progress; UL-04 done; the Iris design specs are reconciled ([record](design-system/reconciliation.md)). Owner decisions and pending external checks are recorded below (23 November 2026).
 
 
 
@@ -181,7 +181,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-21 | Form field system | P5 | `0.2.0` | — | Planned |
 | UL-22 | Choice controls | P5 | `0.3.0` | — | Planned |
 | UL-23 | Display primitives | P5 | `0.4.0` | TAO-18–TAO-20 | Planned |
-| UL-24 | Layering, portals and dismissal | P6 | `0.5.0` | — | Planned |
+| UL-24 | Layering and dismissal | P6 | `0.5.0` | — | Planned |
 | UL-25 | Focus containment, modality, scroll lock and presence | P6 | `0.6.0` | — | Planned |
 | UL-26 | Positioning engine | P6 | `0.7.0` | — | Planned |
 | UL-27 | Tooltip | P6 | `0.8.0` | — | Planned |
@@ -412,7 +412,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 
 
 
-**Goal:** Lock the structural choices that are expensive to change later. Write one ADR per item.
+**Goal:** Lock the structural choices that are expensive to change later. Write one ADR per item. Inputs: the UL-04 [decision record](ul-04-spike.md) and the approved [Iris reconciliation](design-system/reconciliation.md).
 
 
 
@@ -435,7 +435,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 - bundlers — Vite first, others verified in UL-43;
 - SSR (SolidStart) support level.
 - **Smaller choices:**
-- icons: internal glyphs plus an `Icon` wrapper, an optional icon package later;
+- icons: a vendored, version-pinned Lucide subset (ISC, with NOTICE entries) plus an `Icon` wrapper, approved in the Iris reconciliation (D7); an optional icon package later;
 - motion: CSS transitions plus the in-house presence primitive, no motion library;
 - docs-site technology;
 - package manager and Node version.
@@ -460,7 +460,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 
 
 
-**Goal:** One rulebook every component follows, so the 1.0 API is consistent.
+**Goal:** One rulebook every component follows, so the 1.0 API is consistent. ERX-DS-COMPONENT-001, as amended by the approved [Iris reconciliation](design-system/reconciliation.md), is the draft rulebook.
 
 
 
@@ -476,11 +476,11 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 - **CSS conventions:**
 - naming: prefix from UL-02, token naming grammar, component class names;
 - cascade layers: names and order;
-- state attributes (`data-state`, `data-disabled`, `data-invalid`, …), defined and documented by the library;
+- state attributes (`data-erx-state`, `data-erx-disabled`, `data-erx-invalid`, …), defined and documented by the library;
 - slot attributes and logical properties;
 - `:focus-visible`, `forced-colors` and `prefers-reduced-motion` handling;
 - no `!important`.
-- **Internal primitive conventions:** `create*` factories that return accessors and prop getters, register cleanup with `onCleanup`, and do no DOM work at import time.
+- **Internal primitive conventions:** `create*` factories that return accessors and prop getters, run DOM-dependent setup and teardown in `onSettled`, register owner cleanup with `onCleanup`, and do no DOM work at import time.
 - **Localisation:** every built-in label can be overridden; text direction (LTR/RTL).
 - **Public-API definition:** what counts as public (props, exports, CSS variables, slots, state attributes), a deprecation policy and a migration-note policy.
 - **`unstyled` mode** (08 §10): recommended default is not in 1.0.
@@ -679,7 +679,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 
 
 
-**Goal:** The library's own neutral default look, and the token system every component uses.
+**Goal:** The library's own neutral default look, and the token system every component uses. The seven Iris foundation specs in `docs/design-system/`, as amended by the approved [Iris reconciliation](design-system/reconciliation.md), are the draft token specification.
 
 
 
@@ -1116,7 +1116,7 @@ The overlay engine is the core of the in-house behavior layer. UL-24 to UL-26 bu
 
 
 
-#### UL-24 — Layering, portals and dismissal
+#### UL-24 — Layering and dismissal
 
 
 
@@ -1127,11 +1127,11 @@ The overlay engine is the core of the in-house behavior layer. UL-24 to UL-26 bu
 
 
 **Scope**
-- **Rendering:** per the native-first ADR — the native top layer (`<dialog>`, Popover API) where suitable, otherwise a Portal with a configurable container. Either way, overlay content receives the nearest theme scope (UL-18).
+- **Rendering:** the native top layer (`<dialog>`, Popover API), which UL-04 showed needs no portal or z-index stack. A Portal only for an overlay that the native-first ADR keeps out of the top layer. Either way, overlay content receives the nearest theme scope (UL-18).
 - **Layer stack:** one registry that orders open overlays, with z-index tokens shared by tooltip, popover, select, dialog, menu and toast whenever the top layer isn't used.
 - **Dismissable layer:**
 - Escape closes only the topmost layer;
-- outside-pointer and focus-outside detection treats nested, portaled layers as "inside";
+- outside-pointer and focus-outside detection treats nested layers as "inside", wherever they render;
 - a veto hook;
 - touch-safe outside clicks.
 - No global listeners while nothing is open; full cleanup on disposal.
@@ -1141,8 +1141,8 @@ The overlay engine is the core of the in-house behavior layer. UL-24 to UL-26 bu
 
 **Exit criteria**
 - [ ] Primitive Definition of Done met.
-- [ ] Tests in all three engines: nested dismissal order, outside clicks through nested portals, theme inheritance, zero listeners after close.
-- [ ] Public parts (e.g. Portal) documented; `0.5.0` published.
+- [ ] Tests in all three engines: nested dismissal order, outside clicks through nested layers, theme inheritance, zero listeners after close.
+- [ ] Public parts documented; `0.5.0` published.
 
 
 
@@ -1164,15 +1164,15 @@ The overlay engine is the core of the in-house behavior layer. UL-24 to UL-26 bu
 
 **Scope**
 - **Focus scope:**
-- keep Tab inside a modal;
+- native containment: focus never reaches the page behind a modal, though Tab may pass through the browser's own interface (UL-04);
 - an initial-focus policy: first tabbable element, a chosen element, or the container;
 - restore focus to the trigger, or a consumer-chosen element, on close;
-- focus guards for portaled content.
-- **Modality:** make the background inert (`inert`, with an `aria-hidden` fallback per the ADR) and restore it exactly on close, including for nested modals.
-- **Scroll lock:** lock page scrolling, compensate for the scrollbar gap to avoid layout shift, handle iOS Safari's scrolling behavior, and support nested locks.
+- focus guards only for an overlay that the native-first ADR keeps out of the top layer.
+- **Modality:** `showModal()` makes the background inert natively (UL-04); nested modals still need tests. Manual `inert`, restored exactly on close, only for an overlay that the native-first ADR keeps out of the top layer.
+- **Scroll lock:** the CSS rule from UL-04, `html:has(.erx-dialog:modal) { overflow: hidden }`, which needs no counting for nested modals and held against touch on iPadOS. Still to check: the scrollbar gap with classic scrollbars.
 - **Presence:**
 - keep content mounted until CSS exit animations or transitions finish;
-- handle "no animation" and interrupted transitions;
+- handle "no animation" and interrupted transitions, ignore infinite animations, and cap the wait at the animation's length;
 - skip animation under reduced motion;
 - restore focus after the exit without a visible jump.
 
@@ -1181,7 +1181,7 @@ The overlay engine is the core of the in-house behavior layer. UL-24 to UL-26 bu
 
 **Exit criteria**
 - [ ] Primitive Definition of Done met.
-- [ ] Focus never escapes an open modal and is never lost after close — tested in all three engines and checked manually with a screen reader.
+- [ ] Focus never reaches the page behind an open modal and is never lost after close — tested in all three engines and checked manually with a screen reader.
 - [ ] Page scroll position preserved after unlock; `0.6.0` published.
 
 

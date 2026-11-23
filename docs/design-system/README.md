@@ -1,0 +1,22 @@
+# Eroxo Iris design specifications
+
+These nine specifications define Eroxo UI's default design language (Iris) and its component conventions. From version 0.2.0 the Markdown files are the source of truth. The `.docx` files are the original v0.1.0 documents, kept for reference; they don't include the 0.2.0 changes. Color and Spacing were converted from Word to Markdown on 23 November 2026.
+
+| Spec | ID | Version |
+|---|---|---|
+| [Color](eroxo-iris-color-spec.md) | ERX-DS-COLOR-001 | 0.2.0 |
+| [Typography](eroxo-iris-typography-spec.md) | ERX-DS-TYPE-001 | 0.2.0 |
+| [Spacing and sizing](eroxo-iris-spacing-sizing-spec.md) | ERX-DS-SPACE-001 | 0.2.0 |
+| [Shape and borders](eroxo-iris-shape-borders-spec.md) | ERX-DS-SHAPE-001 | 0.2.0 |
+| [Elevation and depth](eroxo-iris-elevation-depth-spec.md) | ERX-DS-DEPTH-001 | 0.2.0 |
+| [Motion and interactions](eroxo-iris-motion-interactions-spec.md) | ERX-DS-MOTION-001 | 0.2.0 |
+| [Iconography](eroxo-iris-iconography-spec.md) | ERX-DS-ICON-001 | 0.2.0 |
+| [Behavior and accessibility](eroxo-iris-behavior-accessibility-spec.md) | ERX-DS-BEHAVIOR-001 | 0.2.0 |
+| [Component anatomy and API](eroxo-iris-component-anatomy-api-spec.md) | ERX-DS-COMPONENT-001 | 0.2.0 |
+
+## How they relate to other decisions
+
+- The [reconciliation record](reconciliation.md), approved on 23 November 2026, checked v0.1.0 against the recorded decisions (UL-01 to UL-04) and against each other. Version 0.2.0 folds in its resolutions.
+- Each spec lists the choices still open under "Open items after 0.2.0", with the milestone that settles each one.
+- Approved decision records, such as the [UL-04 report](../ul-04-spike.md) and later ADRs, take precedence. A spec's user-visible contract changes only through a written decision.
+- The [UI library roadmap](../ui-library-roadmap.md) uses these specs as inputs to UL-05, UL-06, UL-12, UL-13, UL-24 and UL-25.

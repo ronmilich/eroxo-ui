@@ -1,14 +1,16 @@
 # Eroxo Iris — Shape & Borders System Specification
 
 **Specification ID:** ERX-DS-SHAPE-001  
-**Version:** 0.1.0  
+**Version:** 0.2.0  
 **Date:** 23 November 2026  
 **Status:** Design contract finalized; implementation, browser testing, and external package verification pending  
 **Maintainer:** Eroxo UI  
 **Applies to:** SolidJS 2 and TypeScript, ordinary CSS, light/dark/custom themes, nested scopes, SSR, international layouts.  
 **Dependencies:** ERX-DS-COLOR-001, ERX-DS-TYPE-001, ERX-DS-SPACE-001.
 
-> **Normative convention.** MUST means a release-blocking requirement; SHOULD means a strong design preference; MAY means an optional extension. The accompanying JSON is the machine-readable source of truth for shape tokens. This specification approves the design contract, **not** the completion of browser/accessibility validation.
+> **0.2.0 (23 November 2026):** revised to match the approved [Iris reconciliation record](reconciliation.md): C2, C7, C9, D1, D3, D6 and D8, and the record's gaps on paths and missing companion files. Choices it leaves open are listed under "Open items after 0.2.0".
+
+> **Normative convention.** MUST means a release-blocking requirement; SHOULD means a strong design preference; MAY means an optional extension. The planned token JSON (not yet in the repository; UL-13 may generate it from this specification's tables) is the machine-readable source of truth for shape tokens. This specification approves the design contract, **not** the completion of browser/accessibility validation.
 
 ## 1. Executive decisions and design principles
 
@@ -92,11 +94,11 @@ A skeleton representing a circular avatar MUST be circular; one representing a p
 
 | Component/variant | Visible border | Color role | Shape |
 | --- | --- | --- | --- |
-| Button, solid | None | n/a | Control (10px) |
+| Button, solid | 1px transparent: keeps solid and outline buttons the same size and shows the edge in forced-colors mode | `transparent` | Control (10px) |
 | Button, outline | 1px | `border-interactive` | Control (10px) |
 | Button, ghost | None | n/a | Control (10px) |
-| Button, pill variant | Variant-dependent | As above | `radius-full` |
-| TextField / Textarea / Select / Combobox | 1px | `border-interactive` | Field (10px) |
+| Button, `shape="pill"` | Variant-dependent | As above | `radius-full` |
+| TextField / Textarea / Select / Combobox | 1px | `input-border`; `input-border-hover`, `input-border-focus` and `input-border-error` by state | Field (10px) |
 | Checkbox / Radio (unselected) | 1px | `border-interactive` | Small / full |
 | Switch | 1px or none | `border-interactive` where visible | Full |
 | Card / standard Alert / Toast | 1px | `border-subtle` | 14px |
@@ -118,10 +120,13 @@ No new color hex values are introduced by this specification. Refer to semantic 
 | `--erx-color-border-subtle` | `#E1E4EC` | `#30384B` | Decorative structural outlines |
 | `--erx-color-border-default` | `#C1C7D4` | `#434B5C` | Regular dividers, structural outlines |
 | `--erx-color-border-strong` | `#8792A3` | `#69758E` | Emphasized outline |
-| `--erx-color-border-interactive` | `#8792A3` | `#69758E` | Input / control boundary |
+| `--erx-color-border-interactive` | `#8792A3` | `#69758E` | Control boundary; fields use the `input-border` roles |
+| `--erx-color-input-border` | `#8792A3` | `#69758E` | Field boundary |
+| `--erx-color-input-border-hover` | `#5B6374` | `#A9B2C3` | Field boundary on hover |
+| `--erx-color-input-border-focus` | `#4338B5` | `#B8B2FF` | Field boundary while focused, alongside the focus outline |
+| `--erx-color-input-border-error` | `#C12F49` | `#FF8193` | Invalid field boundary when appropriate |
 | `--erx-color-focus-ring` | `#4338B5` | `#B8B2FF` | Keyboard focus outline |
 | `--erx-color-focus-offset` | `#FFFFFF` | `#141925` | Optional two-color focus treatment |
-| `--erx-color-error` | `#C12F49` | `#FF8193` | Invalid input boundary when appropriate |
 | `--erx-color-error-border` | `#F2B9C4` | `#914052` | Soft error panel border, not sole control boundary |
 
 Reference contrast computations (unrounded WCAG calculation, 16px nominal root) for important opaque pairs: light interactive border on white = about **3.15:1**, light interactive border on light page `#FAFAFC` = about **3.02:1**; dark interactive border on `#141925` = about **3.79:1**. Light subtle border on white = about **1.27:1** and is *not* an essential control outline. These are representative checks, not an exhaustive theme audit. All custom theme pairings MUST be retested.
@@ -135,7 +140,7 @@ Reference contrast computations (unrounded WCAG calculation, 16px nominal root) 
 | Pressed | Optional border-color/surface change | Keep minimum targets and no layout jump |
 | Focus-visible | 2px outline, 2px offset | Use `--erx-color-focus-ring`; don't remove without replacement |
 | Selected | Color/shape marker and, where needed, stronger border | Not solely color; preserve geometry |
-| Invalid | Essential control border may use `--erx-color-error` | Also display explanatory text/indicator, `aria-invalid` as appropriate |
+| Invalid | Essential control border may use `--erx-color-input-border-error` | Also display explanatory text/indicator, `aria-invalid` as appropriate |
 | Disabled | Existing boundary may become muted | Disabled semantics required; `aria-disabled` focusable cases keep focus indication |
 | Loading | Geometry and border preserved | Progress indicator doesn't displace button label unexpectedly |
 | Forced colors | System colors, visible borders/outline | Never rely solely on shadows, background fill or decorative hues |
@@ -170,41 +175,44 @@ The shape layer SHOULD declare global semantic radius roles under `:root` only. 
 .feature-button { --erx-button-radius: 0.375rem; }
 ```
 
+`.brand-panel` is an app-owned selector, so it may override tokens directly, as these lines do. A full custom theme is an Eroxo scope such as `[data-erx-theme="acme"]` (UL-18 defines `data-erx-theme` values beyond `light` and `dark`). The token generator redeclares, on each Eroxo scope, only the composite aliases whose inputs that scope changes, such as color-based shadows on theme scopes. Radius roles stay on `:root`, as this section requires, so an override set on an ancestor survives nested theme and density scopes.
+
 At the component declaration site use `border-radius: var(--erx-button-radius, var(--erx-radius-control));` (similar component-specific hooks for other parts). **Do not predeclare `--erx-button-radius` as a root alias**: custom property substitution at a parent may be computed before the child scope sets an override. The fallback expression on the component is intentional.
 
 Likewise, `--erx-radius-control: var(--erx-radius-md)` declared at `:root` does **not** automatically recompute if a nested scope changes *only* `--erx-radius-md`; the semantic alias is inherited as a computed value. To change all controls in a scope, override `--erx-radius-control` in that scope (or rebind it to the desired primitive there). This is a CSS inheritance rule, not a runtime bug. The specification guarantees **semantic** overrides, not automatic nested re-evaluation of every primitive alias.
 
-**Cascade contract:** Eroxo distributes tokens in `@layer erx.tokens`; component rules belong in `@layer erx.components`. Declare layer order once at the package entry when practical: `@layer erx.tokens, erx.components;`. Ordinary unlayered application CSS has higher normal-priority cascade than layered library declarations. Document this precedence, avoid unnecessary `!important`, and test consumers' overrides.
+**Cascade contract:** Eroxo distributes tokens in `@layer erx.tokens`; component rules belong in `@layer erx.components`. These are the only two layers; a third needs a UL-05 ADR. Every library stylesheet starts with the order statement `@layer erx.tokens, erx.components;`. Ordinary unlayered application CSS has higher normal-priority cascade than layered library declarations. Document this precedence, avoid unnecessary `!important`, and test consumers' overrides.
 
-**Portal caveat:** portal content inherits from its **actual DOM ancestors**. A dialog portal placed outside a nested theme cannot inherit scoped border/radius values automatically. Overlay infrastructure MUST preserve a scope DOM ancestor or deliberately reproduce the theme scope on the portal root; verify in the overlay integration suite. Native top-layer elements such as `<dialog>` can remain DOM descendants, but DOM placement still controls inheritance.
+**Portal caveat:** overlays render in the browser's top layer, where UL-04 found portals unnecessary, so they keep their DOM ancestors and inherit scoped border/radius values in place; a portal exists only if the UL-05 native-first ADR names an overlay that can't use the top layer. Portal content inherits from its **actual DOM ancestors**. A portal placed outside a nested theme cannot inherit scoped border/radius values automatically. Overlay infrastructure for such an overlay MUST preserve a scope DOM ancestor or deliberately reproduce the theme scope on the portal root; verify in the overlay integration suite. Native top-layer elements such as `<dialog>` can remain DOM descendants, but DOM placement still controls inheritance.
 
 ## 11. Shape props and SolidJS component API
 
 The initial public API exposes only targeted shape variants. `Button` MAY accept `shape?: 'default' | 'pill'` with default `'default'`; the `data-erx-shape="pill"` state/variant attribute is publicly documented. Other components SHOULD not receive a generic `radius` prop. Component geometry is controlled via documented CSS variables and styling hooks.
 
 ```tsx
-import { splitProps, type JSX } from 'solid-js'
+import { omit } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 
 type ButtonProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
   size?: 'sm' | 'md' | 'lg'
-  variant?: 'solid' | 'outline' | 'ghost'
+  variant?: 'solid' | 'soft' | 'outline' | 'ghost' | 'text'
   shape?: 'default' | 'pill'
 }
 
 export function Button(props: ButtonProps) {
-  const [local, others] = splitProps(props, [
-    'size', 'variant', 'shape', 'class', 'children', 'type'
-  ])
+  const others = omit(
+    props, 'size', 'variant', 'shape', 'class', 'children', 'type'
+  )
   return (
     <button
       {...others}
-      type={local.type ?? 'button'}
-      class={['erx-button', local.class].filter(Boolean).join(' ')}
-      data-erx-size={local.size}
-      data-erx-variant={local.variant ?? 'solid'}
-      data-erx-shape={local.shape === 'pill' ? 'pill' : undefined}
+      type={props.type ?? 'button'}
+      class={['erx-button', props.class].filter(Boolean).join(' ')}
+      data-erx-size={props.size}
+      data-erx-variant={props.variant ?? 'solid'}
+      data-erx-shape={props.shape === 'pill' ? 'pill' : undefined}
     >
-      {local.children}
+      {props.children}
     </button>
   )
 }
@@ -217,6 +225,8 @@ An omitted `size` attribute is required to preserve ERX-DS-SPACE-001's density d
 This example consumes the three existing foundation systems. Production components SHOULD follow the same token lookup pattern and add their real behavior and variant styling.
 
 ```css
+@layer erx.tokens, erx.components;
+
 @layer erx.components {
   .erx-button {
     box-sizing: border-box;
@@ -235,6 +245,10 @@ This example consumes the three existing foundation systems. Production componen
 
   .erx-button[data-erx-shape="pill"] {
     border-radius: var(--erx-radius-full);
+  }
+
+  .erx-button[data-erx-variant="solid"] {
+    border: var(--erx-border-width-default) solid transparent;
   }
 
   .erx-button[data-erx-variant="outline"] {
@@ -285,7 +299,7 @@ Use `border-radius` directly for simple rectangular components. Use logical per-
 | Explicit `size="lg"` inside compact | 48px minimum; radius unchanged |
 | Nested semantic radius override | Only descendant components in scope change |
 | Button `shape="pill"` | Rounded ends in all densities and themes |
-| Focus on filled/outline/invalid controls | Distinct visible ring; no layout shift or clipping |
+| Focus on solid/outline/invalid controls | Distinct visible ring; no layout shift or clipping |
 | Hover, pressed, selected, invalid | Border width stable; states remain perceivable |
 | RTL grouped controls | Logical outer corners preserved |
 | Forced colors on Windows | Borders and focus outline remain visible without shadows |
@@ -308,8 +322,8 @@ A shape-bearing component is ready when token tests pass, reference fixture has 
 ## 15. Repository layout and implementation sequence
 
 ```text
-docs/design/eroxo-iris-shape-borders-spec.md
-tokens/shape.json
+docs/design-system/eroxo-iris-shape-borders-spec.md
+tokens/shape.json                          # provisional: UL-13 picks the folder
 src/styles/shape.css                       # generated tokens
 src/styles/shape-components.reference.css  # illustrative component layer
 scripts/generate-shape.mjs
@@ -321,13 +335,13 @@ examples/shape-customization.css
 integration/guide.md
 ```
 
-**Integration order:** (1) merge specification and token JSON; (2) regenerate CSS and validate source parity; (3) merge component-layer conventions into UL-06 ADR; (4) use shape tokens in the UL-04 prototype and subsequent production components; (5) add browser/accessibility and consumer fixture checks; (6) publish package CSS only after design and technical approval. Shape tokens MUST NOT be restyled separately for light/dark unless the consumer supplies an intentional theme variation.
+**Integration order:** (1) merge specification and token JSON; (2) regenerate CSS and validate source parity; (3) merge component-layer conventions into UL-06 ADR; (4) use shape tokens in production components (the UL-04 prototype is done; see its [report](../ul-04-spike.md)); (5) add browser/accessibility and consumer fixture checks; (6) publish package CSS only after design and technical approval. Shape tokens MUST NOT be restyled separately for light/dark unless the consumer supplies an intentional theme variation.
 
-**Package export note:** make stylesheet delivery intentional and side-effect safe. Existing package metadata currently marks `sideEffects: false`; review and test how bundlers include CSS before shipping component styles. Importing `shape.css` from a JS module can be tree-shaken if the package's side-effect contract is incorrect. Prefer the documented CSS import strategy selected in UL-04/UL-05 rather than silently changing package behavior here.
+**Package export note:** make stylesheet delivery intentional and side-effect safe. Existing package metadata currently marks `sideEffects: false`; review and test how bundlers include CSS before shipping component styles. Importing `shape.css` from a JS module can be tree-shaken if the package's side-effect contract is incorrect. Prefer the documented CSS import strategy selected in UL-04 ([report](../ul-04-spike.md)) and UL-05 rather than silently changing package behavior here.
 
 ## 16. Change management and unresolved non-shape dependencies
 
-This document freezes the approved v0.1 geometry, not future elevation, motion or complete component API decisions. Proposed changes require a written migration note when altering a public semantic token, CSS attribute or documented shape variant. Breaking changes in released CSS names follow SemVer. Record a component example and visual-regression evidence for every new radius/shape variant.
+This document freezes the approved v0.2.0 geometry, not future elevation, motion or complete component API decisions. Proposed changes require a written migration note when altering a public semantic token, CSS attribute or documented shape variant. Breaking changes in released CSS names follow SemVer. Record a component example and visual-regression evidence for every new radius/shape variant.
 
 **Remaining work in other specifications:** elevation/shadows; motion timing for border-color transitions; icon treatment; full component anatomy and behavior; visual QA on real consumer applications. None of these is a blocker for adopting the current shape token taxonomy.
 
@@ -341,4 +355,14 @@ This document freezes the approved v0.1 geometry, not future elevation, motion o
 - CSS `border-radius`: https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius
 - Related Eroxo specs: ERX-DS-COLOR-001; ERX-DS-TYPE-001; ERX-DS-SPACE-001.
 
-*End of normative specification — ERX-DS-SHAPE-001, v0.1.0.*
+## Open items after 0.2.0
+
+- **Token naming grammar and tiers** (D5): the naming grammar that shows a token's tier, including whether primitives (`sm`, `md`) and roles (`field`, `tooltip`) keep sharing the `--erx-radius-*` namespace (§3, §5), and a cap on the component tier. Settled in UL-06 and UL-12.
+- **Tooltip border** (D8): COLOR defines `--erx-color-tooltip-border`, while §6 gives the tooltip no border by default. Settled by the designer in UL-12.
+- **Variant subsets and the variant-by-tone color mapping** (D3): which variants Button supports, the borders for `soft` and `text`, which §6 doesn't cover yet, and how variant and tone map to colors. Settled in UL-06.
+- **Portal fallback** (C7): whether any overlay can't use the top layer and so needs a portal, to which §10's portal caveat then applies. Settled by the UL-05 native-first ADR.
+- **Tokens folder and generator** (record gap on paths): `tokens/shape.json` and `scripts/generate-shape.mjs` (§14.1, §15) are provisional until one tokens folder and one generator are picked. Settled in UL-13.
+- **Fallback when a custom theme omits a token** (record gap): what a custom theme scope falls back to when it leaves out a shape token. Settled in UL-13.
+- **Missing companion files** (record gap): the shape token JSON isn't in the repository. Settled by the owner, who adds it, or in UL-13, which may generate it from §3–§5.
+
+*End of normative specification — ERX-DS-SHAPE-001, v0.2.0.*

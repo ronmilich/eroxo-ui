@@ -1,13 +1,15 @@
 # Eroxo Iris — Iconography System Specification
 
 **Specification ID:** ERX-DS-ICON-001  
-**Version:** 0.1.0  
+**Version:** 0.2.0  
 **Decision date:** 23 November 2026  
 **Status:** Design and API baseline approved; implementation / browser conformance pending  
 **Maintainer:** Eroxo UI  
 **Platforms:** SolidJS 2, TypeScript, ESM, SSR, static CSS, light/dark/custom themes
 
-> **Normative language.** MUST / MUST NOT are release-blocking requirements; SHOULD / SHOULD NOT are strong defaults; MAY describes optional capability. This document establishes a proposed public contract; the included reference code is not a claim of production readiness. The associated `tokens/iconography.json` is the normative source of token values.
+> **0.2.0 (23 November 2026):** revised to match the approved [Iris reconciliation record](reconciliation.md): C2, C9, C10 and D7, and the record's gaps on paths and missing companion files. Choices it leaves open are listed under "Open items after 0.2.0".
+
+> **Normative language.** MUST / MUST NOT are release-blocking requirements; SHOULD / SHOULD NOT are strong defaults; MAY describes optional capability. This document establishes a proposed public contract; the included reference code is not a claim of production readiness. The planned `tokens/iconography.json`, not yet in the repository, will be the normative source of token values; UL-13 may generate it from the tables in this document.
 
 ## 1. Executive decision record
 
@@ -19,7 +21,7 @@
 | Stroke geometry | 2 SVG coordinate units; round caps and joins |
 | Default paint | `fill="none"`, `stroke="currentColor"` |
 | Standalone sizes | 16 / 20 / 24 / 32 CSS px; 20px default |
-| Control glyph sizes | 16 / 18 / 20px for sm / md / lg controls |
+| Control glyph sizes | 16 / 18 / 20px for sm / md / lg controls, from ERX-DS-SPACE-001's `--erx-control-icon-size-*` |
 | Density relationship | Resolved control size determines glyph size; density does not independently scale icons |
 | Built-in distribution | Small first-party, statically exported icon subset + generic `Icon` SVG wrapper |
 | External icons | Consumers can render any compatible standalone SVG / Lucide Solid component |
@@ -60,17 +62,16 @@ Use `rem` for glyph dimensions (nominal px at a 16px root). Sizes are visual gly
 | `--erx-icon-size-md` | `1.25rem` (20px) | Default standalone glyph |
 | `--erx-icon-size-lg` | `1.5rem` (24px) | Prominent standalone glyph |
 | `--erx-icon-size-xl` | `2rem` (32px) | Empty-state / display icon |
-| `--erx-icon-control-sm` | `1rem` (16px) | `sm` control glyph |
-| `--erx-icon-control-md` | `1.125rem` (18px) | `md` control glyph |
-| `--erx-icon-control-lg` | `1.25rem` (20px) | `lg` control glyph |
 | `--erx-icon-size-default` | `var(--erx-icon-size-md)` | Generic wrapper default |
 | `--erx-icon-stroke-width` | `2` | Universal default SVG stroke width |
+
+ICON defines no control glyph sizes: controls use ERX-DS-SPACE-001's `--erx-control-icon-size-sm`, `-md` and `-lg` (16, 18 and 20px; see Section 5).
 
 A consuming application may override semantic variables within a theme scope or component slot. The renderer may apply `--erx-icon-current-size` as a **local implementation variable**, but this internal hook is not a new public design token. Public tokens MUST use the existing `--erx-` prefix and `erx.tokens` cascade layer.
 
 ## 5. Integration with spacing, density and typography
 
-Eroxo's sizing contract is authoritative: controls are `sm` / `md` / `lg`, nominal minimum heights 32 / 40 / 48px; compact / standard / comfortable density determines the default control size. **An explicit size prop wins over inherited density.** Icons within a control MUST reflect the **effective control size**, not the app's standalone icon size.
+Eroxo's sizing contract is authoritative: controls are `sm` / `md` / `lg`, nominal minimum heights 32 / 40 / 48px; compact / standard / comfortable density determines the default control size. **An explicit size prop wins over inherited density.** Icons within a control MUST reflect the **effective control size**, not the app's standalone icon size. Inside a control, `Icon` therefore defaults to the control's icon size, `--erx-control-icon-size-{size}` from ERX-DS-SPACE-001 (the Glyph column below); a standalone `md` icon stays 20px.
 
 | Effective control size | Control min height | Glyph | Icon-to-text gap |
 | --- | ---: | ---: | ---: |
@@ -87,7 +88,7 @@ Typography: icons should align to the text line box, not the cap height via dest
 The public `Icon` renders an outer `<svg>` and accepts **SVG shape children**, not an already completed nested `<svg>` element. SVG props SHOULD extend the native SolidJS SVG attribute type, with explicit design props. Proposed public shape:
 
 ```ts
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 type IconSize = 'sm' | 'md' | 'lg' | 'xl' | number;
 interface IconProps extends JSX.SvgSVGAttributes<SVGSVGElement> {
@@ -104,7 +105,7 @@ interface IconProps extends JSX.SvgSVGAttributes<SVGSVGElement> {
 
 - Default: decorative. Set `aria-hidden="true"`, `focusable="false"`, no image role, no SVG title. Decorative icons within labeled buttons MUST NOT be separately announced.
 - Meaningful standalone: `label` (or an explicit accessible naming mechanism) gives `role="img"`, an accessible name and no `aria-hidden`. `decorative={false}` with no name MUST warn in development and fail conformance tests.
-- The component MUST merge a supplied `class` and `style` with internal styles without discarding consumer values. A numeric `size` sets square dimensions through a local variable or explicit width/height; `size="md"` resolves to a semantic token.
+- The component MUST merge a supplied `class` and `style` with internal styles without discarding consumer values. A numeric `size` sets square dimensions through a local variable or explicit width/height; `size="md"` resolves to a semantic token. Without `size`, an `Icon` inside a control uses the control's icon size (Section 5).
 - `strokeWidth` is optional and overrides the default 2. The public SVG root's `stroke` and `fill` may be customized, but icon-specific filled shapes must remain intentionally controlled.
 - `viewBox="0 0 24 24"` is the default and MAY be overridden for custom geometry.
 - An icon MUST NOT manage keyboard events, focus, links, tooltip semantics or application state by itself.
@@ -134,6 +135,8 @@ Each public named icon SHOULD be emitted as an independent ESM module, plus a si
 Token CSS loads in `@layer erx.tokens`; component defaults load in `@layer erx.components`. Components MAY expose optional local variables, but aliases MUST resolve at the consuming element so nested scopes are respected. Example:
 
 ```css
+@layer erx.tokens, erx.components;
+
 @layer erx.components {
   .erx-icon {
     inline-size: var(--erx-icon-current-size, var(--erx-icon-size-default));
@@ -188,9 +191,9 @@ Implementation SHOULD include development warnings for a meaningful icon without
 
 ## 12. Asset provenance and licensing
 
-**Official upstream:** https://github.com/lucide-icons/lucide. Lucide's project license is **ISC**, and its repository LICENSE also contains an MIT notice for listed icons derived from Feather. Do not describe the entire icon corpus as MIT or omit that additional attribution. The version-pinned source must be recorded per vendored asset.
+**Official upstream:** https://github.com/lucide-icons/lucide. Lucide's project license is **ISC**, and its repository LICENSE also contains an MIT notice for listed icons derived from Feather. Do not describe the entire icon corpus as MIT or omit that additional attribution. The version-pinned source must be recorded per vendored asset. The vendored, version-pinned Lucide subset is approved for UL-05's icons decision, with NOTICE entries for Lucide's ISC license and its Feather-derived MIT notice; it is not a runtime dependency.
 
-Implementation kit's pinned upstream baseline: `c26ce5515667640ca2753e095ba319d225fc0d8d` (observed 23 Nov 2026). A maintainer MUST verify access to each corresponding SVG asset before releasing that glyph; if a renamed or removed icon cannot be fetched at this revision, record its actual upstream path and make an explicit reviewed change rather than silently substituting a different icon. `assets/lucide/LICENSE.txt` reproduces the upstream combined notices for vendor distribution.
+Implementation kit's pinned upstream baseline (the kit is not in the repository): `c26ce5515667640ca2753e095ba319d225fc0d8d` (observed 23 Nov 2026). A maintainer MUST verify access to each corresponding SVG asset before releasing that glyph; if a renamed or removed icon cannot be fetched at this revision, record its actual upstream path and make an explicit reviewed change rather than silently substituting a different icon. The planned `assets/lucide/LICENSE.txt`, not yet in the repository, reproduces the upstream combined notices for vendor distribution.
 
 For each asset, store: Eroxo export name, exact upstream SVG path, source commit, source SHA-256, whether modified, reviewer and review date. Modified SVGs must retain provenance and document the edits. No brand logos should be substituted from third-party icon packs without separate rights clearance.
 
@@ -217,12 +220,14 @@ test/iconography.ssr.test.tsx
 test/fixtures/iconography.html
 ```
 
-In the reference ZIP, the provenance file may be a **manifest of intended sources** rather than verified downloads; verify SHA-256 only after assets are actually fetched. The vendor step MUST run at maintenance time, not in a consuming application's installation or at runtime. The project should publish static compiled SVG-based components.
+These files are planned and not yet in the repository. Token file locations such as `tokens/iconography.json` are provisional: UL-13 picks one tokens folder and one generator, and may generate the token JSON from this specification's tables.
+
+In the reference ZIP, which is not in the repository, the provenance file may be a **manifest of intended sources** rather than verified downloads; verify SHA-256 only after assets are actually fetched. The vendor step MUST run at maintenance time, not in a consuming application's installation or at runtime. The project should publish static compiled SVG-based components.
 
 ## 14. Reference code — generic Icon and usage
 
 ```tsx
-import { Icon, CheckIcon, IconButton } from 'eroxo-ui';
+import { Icon, CheckIcon, XIcon, IconButton } from 'eroxo-ui';
 
 // Generic geometry supplied by the consumer:
 <Icon size="lg" label="Verified account">
@@ -241,7 +246,7 @@ import { Icon, CheckIcon, IconButton } from 'eroxo-ui';
 // <Search size={20} aria-hidden="true" />
 ```
 
-The shown `IconButton` and icon exports are proposed public APIs to be implemented and verified. The code bundled in the ZIP is a reference starting point; it is not a verified production implementation of UL-20.
+The shown `IconButton` and icon exports are proposed public APIs to be implemented and verified. The code bundled in the reference ZIP, which is not in the repository, is a reference starting point; it is not a verified production implementation of UL-20, and any code taken from it needs recorded provenance under the clean-room rules ([UL-03](../ul-03-commercial.md)).
 
 ## 15. Verification and acceptance criteria
 
@@ -285,3 +290,10 @@ The shown `IconButton` and icon exports are proposed public APIs to be implement
 - Eroxo roadmap: `docs/ui-library-roadmap.md` (UL-05, UL-06, UL-09, UL-20, UL-43)
 
 Changes to icon visual rules, public export names, token names, accessibility defaults, or the source asset list require a recorded design review, compatibility assessment and semver-aware release note. Changes to the upstream Lucide revision must not silently change the rendering of existing public icon exports.
+
+## Open items after 0.2.0
+
+- **Token naming and tiers** (D5): a naming grammar that shows each token's tier, and a cap on the component tier, which covers this spec's `--erx-icon-*` tokens. Settled in UL-06 and UL-12.
+- **Tokens folder and generator** (record gap on paths): where `tokens/iconography.json` and the generated `src/styles/iconography.css` live, and the single generator that produces them. Settled in UL-13.
+- **Companion files** (record gap, missing companion files): the owner adds the kit, with `tokens/iconography.json`, the vendored Lucide assets with their license and provenance files, the scripts, tests and fixture, and recorded provenance under the clean-room rules ([UL-03](../ul-03-commercial.md)) for any reference code; or UL-13 generates the token JSON from this spec's tables. Settled by the owner or in UL-13.
+- **Explicit `size` inside a control** (D7): §5 has icons reflect the effective control size, and D7 makes the control's icon size the default; whether an explicit `size` on an `Icon` inside a control overrides it is open. Settled in UL-20.

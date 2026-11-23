@@ -1,13 +1,15 @@
 # Eroxo Iris — Component Behavior & Accessibility Architecture
 
 **Specification ID:** ERX-DS-BEHAVIOR-001  
-**Version:** 0.1.0  
+**Version:** 0.2.0  
 **Decision date:** 23 November 2026  
 **Status:** Architecture design contract locked; implementation, browser conformance and accessibility certification pending  
 **Owner:** Eroxo UI  
 **Target:** SolidJS 2 + `@solidjs/web`, TypeScript, ESM/SSR, WCAG 2.2 AA
 
-> **Normative language:** MUST and MUST NOT are mandatory for a conforming Eroxo implementation; SHOULD indicates a preferred default requiring documented justification for exceptions; MAY is optional. This document specifies intended behavior, not evidence of a shipping implementation. Reference code in the companion ZIP is deliberately limited and MUST NOT be advertised as production-ready focus management or overlay behavior.
+> **0.2.0 (23 November 2026):** revised to match the approved [Iris reconciliation record](reconciliation.md): C5, C6, C7, D1, D13 and D14, and the record's gaps on the CSS scroll-lock rule, missing companion files and the Tooltip profile. Choices it leaves open are listed under "Open items after 0.2.0".
+
+> **Normative language:** MUST and MUST NOT are mandatory for a conforming Eroxo implementation; SHOULD indicates a preferred default requiring documented justification for exceptions; MAY is optional. This document specifies intended behavior, not evidence of a shipping implementation. Reference code in the companion ZIP (not yet in the repository; see §19) is deliberately limited and MUST NOT be advertised as production-ready focus management or overlay behavior.
 
 ## 1. Executive decision record
 
@@ -25,7 +27,7 @@
 
 **Related decisions:** ERX-DS-COMPONENT-001 (public API), ERX-DS-MOTION-001 (visual presence phases), ERX-DS-DEPTH-001 (elevation/z-index), ERX-DS-SPACE-001 (density/hit targets), ERX-DS-ICON-001 (decorative icons), ERX-DS-COLOR-001 (focus and status). This specification owns **behavior**, and MUST NOT redefine visual tokens.
 
-**Roadmap traceability:** UL-14 state/event helpers; UL-15 accessibility/motion/localization utilities; UL-16 interaction primitives; UL-17 collections; UL-24 layer registry/dismissal; UL-25 modal focus/inertness/scroll lock/presence; UL-26 positioning. UL-04 native-first spike and UL-05 ADRs may refine implementation mechanisms, but changes to the user-visible contract require a written superseding decision.
+**Roadmap traceability:** UL-14 state/event helpers; UL-15 accessibility/motion/localization utilities; UL-16 interaction primitives; UL-17 collections; UL-24 layer registry/dismissal; UL-25 modal focus/inertness/scroll lock/presence; UL-26 positioning. The UL-04 native-first spike is done ([report](../ul-04-spike.md)), and UL-05 ADRs may refine implementation mechanisms, but changes to the user-visible contract require a written superseding decision. The approved [Iris reconciliation record](reconciliation.md) is such a decision; 0.2.0 applies it.
 
 ## 2. Ownership boundaries and module topology
 
@@ -49,7 +51,7 @@
 2. For modals, consider `<dialog>.showModal()` first: browser-provided top layer, focus behavior and document inertness are the baseline. DO NOT add a redundant focus trap or a parallel inert manager unless a verified browser gap requires one.
 3. Standard Dialog SHOULD begin with `closedby="closerequest"` and coordinated outside-pointer dismissal. AlertDialog SHOULD also default to `closerequest`; never rely on native `any` light dismissal for AlertDialog. Feature detection and actual cancel/close behavior must be verified in all supported engines.
 4. For Popover API, choose `popover="manual"` when the Eroxo registry needs to own dismissal/ordering; use `auto` only if its native behavior fully matches the relevant component profile and documented nesting semantics.
-5. Native top-layer ordering is **not** controlled by CSS `z-index`; ERX-DS-DEPTH-001 z-index tokens are for non-top-layer fallbacks. Any mixed native/portaled overlay stack MUST be explicitly tested.
+5. Native top-layer ordering is **not** controlled by CSS `z-index`. Overlays render in the top layer, where UL-04 found portals and a z-index stack unnecessary; ERX-DS-DEPTH-001's `--erx-z-base` and `--erx-z-sticky` are for in-page layers. Portals, other z-index tokens and a mixed native/portaled overlay stack exist only if the UL-05 native-first ADR names an overlay that can't use the top layer; such a stack MUST then be explicitly tested, and the portal requirements elsewhere in this specification apply only to that overlay.
 6. Use a custom fallback only after recording unmet capabilities and a browser-compatibility test. Avoid silent degradation of modality, Escape, keyboard navigation or focus restoration.
 
 **Controlled native dialog rule:** native `cancel` requests a close and MAY be prevented while a controlled parent decides; the library MUST NOT call `close()` merely because a controlled consumer emitted a callback. Close only after the authoritative controlled state accepts dismissal. Direct native `close` events or unexpected browser closures MUST reconcile the logical state and avoid focus loss. If a feature cannot preserve this contract, select the tested fallback.
@@ -90,13 +92,15 @@
 
 **Tabs performance:** automatic activation is default only when panel display is effectively immediate; use `activationMode="manual"` for expensive or asynchronous panels so arrow navigation does not trigger network latency.
 
+**Tooltip:** the Tooltip behavior profile (hover delay, keyboard focus, touch, Escape inside a dialog) is defined in UL-27, not in this specification; see "Open items after 0.2.0".
+
 ## 6. Focus system and restoration
 
 **Utilities:** internal `getFocusable`, `getTabbable`, `focusFirst`, `focusLast`, `focusNext`, `isInsideLayerTree` and focus-return ownership tracking. Queries MUST respect native disabled controls, `inert`, visibility, hidden ancestors, `tabindex`, shadow/portal boundaries where supported, and the distinction between focusable and tabbable elements.
 
 **Modal open:** initial focus order is explicit user target, pattern-specific recommended target, then first suitable tabbable node, then a static container/heading with `tabindex="-1"` if appropriate. For a large dialog with introductory content, focusing the heading may be preferable to jumping down to a button. AlertDialog SHOULD initially focus the least destructive action for destructive confirmation.
 
-**Modal active:** Tab and Shift+Tab stay within the active modal (by native behavior when possible). Background is actually inert, not merely visually dimmed or marked `aria-modal`. Disabled/hidden nodes are not focus candidates. Nested focus scopes recognize the topmost owner.
+**Modal active:** focus containment is native: Tab and Shift+Tab never move focus to the page behind the active modal, though past the last element focus may reach the browser's own interface. Eroxo adds no Tab loop and no JavaScript focus trap. Background is actually inert, not merely visually dimmed or marked `aria-modal`. Disabled/hidden nodes are not focus candidates. Nested focus scopes recognize the topmost owner.
 
 **Modal close:** after top-layer/modality release, restore focus to (1) explicit return target if still focusable, (2) invoking trigger if connected and usable, (3) logically adjacent fallback. Never call `.focus()` on a detached or inert node. Closing a child overlay inside an open modal restores focus *inside that modal*. For controlled components, only restore after authoritative closure and native release, not just on an emitted request.
 
@@ -130,22 +134,22 @@ Model a **logical tree**, not simply a z-index counter. A layer record includes 
 | Invariant | Required result |
 | --- | --- |
 | Escape on Dialog → Select | Select closes first; Dialog remains |
-| Pointer inside a child portal | Counts as inside parent layer tree |
+| Pointer inside a nested child layer, wherever it renders | Counts as inside parent layer tree |
 | Closing parent layer | Descendant layers dispose in reverse dependency order |
 | Multiple native dialogs | Focus ownership follows top-layer order; no background escape |
 | Tooltip within modal | Tooltip does not escape the modal's effective interaction scope |
 | Controlled close rejected | Layer stays active and registered |
 | Interrupted exit/reopen | Stale exit completion cannot destroy reopened layer |
 | Last layer disposed | Shared listeners removed, scroll/inert locks released |
-| Portaled theme scope | Nearest logical theme/density/direction applies |
+| Overlay theme scope | Nearest logical theme/density/direction applies in place, including `::backdrop` |
 
 **Registration order is not always presentation order:** native top-layer show order and logical parenthood need reconciliation; do not assume CSS z-index makes a tooltip appear above a dialog. One managed coordinator SHOULD exist per relevant `Document`/render root rather than an eternal process-wide singleton, so multiple documents/iframes can function independently.
 
 ## 9. Modality, inertness and scroll lock
 
-Prefer native modal `<dialog>` for inert background. In fallback mode, record prior `inert`/ARIA values on each modified target, apply appropriate containment and restore **exact prior values** on final unlock. Never permanently overwrite application-supplied `aria-hidden` or `inert` attributes. Avoid applying `aria-hidden` to ancestors of the active dialog.
+Prefer native modal `<dialog>` for inert background. A manual `inert` fallback exists only if the UL-05 native-first ADR names an overlay that can't use the top layer; in that fallback, record prior `inert`/ARIA values on each modified target, apply appropriate containment and restore **exact prior values** on final unlock. Never permanently overwrite application-supplied `aria-hidden` or `inert` attributes. Avoid applying `aria-hidden` to ancestors of the active dialog.
 
-Scroll lock MUST be reference counted across nested modals, preserve scroll position, compensate layout shift when needed, and verify iOS Safari touch behavior. Releasing one nested modal MUST NOT unlock scrolling while another modal remains active. State restoration must handle disposal and aborted transitions.
+Scroll lock is CSS only: `html:has(.erx-dialog:modal) { overflow: hidden; }`. It needs no reference counting: the rule matches while any modal dialog is open, so releasing one nested modal cannot unlock scrolling while another modal remains active. Tests MUST still verify that scrolling stays locked while another modal is open, that scroll position is preserved, that classic scrollbars cause no layout shift (open since UL-04; consider `scrollbar-gutter: stable`), and that the lock holds against touch scrolling on iPadOS. State restoration must handle disposal and aborted transitions.
 
 **Accessibility invariant:** an overlay is not modal merely because it has a scrim or `aria-modal="true"`; it is modal only when background interaction is effectively blocked and keyboard focus remains contained.
 
@@ -212,13 +216,13 @@ Do not add public `createFocusScope` or `useOverlay` helpers before an explicit 
 | Failure | Required behavior |
 | --- | --- |
 | Missing trigger on dismissal | Return focus to logical surviving target |
-| Consumer vetoes close | Remain fully interactive and modal as before |
+| Consumer vetoes close: a controlled parent keeps `open` true after a close request (Escape, outside press, the Close part) calls `onOpenChange(false)` | Remain fully interactive and modal as before. Best effort: browsers may close a dialog on a repeated Escape without a cancelable `cancel` event; UL-25 verifies this |
 | `showModal()` fails/unsupported | Use verified fallback or surface documented development error; never pretend success |
 | Active collection item removed | Reconcile focus to a valid enabled target, or none if empty |
 | All items disabled | No invalid active descendant; Tab exit remains possible |
 | User switches reduced-motion mid-exit | Resolve pending exit deterministically |
 | Component owner disposed | Release listeners, observers, locks, portals, announcements |
-| Custom portal outside theme subtree | Apply resolved theme, direction and density explicitly |
+| Custom portal outside theme subtree (only if the UL-05 native-first ADR requires one) | Apply resolved theme, direction and density explicitly; top-layer overlays inherit them in place |
 | IME composition interrupted | Preserve native composition and avoid accidental commit |
 
 Development-only diagnostics SHOULD identify missing labels, invalid nesting or impossible controlled state without exposing production-only warnings or leaking sensitive form content into logs. The library MUST NOT collect input contents or telemetry by default.
@@ -232,10 +236,10 @@ Development-only diagnostics SHOULD identify missing labels, invalid nesting or 
 | Real-browser keyboard | Per-component APG key table, focus, disabled, RTL | Chromium/Firefox/WebKit |
 | Pointer/touch | Outside press safety, pointercancel, capture, no double activation | Chromium/Firefox/WebKit |
 | Nested overlays | Escape ordering, portaled containment, controlled veto, top layer | UL-24 |
-| Modal/focus | Initial focus, Tab loop, inertness, restoration, scroll locks | UL-25 |
+| Modal/focus | Initial focus, focus never reaching the page behind (no Tab loop), inertness, restoration, scroll locks | UL-25 |
 | IME | Compositionstart/end edge cases, Chinese and Korean manual session | UL-16/17 |
 | SSR/hydration | Deterministic IDs, no DOM import, portal lifecycle, teardown | UL-08/09 |
-| Accessibility | axe plus manual NVDA/VoiceOver/TalkBack smoke tests | Each public component |
+| Accessibility | axe plus manual screen-reader smoke tests: VoiceOver with Safari now, NVDA from UL-09, TalkBack as UL-05's support matrix settles | Each public component |
 | Adaptation | 200% zoom, 320 CSS px reflow, forced colors, reduced motion | Each public component |
 | Performance | Button-only bundle excludes overlays; no listeners when none open | UL-08/43 |
 
@@ -248,18 +252,18 @@ Development-only diagnostics SHOULD identify missing labels, invalid nesting or 
 | UL-14 | Controlled state, event composition, refs, IDs | Pure/type tests; SSR import safety |
 | UL-15 | VisuallyHidden, live announcer, locale/direction, motion preference | DOM + screen reader review |
 | UL-16 | Press/hover, input modality, key normalization, focus queries, IME | Pointer/keyboard browser matrix |
-| UL-17 | Collection, roving/virtual focus, typeahead, selection | Executable APG tables |
-| UL-24 | Overlay registry, portal/native top-layer selection, dismissal | Nested stacking + outside press |
+| UL-17 | Split in two: roving tabindex, typeahead and the collection model first; virtual focus and selection second | Executable APG tables |
+| UL-24 | Layering and dismissal: overlay registry, native top-layer rendering (a portal only if the UL-05 native-first ADR requires one), dismissal | Nested stacking + outside press |
 | UL-25 | Modal focus, inertness, scroll lock, presence | Focus/cleanup/scroll tests |
-| UL-26 | Anchor positioning and collision handling | Zoom/RTL/scroll geometry |
+| UL-26 | In-house positioning engine and collision handling; CSS anchor positioning only as a later fast path | Zoom/RTL/scroll geometry |
 
 **Suggested integration order:** a native Button validates event/state APIs; Tabs or RadioGroup validates roving focus; editable Combobox validates virtual focus + IME; Dialog/AlertDialog validates native modality and exit handling; nested Select inside Dialog validates the registry; Tooltip/Popover validates positioning and layering.
 
 ## 19. Reference-kit classification
 
-The companion ZIP provides: (a) machine-readable behavior contracts; (b) pure, DOM-free reference algorithms for layer order, roving navigation and typeahead; (c) SolidJS integration pseudocode/reference sketches; (d) executable Node tests for the pure algorithms; (e) manual browser and screen-reader checklists.
+The companion ZIP is not yet in the repository. It is to provide: (a) machine-readable behavior contracts; (b) pure, DOM-free reference algorithms for layer order, roving navigation and typeahead; (c) SolidJS integration pseudocode/reference sketches; (d) executable Node tests for the pure algorithms; (e) manual browser and screen-reader checklists.
 
-**Not included / not certified:** a complete modal trap, native-dialog controlled adapter, inertness/scroll-lock manager, positioning engine, cross-browser end-to-end suite, live announcer production runtime, or verified accessible components. Those require tests in the Eroxo repository with its exact SolidJS peer versions and release fixtures.
+**Not included / not certified:** a native-dialog controlled adapter, positioning engine, cross-browser end-to-end suite, live announcer production runtime, or verified accessible components. Those require tests in the Eroxo repository with its exact SolidJS peer versions and release fixtures. Eroxo builds no modal focus trap and no scroll-lock manager: focus containment is native (§6) and scroll lock is a CSS rule (§9). A manual inertness fallback exists only if the UL-05 native-first ADR requires one (§9).
 
 ## 20. Sources and normative references
 
@@ -271,3 +275,13 @@ The companion ZIP provides: (a) machine-readable behavior contracts; (b) pure, D
 - [WCAG 2.2](https://www.w3.org/TR/WCAG22/) — accessibility conformance target.
 
 **Decision status:** Product and visual/interaction architecture is locked. Native browser fallback details, platform-specific event ordering, and lifecycle code shape are engineering validation gates, not unresolved product questions. Any shipped behavior must be validated independently of this specification.
+
+## Open items after 0.2.0
+
+- **Tooltip behavior profile** (record gap): hover delay, keyboard focus, touch, and Escape inside a dialog, with the hover-delay token from D12. Settled in UL-27.
+- **`entering` presence phase** (D11): whether presence tracks `entering` at all; §13 still lists it. Settled in UL-25.
+- **Portal or manual-inert fallback** (C7): whether any overlay can't use the top layer and so needs a portal, a z-index token other than `--erx-z-base` and `--erx-z-sticky`, or a manual `inert` fallback (§3, §9). Settled by the UL-05 native-first ADR.
+- **Layout shift with classic scrollbars** (C5, open since UL-04): whether the scroll lock shifts the layout when scrollbars take space; check on Windows and consider `scrollbar-gutter: stable`. Settled in UL-25.
+- **TalkBack** (D13): whether the manual screen-reader smoke tests include TalkBack. Settled in UL-05's support matrix.
+- **Companion ZIP** (record gap, missing companion files): the owner adds it, with recorded provenance under the clean-room rules ([UL-03](../ul-03-commercial.md)) for any reference code, or §19 stays a plan. Settled by the owner.
+- **AlertDialog and the scroll lock** (C5, D9): the scroll-lock rule matches `.erx-dialog:modal`, but an AlertDialog's `<dialog>` would carry `erx-alert-dialog`. Either it also carries `erx-dialog`, or the rule gains a second selector. Settled in UL-06 and UL-25.

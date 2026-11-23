@@ -1,18 +1,20 @@
 # Eroxo Iris — Typography System Specification
 
 **Specification ID:** ERX-DS-TYPE-001  
-**Version:** 0.1.0  
+**Version:** 0.2.0  
 **Date:** 23 November 2026  
 **Status:** Design decisions finalized; implementation and browser conformance pending  
 **Maintainer:** Eroxo UI  
 **Applies to:** SolidJS 2 / TypeScript, default light/dark/custom themes, application SSR, ordinary CSS with `--erx-` variables.
 
+> **0.2.0 (23 November 2026):** revised to match the approved [Iris reconciliation record](reconciliation.md): C2, C9, D1, D2, D4 and D6, and the record's gaps on paths and missing companion files. Choices it leaves open are listed under "Open items after 0.2.0".
+
 > **Normative scope.** This is the typography source-of-truth for the initial Eroxo design system. It complements [ERX-DS-COLOR-001](eroxo-iris-color-spec.md). It specifies typography only; it does not approve final control sizes, spacing, elevation, motion, or icon design. All MUST/SHOULD statements are implementation requirements unless explicitly called *optional*.
 
 ## 1. Executive decisions
 
-1. **Visual identity:** Geist Sans is Eroxo's preferred UI face; Geist Mono is used for code, technical IDs, and optional numerical tables. Typography feels modern, precise, slightly futuristic, but remains neutral enough for business software.
-2. **Opt-in font distribution:** Eroxo MUST NOT bundle Geist, inject a remote stylesheet, trigger a font download, require a font package, or modify an application's document/body font. Consumers may self-host or otherwise load Geist. If absent, components render using platform fallback fonts.
+1. **Visual identity:** The default UI face is the platform's system sans-serif stack, and the system monospace stack is used for code, technical IDs, and optional numerical tables. Geist and Geist Mono are an app-level choice (§3). Typography feels modern, precise, slightly futuristic, but remains neutral enough for business software.
+2. **Opt-in font distribution:** Eroxo MUST NOT bundle Geist, inject a remote stylesheet, trigger a font download, require a font package, or modify an application's document/body font. Consumers may self-host or otherwise load Geist and set it on a scope (§3). Otherwise, components render using platform system fonts.
 3. **Font ownership:** Eroxo components MUST consume `--erx-font-sans` and `--erx-font-mono` through semantic aliases. Consumer overrides and nested theme scopes MUST work without recompiling components.
 4. **Semantic density:** UI text defaults to 14px equivalent (`0.875rem`); reading text defaults to 16px (`1rem`). Density changes spacing/control geometry by default, **not global font sizes**.
 5. **Hierarchy:** Balanced headings: 20, 24, 30, and 32/36px; display 40/48px. Weights 400/500/600/700. No ultra-light text and no blanket uppercase treatments.
@@ -32,7 +34,7 @@
 | Semantic typography | Named presentation roles with separate CSS properties | `--erx-type-ui-size`, `--erx-type-heading-lg-line-height` | Public |
 | Component styles | Native CSS properties use semantic tokens; exceptional documented local alias allowed | `font-size: var(--erx-type-ui-size)` | Components obey public role contracts |
 
-Token source of truth: `tokens/typography.json` (provided as `eroxo-iris.typography.tokens.json`). Generated output: `src/styles/typography.css` (reference file provided). Keep the `erx.tokens` cascade layer aligned with the existing color CSS. Do not manually diverge generated files.
+Token source of truth: `tokens/typography.json`, a provisional path until UL-13 picks one tokens folder and one generator. The JSON (`eroxo-iris.typography.tokens.json`) is not yet in the repository; UL-13 may generate it from this specification's tables. Generated output: `src/styles/typography.css` (the reference file is not yet in the repository). Keep the `erx.tokens` cascade layer aligned with the existing color CSS. Do not manually diverge generated files.
 
 ### 2.2 Naming grammar
 
@@ -52,14 +54,14 @@ Typography defaults live on `:root` inside `@layer erx.tokens`. **Family aliases
 
 ```css
 :root {
-  --erx-font-sans: "Geist", "Geist Sans", system-ui,
+  --erx-font-sans: system-ui,
     -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --erx-font-mono: "Geist Mono", ui-monospace,
+  --erx-font-mono: ui-monospace,
     "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
 }
 ```
 
-Both names are listed in the sans stack to tolerate the naming of different app-owned Geist distributions. A stack entry does **not** download or install the font. If a consumer loads Geist with another CSS family name, they MUST override the token accordingly.
+The defaults list system fonts only, so a machine that has Geist installed still renders the system faces. Geist is an app-level choice: the app loads Geist itself and sets `--erx-font-sans: "Geist", <system stack>` on a scope, and `--erx-font-mono: "Geist Mono", <system stack>` for code (§3.2 shows both). A stack entry does **not** download or install the font. If a consumer loads Geist with another CSS family name, such as "Geist Sans", they MUST use that name in the override.
 
 ### 3.2 Consumer-managed optional installation
 
@@ -80,6 +82,12 @@ A consumer may obtain font assets from the [official Geist source](https://githu
   font-style: normal;
   font-weight: 100 900;
   font-display: swap;
+}
+:root {
+  --erx-font-sans: "Geist", system-ui,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --erx-font-mono: "Geist Mono", ui-monospace,
+    "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
 }
 ```
 
@@ -197,7 +205,7 @@ These families may or may not be installed on a particular OS. They are *suggest
 }
 ```
 
-**Inline mixed-script recommendation:** keep natural fallback per glyph and preserve `lang` on spans. If a localized region overrides the entire Sans token, the app is choosing its local text treatment; it may need a separate Latin identifier subspan to restore Geist.
+**Inline mixed-script recommendation:** keep natural fallback per glyph and preserve `lang` on spans. If a localized region overrides the entire Sans token, the app is choosing its local text treatment; it may need a separate Latin identifier subspan to restore its chosen Latin font, such as Geist.
 
 ## 8. Component application contract
 
@@ -222,7 +230,7 @@ Use semantic markup (h1-h6, label, button, etc.) independently from visual type 
 
 ```tsx
 // Sketch of internal styles for a styled Button. Not a complete Button implementation.
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import './button.css';
 
 type ButtonProps = JSX.ButtonHTMLAttributes<HTMLButtonElement>;
@@ -232,6 +240,8 @@ export function Button(props: ButtonProps) {
 ```
 
 ```css
+@layer erx.tokens, erx.components;
+
 @layer erx.components {
   .erx-button {
     font-family: var(--erx-type-ui-strong-family, var(--erx-font-sans));
@@ -246,7 +256,7 @@ export function Button(props: ButtonProps) {
 }
 ```
 
-**Engineering note:** the example illustrates typography application, not a final production-ready Button. In actual components use `splitProps` and merge forwarded class/style/events according to UL-06, rather than blindly overwriting them. Class names above are illustrative pending the CSS public-selector ADR.
+**Engineering note:** the example illustrates typography application, not a final production-ready Button. In actual components use `omit` from `solid-js` for the forwarded props, read local props directly (as `props.class`), and merge forwarded class/style/events according to UL-06, rather than blindly overwriting them. The `erx-button` class follows the public selector pattern approved in UL-04 ([report](../ul-04-spike.md)): `erx-<component>` on the root and `erx-<component>__<part>` on parts, versioned as public API.
 
 ## 9. Accessibility and readability contract
 
@@ -271,7 +281,7 @@ export function Button(props: ButtonProps) {
 
 ## 10. Reference CSS integration
 
-`eroxo-iris.typography.css` is a self-contained generated token stylesheet. Use it **alongside** color CSS, not as a replacement. It never sets a global font on `html`/`body` and never defines `@font-face`.
+`eroxo-iris.typography.css` is a self-contained generated token stylesheet, planned and not yet in the repository. Use it **alongside** color CSS, not as a replacement. It never sets a global font on `html`/`body` and never defines `@font-face`.
 
 ```css
 /* App entry: after Eroxo package publishes the stylesheet exports */
@@ -285,19 +295,21 @@ export function Button(props: ButtonProps) {
 }
 ```
 
+`.my-brand-scope` is an app-owned selector, so it may override tokens directly, as these lines do. A full custom theme is an Eroxo scope such as `[data-erx-theme="acme"]` (UL-18 defines `data-erx-theme` values beyond `light` and `dark`). The token generator redeclares, on each Eroxo scope, only the composite aliases whose inputs that scope changes, such as color-based shadows on theme scopes. Typography tokens aren't reset on nested scopes (§2.3), so an override set on an ancestor survives.
+
 The export paths above are **target release exports**, not present in the current `eroxo-ui` starter package. When adding CSS to the package, revisit `package.json` `sideEffects: false`: ensure CSS imports are not removed by bundlers (for example, use `"sideEffects": ["**/*.css"]` after a consumer-fixture test). Include CSS exports and verify bundler and SSR usage before documentation presents these imports as available.
 
 **Recommended repository paths:**
 
 ```text
-/docs/design/eroxo-iris-typography-spec.md
+/docs/design-system/eroxo-iris-typography-spec.md
 /tokens/typography.json
 /src/styles/typography.css
 /test/typography.tokens.test.ts
 /test/browser/typography.spec.ts
 ```
 
-The paths and imports MUST be reviewed with UL-04/05/06 (CSS technique, exports, API naming) before being treated as public. Public semantic token names in this document are the proposed v0.1 baseline.
+The paths and imports MUST be reviewed against the [UL-04 report](../ul-04-spike.md) and with UL-05/06 (CSS technique, exports, API naming) before being treated as public; the token paths are provisional until UL-13 picks one tokens folder and one generator. Public semantic token names in this document are the proposed v0.2.0 baseline.
 
 ## 11. Automated tests and visual quality assurance
 
@@ -317,7 +329,7 @@ The paths and imports MUST be reviewed with UL-04/05/06 (CSS technique, exports,
 
 ### 11.2 Browser/interaction matrix
 
-Run visual and functional scenarios in Chromium, Firefox and WebKit with fonts both **installed** and **not installed**, testing at least these cases. The kit includes a static language specimen at `test/fixtures/typography-languages.html` for the first smoke test:
+Run visual and functional scenarios in Chromium, Firefox and WebKit with fonts both **installed** and **not installed**, testing at least these cases. A static language specimen for the first smoke test is planned at `test/fixtures/typography-languages.html` (not yet in the repository):
 
 | Scenario | Fixtures / checks |
 | --- | --- |
@@ -353,9 +365,9 @@ Do not apply `scrollHeight <= clientHeight` indiscriminately to editable textare
 
 ## 12. Versioning, ownership and change control
 
-- **Spec baseline:** `ERX-DS-TYPE-001 @ 0.1.0`. Any token rename or removal is breaking; additions and changes to visual values may still be visually breaking and require release notes.
+- **Spec baseline:** `ERX-DS-TYPE-001 @ 0.2.0`. Any token rename or removal is breaking; additions and changes to visual values may still be visually breaking and require release notes.
 - **Frozen for this milestone:** type families, role naming, role sizes/leading/weights, responsive breakpoint, tracking policy and opt-in font distribution.
-- **Open implementation constraints (not aesthetic indecision):** exact package CSS export/build, shared CSS layers, class/part naming and test harness are finalized by UL-04, UL-05, UL-06, UL-08/09. Do not claim implementation complete before consumer verification.
+- **Open implementation constraints (not aesthetic indecision):** exact package CSS export/build, shared CSS layers, class/part naming and test harness are finalized by UL-05, UL-06, UL-08/09, building on the approved [UL-04 report](../ul-04-spike.md). Do not claim implementation complete before consumer verification.
 - **Role governance:** new semantic role only with at least two repeatable use cases; otherwise use an existing role and a scoped local override.
 - **Color linkage:** text colors must resolve through `ERX-DS-COLOR-001`. `--erx-type-*` is never a color token.
 
@@ -380,5 +392,13 @@ Do not apply `scrollHeight <= clientHeight` indiscriminately to editable textare
 - [WCAG: Understanding Text Spacing](https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html)
 - [MDN: CSS font synthesis and international scripts](https://developer.mozilla.org/en-US/docs/Web/CSS/font-synthesis)
 - Eroxo roadmap: `docs/ui-library-roadmap.md`, milestones UL-04, UL-05, UL-06, UL-12, UL-13, UL-18, UL-19, UL-20.
+
+## Open items after 0.2.0
+
+- **Token naming grammar and tiers** (D5): the naming grammar that shows a token's tier, which §2.1's layers and §2.2's grammar then follow, and whether semantic tokens may hold literal values, as §4's role sizes and line heights do. Settled in UL-06 and UL-12.
+- **Tokens folder and generator** (record gap on paths): the token paths in §2.1 and §10, such as `tokens/typography.json`, are provisional until one tokens folder and one generator are picked. Settled in UL-13.
+- **Fallback when a custom theme omits a token** (record gap): what a custom theme scope falls back to when it leaves out a typography token. Settled in UL-13.
+- **Missing companion files** (record gap): the token JSON (`eroxo-iris.typography.tokens.json`), the reference CSS (`eroxo-iris.typography.css`) and the language specimen (`test/fixtures/typography-languages.html`) aren't in the repository. Settled by the owner, who adds them, or in UL-13, which may generate the token JSON from this specification's tables.
+- **CSS export names** (found during the 0.2.0 revision; the record doesn't cover it): this spec proposes per-family token stylesheets such as `eroxo-ui/typography.css`, while UL-04 recommended `tokens.css`, a full stylesheet and per-component CSS. Settled by UL-05's CSS-delivery ADR.
 
 *End of normative specification.*

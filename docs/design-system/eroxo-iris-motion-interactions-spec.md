@@ -1,11 +1,13 @@
 # Eroxo Iris — Motion & Interactions System Specification
 
 **Document ID:** ERX-DS-MOTION-001  
-**Version:** 0.1.0  
+**Version:** 0.2.0  
 **Decision date:** 23 November 2026  
 **Status:** Visual design contract approved; runtime/browser verification pending  
 **Owner:** Eroxo UI  
 **Platform:** SolidJS 2, TypeScript, ordinary CSS, client/SSR builds
+
+> **0.2.0 (23 November 2026):** revised to match the approved [Iris reconciliation record](reconciliation.md): C1, C2, C8, D1 and D11, and the record's gaps on paths and missing companion files. Choices it leaves open are listed under "Open items after 0.2.0".
 
 > **Normative terminology:** MUST and MUST NOT are requirements; SHOULD is a default that may be changed with documented justification; MAY is optional. This is an approved *design specification*, not an assertion that implementation, accessibility conformance, or browser support has already been verified.
 
@@ -27,7 +29,7 @@ Eroxo Iris uses **Quiet Precision**. Animation communicates state changes, direc
 | Default engine | CSS transitions and keyframes; no runtime CSS-in-JS, spring, or external motion library |
 | Presence | In-house SolidJS lifecycle primitive; internal in v1 |
 | Motion preferences | Follow `prefers-reduced-motion`; scoped `data-erx-motion="reduce"` may further reduce motion |
-| Default CSS contract | `--erx-` variables; stable `data-state` + `data-erx-presence` selectors |
+| Default CSS contract | `--erx-` variables; stable `data-erx-state` + `data-erx-presence` selectors |
 
 **Dependencies:** ERX-DS-COLOR-001, ERX-DS-TYPE-001, ERX-DS-SPACE-001, ERX-DS-SHAPE-001, ERX-DS-DEPTH-001. Does **not** redefine their tokens. The library's own behavior system remains responsible for keyboard/focus/collection/positioning semantics.
 
@@ -94,20 +96,20 @@ Semantic roles are public CSS custom properties. All timings are derived from pr
 | Skeleton | 1600ms base↔shimmer *color pulse* | Immediate removal | No sweeping shimmer; decorative skeleton hidden from AT |
 | Spinner | 900ms linear loop | Immediate removal | Reduced-motion static indicator plus status text when needed |
 
-**Reconcile with Color v0.1:** Skeleton uses `--erx-color-skeleton-base` and `--erx-color-skeleton-shimmer`. Those names represent two luminance endpoints. The approved *gentle pulse* animates the background color between them rather than changing the entire content element's opacity; this retains color-system ownership and avoids shimmering stripes.
+**Reconcile with Color v0.2.0:** Skeleton uses `--erx-color-skeleton-base` and `--erx-color-skeleton-shimmer`. Those names represent two luminance endpoints. The approved *gentle pulse* animates the background color between them rather than changing the entire content element's opacity; this retains color-system ownership and avoids shimmering stripes.
 
 ## 5. Overlay entrance / exit geometry
 
 For a floating surface, animation starts **4px toward its trigger** and settles to zero. A top-placed overlay enters from `translateY(+4px)`; bottom enters from `translateY(-4px)`; left enters from `translateX(+4px)`; right enters from `translateX(-4px)`. Exit follows the reverse path. The arrow and positioned outer wrapper MUST remain correctly aligned. Apply motion to a nested visual panel if the positioning engine controls `transform` on the positioned outer wrapper.
 
-| `data-side` | Enter offset X | Enter offset Y |
+| `data-erx-side` | Enter offset X | Enter offset Y |
 |---|---|---|
 | `top` | 0 | `+4px` |
 | `bottom` | 0 | `-4px` |
 | `left` | `+4px` | 0 |
 | `right` | `-4px` | 0 |
 
-`data-side` is the *resolved physical placement* after positioning, RTL processing, and collision correction. Eroxo MUST NOT infer directions from the text language alone. The visual panel may use the CSS individual `translate` property; never silently overwrite the transform used by a positioning engine.
+`data-erx-side` is the *resolved physical placement* after positioning, RTL processing, and collision correction. Eroxo MUST NOT infer directions from the text language alone. The visual panel may use the CSS individual `translate` property; never silently overwrite the transform used by a positioning engine.
 
 Dialogs animate opacity and `scale` only (`0.985` → `1`); no displacement. The motion layer does not add shadows, change border radii, alter backdrop colors, or adjust layout geometry. The opaque surface and shadow are owned by ERX-DS-DEPTH-001.
 
@@ -151,13 +153,13 @@ function createPresence(options: {
 - Opening during `exiting` MUST cancel the obsolete exit result and move to `entering` (or immediately `open` under reduced motion).
 - Closing during `entering` MUST cancel the obsolete enter result and move to `exiting`; do not wait for enter to finish.
 - Every animation/fallback completion MUST be guarded by a monotonically increasing generation or cancellation token.
-- Normal completion may use an animation-end event on the visual panel, filtered by `event.target === element` and the expected animation name. A fallback deadline or WAAPI tracking is required because `animationend` may be absent when animations are cancelled or reduced to zero.
-- Prefer actual animation-finished observation plus a guarded fallback timeout derived from computed animation duration/delay; never assume the token duration equals the true overridden duration.
+- Normal completion may use an animation-end event on the visual panel, filtered by `event.target === element` and the expected animation name. Presence waits only for the element's own finite animations and ignores infinite animations. A fallback deadline is always required because `animationend` may be absent when animations are cancelled or reduced to zero.
+- Prefer actual animation-finished observation plus a guarded fallback timeout that always caps the wait at the animation's computed length (duration/delay) plus a small margin, as approved in [UL-04](../ul-04-spike.md); never assume the token duration equals the true overridden duration.
 - Under reduced motion or CSS unavailable, completion MUST occur without hanging; clear event listeners, queued frames and timers when replaced/disposed.
 - Dialog close semantics MUST be coordinated with `<dialog>.close()` / top-layer release, focus restoration, scroll lock, and overlay-owner lifecycle. The presence primitive MUST NOT directly steal focus or call `showModal()`.
 - Do not access `window`, `document`, `matchMedia`, `getComputedStyle`, `requestAnimationFrame`, or elements at module import time or during SSR. Browser-only effects run after mounting.
 
-**DOM contract:** the logical requested state is exposed as `data-state="open|closed"` while the current rendered visual state is `data-erx-presence="entering|open|exiting"`. For an exiting overlay these can deliberately disagree (`data-state="closed"`, `data-erx-presence="exiting"`); CSS animation reads the latter. The overlay behavior layer is responsible for accessibility semantics while the element is temporarily rendered during exit.
+**DOM contract:** the logical requested state is exposed as `data-erx-state="open|closed"` while the current rendered visual state is `data-erx-presence="entering|open|exiting"`. For an exiting overlay these can deliberately disagree (`data-erx-state="closed"`, `data-erx-presence="exiting"`); CSS animation reads the latter. The overlay behavior layer is responsible for accessibility semantics while the element is temporarily rendered during exit.
 
 ### 7.1 Native top-layer behavior
 
@@ -165,7 +167,7 @@ function createPresence(options: {
 - Defer native `.close()` and final overlay removal until exit is finished; after close, restore focus and release modality exactly once.
 - If reduced-motion preference changes to `reduce` while exiting, complete exit immediately and release native modal state.
 - The overlay manager MUST choose behavior when another modal interrupts a closing modal; no generic z-index promise is made by this motion specification.
-- Modern `@starting-style` and `transition-behavior: allow-discrete` MAY be used after browser-matrix validation, but the implementation must have a tested fallback.
+- Entry uses CSS keyframes in v1, as the UL-04 spike did. Modern `@starting-style` and `transition-behavior: allow-discrete` can be revisited later; they MAY then be used after browser-matrix validation, but the implementation must have a tested fallback.
 
 ## 8. Reduced-motion contract
 
@@ -201,6 +203,8 @@ Follow the established cascade order and public prefix. Use `@layer erx.tokens` 
 A nested scope can override motion primitives or component timing roles. When the consumer overrides the base duration globally, predeclared semantic variable aliases may already have been resolved at the ancestor scope; the correct override is the **semantic role on the active scope**. Document this explicitly, consistent with the previous foundation's CSS custom-property inheritance guidance.
 
 ```css
+@layer erx.tokens, erx.components;
+
 @layer erx.components {
   .erx-button {
     transition-property: background-color, border-color, color;
@@ -240,7 +244,7 @@ A nested scope can override motion primitives or component timing roles. When th
 | Screen readers | State/label/live-region updates do not wait for animations |
 | Error / selected | Color and motion are not the only information channels |
 | Reduced motion | OS and scoped reduce mode; static loading fallback |
-| RTL | `data-side` is resolved placement; directional offsets remain correct |
+| RTL | `data-erx-side` is resolved placement; directional offsets remain correct |
 | International text | No animated clipping as glyphs expand, wrap or change scripts |
 | Forced colors | No reliance on shadows or animated color for essential boundaries |
 | Zoom / reflow | At 200% text scaling and 320px viewport, no functional clipping |
@@ -253,7 +257,7 @@ A nested scope can override motion primitives or component timing roles. When th
 | Token validation | All values, ranges, semantic aliases, CSS generation determinism | Node script |
 | Static CSS | Keyframes declared, motion reduction selectors, no `transition: all`, no hover lift | Vitest/static validator |
 | Interactive controls | Hover 120ms; press instant; focus immediate; switch/tabs 180ms | Chromium/Firefox/WebKit |
-| Floating surfaces | Correct `data-side` offsets; exit duration shorter; anchor stable | Three browser engines |
+| Floating surfaces | Correct `data-erx-side` offsets; exit duration shorter; anchor stable | Three browser engines |
 | Presence | enter→exit, exit→reopen, repeated rapid toggles, dispose, cancelled event | Unit + three browsers |
 | No animation | `prefers-reduced-motion`, forced-color mode where applicable, zero CSS duration | Browser |
 | Mid-flight reduction | Change preference during enter/exit; no stale mounted modal | Browser |
@@ -282,7 +286,7 @@ A nested scope can override motion primitives or component timing roles. When th
 ## 15. Proposed repository integration
 
 ```text
-docs/design/eroxo-iris-motion-interactions-spec.md
+docs/design-system/eroxo-iris-motion-interactions-spec.md
 tokens/motion.json
 src/styles/motion.css                      # generated token defaults
 src/styles/motion-components.reference.css # example-only recipes
@@ -295,11 +299,13 @@ examples/MotionShowcase.tsx
 integration/guide.md
 ```
 
+Apart from this specification, these files are planned and not yet in the repository. Token file locations are provisional: UL-13 picks one tokens folder and one generator, and may generate `tokens/motion.json` from this specification's tables.
+
 **Implementation order:** merge this spec into UL-12 visual foundation; add token generator and CSS to UL-13/UL-18 build; implement shared motion preference and first native focus/control rules at UL-15; implement presence/overlay coordination at UL-24/UL-25; audit with UI components and UL-42/UL-43. The `*.reference.*` files are explanatory examples, not certified production implementations.
 
 ## 16. Decisions intentionally deferred
 
-- Native `@starting-style` / `transition-behavior: allow-discrete` adoption and fallback after UL-04 browser spike.
+- Native `@starting-style` / `transition-behavior: allow-discrete` adoption and fallback: entry uses CSS keyframes in v1, as the [UL-04 spike](../ul-04-spike.md) did, and `@starting-style` is revisited later.
 - Event/deadline implementation details and cancellation tokens finalized in the UL-25 presence ADR.
 - Pointer gesture/swipe motion for Toast or Slider if needed; not part of default foundation.
 - Custom page transitions, spring physics and animated charts belong to consumers, not Eroxo v1.
@@ -318,3 +324,13 @@ No remaining *visual-design* decision needs owner approval before this contract 
 - Existing Eroxo contracts: ERX-DS-COLOR-001, TYPE-001, SPACE-001, SHAPE-001 and DEPTH-001.
 
 **Change policy:** Any amendment to durations, semantics, selectors, or accessibility behavior requires an explicit design-system decision record, token-version update, regression tests and migration notes if a public token changes.
+
+## Open items after 0.2.0
+
+- **`entering` presence phase** (D11): whether presence tracks `entering` at all; `PresencePhase` and the `data-erx-presence` DOM contract in Section 7 keep `entering` until then. Settled in UL-25.
+- **Tooltip exit timing** (D12): `--erx-motion-tooltip-exit` is `90ms`, which isn't on the duration scale (0/120/180/250/350 ms), so either the scale gains a 90 ms step or the tooltip exit becomes 120 ms. Settled in UL-12.
+- **Tooltip hover-delay token** (D12): no token owns the delay before a tooltip opens on hover; its name and value come with the Tooltip's behavior profile. Settled in UL-27.
+- **Dialog backdrop and exit motion** (record gap): whether `::backdrop` fades, and whether the dialog scales on exit. Section 5 gives only the entry scale (`0.985` → `1`), and the Section 4 mapping's "Fade + slight scale" close has no token or value. Settled in UL-25.
+- **Token naming and tiers** (D5): a naming grammar that shows each token's tier, and a cap on the component tier, which covers this spec's component-named timing tokens such as `--erx-motion-tooltip-enter` and `--erx-motion-dialog-exit` (Section 10). Settled in UL-06 and UL-12.
+- **Tokens folder and generator** (record gap on paths): where `tokens/motion.json` and the generated `src/styles/motion.css` live, and the single generator that produces them. Settled in UL-13.
+- **Companion files** (record gap, missing companion files): the owner adds `tokens/motion.json`, the reference CSS and presence helper, the scripts, the token test and the HTML fixture, or UL-13 generates the token JSON from this spec's tables. Settled by the owner or in UL-13.
