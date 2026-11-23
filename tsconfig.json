@@ -17,5 +17,5 @@
     "jsxImportSource": "@solidjs/web",
     "types": ["node"]
   },
-  "exclude": ["node_modules", "dist", "./dev"]
+  "exclude": ["node_modules", "dist", "./dev", "fixtures", "artifacts"]
 }

@@ -1,0 +1,6 @@
+@layer erx.tokens, erx.components;
+@layer erx.tokens {
+  :root {
+    --erx-probe-color: #161925;
+  }
+}

@@ -1,0 +1,7 @@
+@layer erx.tokens, erx.components;
+
+@layer erx.components {
+  .erx-hello {
+    color: var(--erx-hello-color, var(--erx-color-text));
+  }
+}

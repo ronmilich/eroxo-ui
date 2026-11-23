@@ -15,13 +15,27 @@ The playground runs at `http://localhost:3000`. Run `pnpm lint` for linting, str
 
 ## Workspace
 
-The root is the public `eroxo-ui` package. The private Vite docs app in `dev/` resolves public imports to live library source during development. `fixtures/spa/` and `fixtures/ssr/` reserve independent consumer projects for the packed-package checks in UL-08. The private `scripts/` workspace holds repository checks. All projects share one pnpm lockfile.
+The root is the public `eroxo-ui` package. The private Vite docs app in `dev/` resolves public imports to live library source during development. The private `scripts/` workspace holds repository checks. The workspace uses one pnpm lockfile.
+
+### Verify the distribution
+
+```sh
+pnpm exec playwright install --only-shell chromium
+pnpm build
+pnpm test:package
+```
+
+The check runs `npm pack`, installs the tarball in two temporary projects outside the workspace and type-checks their imports. The SPA fixture uses the preserved JSX. The SSR fixture renders in Node and hydrates with the compiled browser entry. Chromium checks server-rendered styling with JavaScript disabled, DOM reuse during hydration, a click-driven update and a local CSS override.
+
+The build workflow attaches `artifacts/size-report.md`. It lists the shipped entries and browser bundles in raw and gzip bytes. The Button and Dialog rows use a separately packed private benchmark under `fixtures/size/`. Their production implementations belong to later component milestones.
 
 The [library roadmap](docs/ui-library-roadmap.md) is maintained here and supplies the milestone status used by TaoTale.
 
 ## Using the library
 
 Consumers need both `solid-js` and `@solidjs/web` at compatible 2.x versions (2.0.3 or later). Once the library is installed, import its named exports.
+
+`eroxo-ui/hello` and the root export share the same component. A client import brings in its styles and tokens. For server-rendered pages, include `eroxo-ui/styles.css` in the document's first-paint stylesheet. The individual stylesheets are `eroxo-ui/tokens.css` and `eroxo-ui/hello.css`.
 
 ```tsx
 import { Hello } from 'eroxo-ui'

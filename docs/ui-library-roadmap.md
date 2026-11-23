@@ -167,7 +167,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-05 | Architecture decisions (ADRs) | P1 | — | (input to TAO-04) | Done |
 | UL-06 | API and styling conventions | P1 | — | — | Done |
 | UL-07 | Repository and toolchain bootstrap | P1 | — | TAO-04–TAO-06 | Done |
-| UL-08 | Build, packaging and consumer fixtures | P1 | — | — | Planned |
+| UL-08 | Build, packaging and consumer fixtures | P1 | — | — | Done |
 | UL-09 | Test, conformance and CI infrastructure | P1 | — | — | Planned |
 | UL-10 | Release pipeline and supply-chain security | P1 | canary | — | Planned |
 | UL-11 | Documentation site and playground skeleton | P1 | — | TAO-07, TAO-08, TAO-11 | Planned |
@@ -556,15 +556,15 @@ The owner approved pull requests with a passing, up-to-date GitHub Actions `buil
 - `solid-js` as a peer dependency.
 - Import safety: no browser globals at module initialisation (08 §2.2).
 - Packaging checks, e.g. `publint` and "Are the types wrong?".
-- Consumer fixtures that install the `npm pack` tarball: a Vite SPA and a SolidStart SSR app. They assert a single Solid runtime, that CSS is present, that types resolve, and that SSR import is safe.
+- Consumer fixtures install the same `npm pack` tarball in isolated Vite SPA and direct Solid SSR applications. [ADR 08](adr/08-support.md) specifies the SSR target. Stable [SolidStart 2.2.3](https://registry.npmjs.org/@solidjs%2Fstart/2.2.3) still declares a Solid 1 peer. Add its fixture once a compatible stable release is available.
 - Size report: per-entry JS/CSS, comparing a Button-only import with an overlay-heavy import.
 
 
 
 
 **Exit criteria**
-- [ ] `build` + `pack` produce a tarball that both fixtures install and render.
-- [ ] Packaging checks clean; size report attached to CI runs.
+- [x] Both fixtures install the built tarball. They type-check, resolve one Solid runtime and render in Chromium. The SSR fixture verifies first-paint CSS with JavaScript disabled, then hydrates the original DOM and handles a click.
+- [x] CI runs publint and the ESM profile of Are the Types Wrong against the tarball and uploads the raw and gzip [size report](https://github.com/ronmilich/eroxo-ui/actions/workflows/tests.yml). Private Button and Dialog probes verify that a light import excludes overlay JS and CSS. Production component sizes follow their respective implementation milestones.
 
 
 

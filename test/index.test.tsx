@@ -28,7 +28,7 @@ describe('Hello', () => {
   it('renders a hello component', () => {
     const container = document.createElement('main')
     const dispose = render(() => <Hello />, container)
-    expect(container.innerHTML).toBe('<div>Hello World!</div>')
+    expect(container.innerHTML).toBe('<div class="erx-hello">Hello World!</div>')
     dispose()
   })
 
@@ -36,10 +36,10 @@ describe('Hello', () => {
     const [to, setTo] = createSignal('Solid')
     const container = document.createElement('main')
     const dispose = render(() => <Hello to={to()} />, container)
-    expect(container.innerHTML).toBe('<div>Hello Solid!</div>')
+    expect(container.innerHTML).toBe('<div class="erx-hello">Hello Solid!</div>')
     setTo('Tests')
     flush()
-    expect(container.innerHTML).toBe('<div>Hello Tests!</div>')
+    expect(container.innerHTML).toBe('<div class="erx-hello">Hello Tests!</div>')
     dispose()
   })
 })

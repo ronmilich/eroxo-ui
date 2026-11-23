@@ -1,0 +1,6 @@
+@layer erx.tokens, erx.components;
+@layer erx.components {
+  .erx-button {
+    color: var(--erx-probe-color);
+  }
+}

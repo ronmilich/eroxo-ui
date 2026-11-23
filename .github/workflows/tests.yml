@@ -36,6 +36,19 @@ jobs:
       - name: Build
         run: pnpm run build
 
+      - name: Install fixture browser
+        run: pnpm exec playwright install --with-deps --only-shell chromium
+
+      - name: Verify packed consumers and measure entry sizes
+        run: pnpm test:package
+
+      - name: Attach package size report
+        uses: actions/upload-artifact@v7
+        with:
+          name: ul-08-package-sizes
+          path: artifacts/size-report.md
+          if-no-files-found: error
+
       - name: Build playground
         run: pnpm build:docs
 

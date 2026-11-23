@@ -1,0 +1,8 @@
+@layer erx.tokens, erx.components;
+@layer erx.components {
+  .erx-dialog {
+    border: 0;
+    padding: 1rem;
+    color: var(--erx-probe-color);
+  }
+}

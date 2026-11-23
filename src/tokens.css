@@ -1,0 +1,7 @@
+@layer erx.tokens, erx.components;
+
+@layer erx.tokens {
+  :root {
+    --erx-color-text: #161925;
+  }
+}
