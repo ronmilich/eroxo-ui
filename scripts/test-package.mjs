@@ -8,14 +8,20 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { gzipSync } from 'node:zlib'
 import solid from '@solidjs/vite-plugin'
 import { JSDOM } from 'jsdom'
-import { chromium } from 'playwright'
+import { chromium, firefox, webkit } from 'playwright'
+import { checkAccessibility, checkGreeting } from '../test/browser/harness.mjs'
+import { checkInputPatterns } from '../test/browser/conformance.mjs'
 import { build, preview } from 'vite'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const artifacts = path.join(root, 'artifacts')
-const temp = await mkdtemp(path.join(tmpdir(), 'eroxo-packed-'))
 const sizeRoot = path.join(root, 'fixtures/size')
 const sizes = []
+const tier = process.env.SOLID_PEER_TIER ?? 'minimum'
+assert.ok(['minimum', 'latest'].includes(tier), 'Unknown SOLID_PEER_TIER: ' + tier)
+const { peerDependencies } = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'))
+// Use one spelling of the temporary root for Vite's HTML entries on Windows.
+const temp = await realpath(await mkdtemp(path.join(tmpdir(), 'eroxo-packed-')))
 const tool = (file, args, cwd = root) =>
   execFileSync(process.execPath, [path.join(root, file), ...args], { cwd, stdio: 'inherit' })
 
@@ -44,6 +50,10 @@ async function installFixture(
   const file = path.join(dir, 'package.json')
   const manifest = JSON.parse(await readFile(file, 'utf8'))
   manifest.dependencies = { ...manifest.dependencies, [packageName]: 'file:library.tgz' }
+  for (const [peer, range] of Object.entries(peerDependencies)) {
+    assert.equal('^' + manifest.dependencies[peer], range, 'Fixture minimum drifted for ' + peer)
+    if (tier === 'latest') manifest.dependencies[peer] = range
+  }
   await writeFile(file, JSON.stringify(manifest))
   execSync(
     'npm install --ignore-scripts --no-audit --no-fund --package-lock=false --strict-peer-deps',
@@ -57,6 +67,10 @@ async function installFixture(
   )
   const library = createRequire(path.join(installed, 'package.json'))
   for (const peer of ['solid-js', '@solidjs/web']) {
+    const { version } = JSON.parse(
+      await readFile(path.join(dir, 'node_modules', peer, 'package.json'), 'utf8'),
+    )
+    console.log(`${name} (${tier}): ${peer}@${version}`)
     assert.equal(
       await realpath(consumer.resolve(peer)),
       await realpath(library.resolve(peer)),
@@ -89,13 +103,7 @@ function inspectOutput(label, result) {
   return { css, modules }
 }
 
-async function checkPage(browser, dir, ssr) {
-  const server = await preview({
-    root: dir,
-    configFile: false,
-    preview: { host: '127.0.0.1', port: 0 },
-  })
-  const url = 'http://127.0.0.1:' + server.httpServer.address().port
+async function checkPage(browser, url, ssr) {
   const page = await browser.newPage()
   const errors = []
   page.on('pageerror', error => errors.push(error.message))
@@ -122,6 +130,8 @@ async function checkPage(browser, dir, ssr) {
       await page.locator('.erx-hello').evaluate(el => getComputedStyle(el).color),
       'rgb(22, 25, 37)',
     )
+    await checkGreeting(page, 'Hello fixture!')
+    await checkAccessibility(page)
     await page.getByRole('button', { name: 'Update' }).click()
     await page.getByText('Hello updated!', { exact: true }).waitFor()
     await page
@@ -131,10 +141,27 @@ async function checkPage(browser, dir, ssr) {
       await page.locator('.erx-hello').evaluate(el => getComputedStyle(el).color),
       'rgb(30, 60, 90)',
     )
+    await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' })
+    await page.setViewportSize({ width: 640, height: 480 })
+    await page.addStyleTag({
+      content: `
+      @media (prefers-color-scheme: dark) {
+        :root { color-scheme: dark; background: #161925; color: white; }
+        main { --erx-color-text: white; }
+      }
+      html { zoom: 2; }
+    `,
+    })
+    await page.locator('main').evaluate(el => el.style.removeProperty('--erx-hello-color'))
+    assert.equal(
+      await page.locator('.erx-hello').evaluate(el => getComputedStyle(el).color),
+      'rgb(255, 255, 255)',
+    )
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+    await checkAccessibility(page)
     assert.deepEqual(errors, [])
   } finally {
     await page.close()
-    await server.close()
   }
 }
 
@@ -161,44 +188,69 @@ async function checkDomRunner(dir) {
 }
 
 async function consumers(tarball) {
-  const browser = await chromium.launch()
-  try {
-    for (const name of ['spa', 'ssr']) {
-      const ssr = name === 'ssr'
-      const dir = await installFixture(name, tarball, 'eroxo-ui')
-      tool('node_modules/typescript/bin/tsc', ['-p', dir])
-      const result = await build({ root: dir, configFile: false, plugins: ssr ? [] : [solid()] })
-      const { css, modules } = inspectOutput(name, result)
-      assert.ok(
-        modules.some(id => id.endsWith('/eroxo-ui/dist/hello.' + (ssr ? 'js' : 'jsx'))),
-        modules.join('\n'),
+  for (const name of ['spa', 'ssr']) {
+    const ssr = name === 'ssr'
+    const dir = await installFixture(name, tarball, 'eroxo-ui')
+    tool('node_modules/typescript/bin/tsc', ['-p', dir])
+    const result = await build({ root: dir, configFile: false, plugins: ssr ? [] : [solid()] })
+    const { css, modules } = inspectOutput(name, result)
+    assert.ok(
+      modules.some(id => id.endsWith('/eroxo-ui/dist/hello.' + (ssr ? 'js' : 'jsx'))),
+      modules.join('\n'),
+    )
+    for (const peer of ['solid-js', '@solidjs/web']) {
+      const marker = '/node_modules/' + peer + '/'
+      const roots = new Set(
+        modules.filter(id => id.includes(marker)).map(id => id.slice(0, id.lastIndexOf(marker))),
       )
-      for (const peer of ['solid-js', '@solidjs/web']) {
-        const marker = '/node_modules/' + peer + '/'
-        const roots = new Set(
-          modules.filter(id => id.includes(marker)).map(id => id.slice(0, id.lastIndexOf(marker))),
-        )
-        assert.equal(roots.size, 1, 'Expected one bundled copy of ' + peer + ': ' + [...roots])
-      }
-      assert.equal(css.match(/--erx-color-text\s*:/g)?.length, 1)
-      if (ssr) {
-        await checkDomRunner(dir)
-        const { html, hydrationScript } = await import(
-          pathToFileURL(path.join(dir, 'server.mjs')).href
-        )
-        const index = path.join(dir, 'dist/index.html')
-        const template = await readFile(index, 'utf8')
-        await writeFile(
-          index,
-          template
-            .replace('<!--server-content-->', () => html)
-            .replace('<!--hydration-script-->', () => hydrationScript),
-        )
-      }
-      await checkPage(browser, dir, ssr)
+      assert.equal(roots.size, 1, 'Expected one bundled copy of ' + peer + ': ' + [...roots])
     }
-  } finally {
-    await browser.close()
+    assert.equal(css.match(/--erx-color-text\s*:/g)?.length, 1)
+    if (ssr) {
+      await checkDomRunner(dir)
+      const { html, hydrationScript } = await import(
+        pathToFileURL(path.join(dir, 'server.mjs')).href
+      )
+      const index = path.join(dir, 'dist/index.html')
+      const template = await readFile(index, 'utf8')
+      await writeFile(
+        index,
+        template
+          .replace('<!--server-content-->', () => html)
+          .replace('<!--hydration-script-->', () => hydrationScript),
+      )
+    } else {
+      await build({
+        root: dir,
+        configFile: false,
+        base: './',
+        plugins: [solid()],
+        build: {
+          outDir: 'dist/conformance',
+          rolldownOptions: { input: path.join(dir, 'conformance.html') },
+        },
+      })
+    }
+    const server = await preview({
+      root: dir,
+      configFile: false,
+      preview: { host: '127.0.0.1', port: 0 },
+    })
+    const url = 'http://127.0.0.1:' + server.httpServer.address().port
+    try {
+      for (const engine of [chromium, firefox, webkit]) {
+        const browser = await engine.launch()
+        try {
+          console.log(`Checking ${name} in ${engine.name()} ${browser.version()}`)
+          await checkPage(browser, url, ssr)
+          if (!ssr) await checkInputPatterns(browser, url)
+        } finally {
+          await browser.close()
+        }
+      }
+    } finally {
+      await server.close()
+    }
   }
 }
 

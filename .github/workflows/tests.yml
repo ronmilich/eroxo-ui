@@ -7,52 +7,63 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  quality:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 2
-
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
           cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint and typecheck
-        run: pnpm lint
-
-      - name: Check formatting
-        run: pnpm format:check
-
-      - name: Build
-        run: pnpm run build
-
-      - name: Install fixture browser
-        run: pnpm exec playwright install --with-deps --only-shell chromium
-
-      - name: Verify packed consumers and measure entry sizes
-        run: pnpm test:package
-
-      - name: Attach package size report
-        uses: actions/upload-artifact@v7
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm test:conventions
+      - run: pnpm test:coverage
+      - uses: actions/upload-artifact@v7
         with:
-          name: ul-08-package-sizes
+          name: library-coverage
+          path: artifacts/coverage/
+          if-no-files-found: error
+      - run: pnpm test:ssr
+      - run: pnpm build:docs
+
+  consumers:
+    needs: quality
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        peer: [minimum, latest]
+    env:
+      SOLID_PEER_TIER: ${{ matrix.peer }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm exec playwright install --with-deps --only-shell chromium firefox webkit
+      - name: Verify packed SPA, SSR, keyboard, input and axe in three browsers
+        run: pnpm test:package
+      - uses: actions/upload-artifact@v7
+        with:
+          name: package-sizes-${{ matrix.peer }}
           path: artifacts/size-report.md
           if-no-files-found: error
 
-      - name: Build playground
-        run: pnpm build:docs
-
-      - name: Test
-        run: pnpm run test
+  # Branch protection requires this stable check name.
+  build:
+    if: ${{ always() }}
+    needs: [quality, consumers]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every quality and consumer job to pass
         env:
-          CI: true
+          QUALITY: ${{ needs.quality.result }}
+          CONSUMERS: ${{ needs.consumers.result }}
+        run: test "$QUALITY" = success && test "$CONSUMERS" = success
