@@ -1,7 +1,11 @@
 # UL-04 · Technical spike record
 
 
+
+
 **Owner decision, 23 November 2026.** The owner approved four starting assumptions for the spike:
+
+
 
 
 - Solid 2 only, with an SSR test app that does not use SolidStart.
@@ -10,13 +14,21 @@
 - An unmerged branch for the throwaway code.
 
 
+
+
 They are provisional. UL-05 ratifies or replaces them in its ADRs. The spike report is at the end of this record.
+
+
 
 
 ## 1 · Solid 2 only, with SSR tested outside SolidStart
 
 
+
+
 Solid 2.0.0 was published on 17 November 2026. The charter, README and package peers already target `solid-js` and `@solidjs/web` 2.x. On 23 November the npm registry showed `@solidjs/router` 2.0.1 and `@solidjs/meta` 2.0.0 declaring Solid 2 peers. The latest SolidStart, 2.2.3, still declared `solid-js ^1.9.15`, so a SolidStart app cannot install a Solid 2-only library. [@solidjs/start](https://www.npmjs.com/package/@solidjs/start) · [@solidjs/router](https://www.npmjs.com/package/@solidjs/router) · [solid-js](https://www.npmjs.com/package/solid-js)
+
+
 
 
 | Option | Assessment |
@@ -26,13 +38,21 @@ Solid 2.0.0 was published on 17 November 2026. The charter, README and package p
 | Solid 1.9 first | Contradicts the charter and forces a breaking migration during 0.x. |
 
 
+
+
 The spike's SSR consumer is a minimal Vite SSR app that renders and hydrates with `@solidjs/web` directly. SolidStart stays untested until a release supports Solid 2. TaoTale is unaffected: it is a Vite single-page app on `@solidjs/router`, which supports Solid 2. Recheck SolidStart before UL-05. Add a SolidStart fixture in UL-08, or later once one is possible.
+
+
 
 
 ## 2 · Provisional browser and screen-reader matrix
 
 
+
+
 The native-first check runs against the intended browser matrix, but UL-05 sets that matrix after the spike. On 23 November 2026 `<dialog>`, the `inert` attribute and the Popover API were Baseline Widely available, meaning they had worked in every major engine for at least 30 months. The Popover API reached that status in October 2026. CSS anchor positioning reached every engine with Firefox 147 in January 2026, and caniuse still rates Firefox's support as partial. [Firefox 147 release notes](https://developer.mozilla.org/en-US/Firefox/Releases/147) · [caniuse: CSS anchor positioning](https://caniuse.com/css-anchor-positioning) · [web.dev, January 2026](https://web.dev/blog/web-platform-01-2026)
+
+
 
 
 | Question | Decision | Alternatives considered |
@@ -43,13 +63,21 @@ The native-first check runs against the intended browser matrix, but UL-05 sets 
 | When does a native feature win? | When it meets the APG and 08 §4 requirement in every browser on the list, with at most a small, documented patch. Otherwise use JavaScript. | Decide case by case in the report. |
 
 
+
+
 Under this policy CSS anchor positioning is only an optional enhancement, and the Tooltip uses JavaScript positioning. Anchors on text ranges (08 §2.3) need JavaScript geometry in any case. This choice changes the size of UL-26, not the need for it.
+
+
 
 
 ## 3 · Ten-working-day cap and two CSS candidates
 
 
+
+
 As written, UL-04 covers:
+
+
 
 
 - three components and two or three CSS approaches;
@@ -58,29 +86,47 @@ As written, UL-04 covers:
 - an effort estimate for seven milestones.
 
 
+
+
 The roadmap sizes milestones at one to two weeks of one developer.
 
 
+
+
 The spike is capped at 10 working days. CSS approaches are compared on Button and Dialog styling only, and the Dialog and Tooltip behavior is built once. The two candidates are:
+
+
 
 
 - plain CSS with cascade layers, processed by Lightning CSS;
 - CSS Modules.
 
 
+
+
 Zero-runtime vanilla-extract joins only if the owner asks for TypeScript-typed tokens.
+
+
 
 
 The alternatives were comparing all three candidates, or splitting the milestone into UL-04a (CSS, build and packaging) and UL-04b (behavior and native-first). When the cap is reached, the spike stops and the report lists what it did not cover.
 
 
+
+
 ## 4 · Throwaway code on an unmerged branch
 
 
-The spike code lives on a `spike/ul-04` branch that is never merged and is tagged when the spike ends. Only this record, with the spike report, lands on `main`. Spike packages set `"private": true`, because `eroxo-ui` is not yet reserved on npm (UL-02) and the root `package.json` can be published. The alternatives were a separate scratch repository and a temporary `spike/` folder on `main`. No spike code moves into product milestones, and the spike's component APIs set no precedent for UL-06.
+
+
+The spike code was planned to live on a `spike/ul-04` branch that is never merged and is tagged when the spike ends. On 23 November 2026 the owner decided not to archive it on GitHub; see the exit criteria at the end of this record. Only this record, with the spike report, lands on `main`. Spike packages set `"private": true`, because `eroxo-ui` is not yet reserved on npm (UL-02) and the root `package.json` can be published. The alternatives were a separate scratch repository and a temporary `spike/` folder on `main`. No spike code moves into product milestones, and the spike's component APIs set no precedent for UL-06.
+
+
 
 
 ## Constraints that still apply
+
+
 
 
 - No Kobalte, other headless UI library or positioning library, even in the spike (TT-032). Otherwise the effort estimate is meaningless.
@@ -88,7 +134,11 @@ The spike code lives on a `spike/ul-04` branch that is never merged and is tagge
 - The clean-room rules and DCO sign-off apply ([UL-03](ul-03-commercial.md), [CONTRIBUTING](../CONTRIBUTING.md)).
 
 
+
+
 ## Left to the spike report
+
+
 
 
 - CSS delivery: CSS imported by each component, a required global stylesheet, or both.
@@ -97,7 +147,11 @@ The spike code lives on a `spike/ul-04` branch that is never merged and is tagge
 - The effort estimate for UL-14 to UL-17 and UL-24 to UL-26.
 
 
+
+
 ## Spike report · 23 November 2026
+
+
 
 
 The spike built the three planned components, packed them as a private tarball and installed them in a single-page app and an SSR app:
@@ -106,10 +160,16 @@ The spike built the three planned components, packed them as a private tarball a
 - a Tooltip with our own positioning code.
 
 
-A Playwright suite ran the same 27 checks in Chromium 151, Firefox 153 and WebKit 26.5. iPadOS 26.1 Safari was checked with real touch in the iOS Simulator. The code, tests and day-by-day notes are on the `spike/ul-04` branch, in `spike/README.md` and `spike/conformance/RESULTS.md`.
+
+
+A Playwright suite ran the same 27 checks in Chromium 151, Firefox 153 and WebKit 26.5. iPadOS 26.1 Safari was checked with real touch in the iOS Simulator. The code, tests and day-by-day notes are not on GitHub; a copy stays in the owner's local clone, including `spike/README.md` and `spike/conformance/RESULTS.md`.
+
+
 
 
 ### Recommendations
+
+
 
 
 | Question | Recommendation | Evidence |
@@ -121,7 +181,11 @@ A Playwright suite ran the same 27 checks in Chromium 151, Firefox 153 and WebKi
 | SSR | Support SSR through `@solidjs/web`. Recheck SolidStart before UL-05. | Server rendering and hydration worked in all three engines with no console errors. |
 
 
+
+
 ### Native or JavaScript, per primitive
+
+
 
 
 | Primitive | Recommendation | Our code in the spike |
@@ -140,7 +204,11 @@ A Playwright suite ran the same 27 checks in Chromium 151, Firefox 153 and WebKi
 | Tooltip interaction | JavaScript on top of `:focus-visible` and `pointerType`. | About 110 lines. |
 
 
+
+
 ### Measurements
+
+
 
 
 | Bundle, gzip | JavaScript | CSS |
@@ -153,13 +221,21 @@ A Playwright suite ran the same 27 checks in Chromium 151, Firefox 153 and WebKi
 | All three | 15.23 kB | 1.88 kB |
 
 
+
+
 A Button-only import leaves the overlay code out, as the charter requires. The dialog's exit animation took 130–137 ms in the three engines, and 3 ms with reduced motion requested. The tooltip appeared 406–410 ms after hover, against a configured 400 ms.
+
+
 
 
 ### Effort estimate for the behavior layer
 
 
+
+
 The unit is weeks of focused work for one developer, the roadmap's own unit, including each milestone's Definition of Done.
+
+
 
 
 | Milestone | Roadmap size | Estimate | Basis | Confidence |
@@ -174,13 +250,19 @@ The unit is weeks of focused work for one developer, the roadmap's own unit, inc
 | Total | 7–14 | 10–10.5 | | |
 
 
+
+
 The total stays near the roadmap's midpoint, but the work moves from overlays to collections. Split UL-17 before starting it: roving tabindex, typeahead and the collection model first; virtual focus and selection second. UL-24 and UL-25 could merge into one milestone of about two weeks, since the top layer covers much of both.
+
+
 
 
 ### Still open
 
 
-- **VoiceOver:** a manual check by the owner, using the checklist below.
+
+
+- **VoiceOver:** moved to UL-09's manual screen-reader check. The checklist below is its starting point.
 - **Desktop Firefox:** the suite used Playwright's Firefox build. A manual pass needs Firefox installed.
 - **Classic scrollbars:** layout shift on lock couldn't be measured on this Mac, which uses overlay scrollbars. Check on Windows and consider `scrollbar-gutter: stable`.
 - **Safari keyboard access:** Safari's Tab skips buttons unless the user turns on keyboard navigation for all controls. Documentation and tests should use Option+Tab.
@@ -189,10 +271,16 @@ The total stays near the roadmap's midpoint, but the work moves from overlays to
 - **Trigger API:** the tooltip's description and the dialog's focus fallback both need the trigger element. For UL-06.
 
 
+
+
 ### VoiceOver checklist
 
 
-Turn VoiceOver on (Cmd+F5) and open the SPA test app in Safari. Record each result in this section.
+
+
+UL-09's manual screen-reader check starts from these steps. Turn VoiceOver on (Cmd+F5), open a page with these components in Safari, and record the results in UL-09.
+
+
 
 
 1. Move to "Open A" and press VO+Space. VoiceOver announces the dialog's title, its role and its description.
@@ -203,7 +291,14 @@ Turn VoiceOver on (Cmd+F5) and open the SPA test app in Safari. Record each resu
 6. The pending "Saving" button is announced as busy.
 
 
+
+
 ### Exit criteria
 
 
-**Owner approval, 23 November 2026.** The owner approved this report and its recommendations, so the report and estimate criteria are met. Two items remain: archiving, which needs the `spike/ul-04` branch and its tag on GitHub, and running the VoiceOver checklist.
+
+
+**Owner approval, 23 November 2026.** The owner approved this report and its recommendations, so the report and estimate criteria are met. **Owner decision, 23 November 2026.** The spike code is not archived on GitHub: the report replaces it, and a copy stays in the owner's local clone as a reference. The VoiceOver checklist moves to UL-09's manual screen-reader check. UL-04 is done.
+
+
+
