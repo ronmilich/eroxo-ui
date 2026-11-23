@@ -20,12 +20,14 @@ The root is the public `eroxo-ui` package. The private Vite docs app in `dev/` r
 ### Verify the distribution
 
 ```sh
-pnpm exec playwright install --only-shell chromium
+pnpm exec playwright install --only-shell chromium firefox webkit
 pnpm build
 pnpm test:package
 ```
 
-The check runs `npm pack`, installs the tarball in two temporary projects outside the workspace and type-checks their imports. The SPA fixture uses the preserved JSX. The SSR fixture renders in Node and hydrates with the compiled browser entry. Chromium checks server-rendered styling with JavaScript disabled, DOM reuse during hydration, a click-driven update and a local CSS override.
+The check runs `npm pack`, installs the tarball in two temporary projects outside the workspace and type-checks their imports. The SPA fixture uses the preserved JSX. The SSR fixture renders in Node and hydrates with the compiled browser entry. Chromium, Firefox and WebKit check server-rendered styling with JavaScript disabled, DOM reuse during hydration, a click-driven update and a local CSS override. They also run axe, keyboard-table, touch-pointer and IME composition checks.
+
+The default consumer install tests the minimum Solid peers. Set `SOLID_PEER_TIER=latest` in your shell to test the newest versions npm resolves within the public peer ranges. CI runs both installs and logs the resolved versions. Run `pnpm test:coverage` for the source-level V8 report in `artifacts/coverage/`. See the [screen-reader protocol](docs/screen-reader-protocol.md) for device checks and how to add keyboard rows.
 
 The build workflow attaches `artifacts/size-report.md`. It lists the shipped entries and browser bundles in raw and gzip bytes. The Button and Dialog rows use a separately packed private benchmark under `fixtures/size/`. Their production implementations belong to later component milestones.
 

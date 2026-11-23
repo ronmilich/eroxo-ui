@@ -168,7 +168,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-06 | API and styling conventions | P1 | — | — | Done |
 | UL-07 | Repository and toolchain bootstrap | P1 | — | TAO-04–TAO-06 | Done |
 | UL-08 | Build, packaging and consumer fixtures | P1 | — | — | Done |
-| UL-09 | Test, conformance and CI infrastructure | P1 | — | — | Planned |
+| UL-09 | Test, conformance and CI infrastructure | P1 | — | — | Done |
 | UL-10 | Release pipeline and supply-chain security | P1 | canary | — | Planned |
 | UL-11 | Documentation site and playground skeleton | P1 | — | TAO-07, TAO-08, TAO-11 | Planned |
 | UL-12 | Design language and token taxonomy | P2 | — | — | Planned |
@@ -601,9 +601,9 @@ The owner approved pull requests with a passing, up-to-date GitHub Actions `buil
 
 
 **Exit criteria**
-- [ ] A sample test of each layer runs in CI, in all three engines.
-- [ ] An accessibility violation, a failing keyboard-table test or a fixture failure fails the build.
-- [ ] Screen-reader protocol written.
+- [x] CI runs source unit/component coverage and SSR tests, then exercises the packed library in Chromium, Firefox and WebKit with minimum and latest-compatible Solid peers. Samples cover hydration, keyboard activation, focus, touch, composition and axe.
+- [x] The protected `build` check requires both peer jobs and source checks. Negative controls verify that an unnamed button, a broken APG activation row and incorrect fixture output trigger their respective assertions.
+- [x] The [screen-reader protocol](screen-reader-protocol.md) covers pattern-specific checks and result recording for NVDA, VoiceOver and TalkBack. Manual execution is recorded at each component milestone.
 
 
 

@@ -1,0 +1,3 @@
+# Match the formatter's LF policy on Windows checkouts.
+src/** text=auto eol=lf
+dev/** text=auto eol=lf
