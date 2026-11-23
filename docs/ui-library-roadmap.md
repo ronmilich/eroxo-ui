@@ -13,17 +13,19 @@
 
 
 
-**Key decision — no Kobalte ([TT-032](../02-taotale-decision-register.md), 23 November 2026):** the library implements its own accessible behavior layer — interaction, focus, layering, positioning, presence and collection navigation. No other headless UI library takes Kobalte's place.
+**Key decision — no Kobalte ([TT-032](https://github.com/ronmilich/taotale/blob/master/docs/02-taotale-decision-register.md), 23 November 2026):** the library implements its own accessible behavior layer — interaction, focus, layering, positioning, presence and collection navigation. No other headless UI library takes Kobalte's place.
 
 
 
 
-**Normative sources:** [08 — Design system and SolidJS UI library](../08-taotale-design-system.md) (primary; §2.3 for the in-house primitives), [02 — Decision register](../02-taotale-decision-register.md) (TT-028–032, OPEN-10/11), [03 — Client](../03-taotale-client.md) §6, [11 — Operations](../11-taotale-operations-and-security.md) §6, [12 — Quality](../12-taotale-quality-and-acceptance.md) (fixture F9).
+**Normative sources:** [08 — Design system and SolidJS UI library](https://github.com/ronmilich/taotale/blob/master/docs/08-taotale-design-system.md) (primary; §2.3 for the in-house primitives), [02 — Decision register](https://github.com/ronmilich/taotale/blob/master/docs/02-taotale-decision-register.md) (TT-028–032, OPEN-10/11), [03 — Client](https://github.com/ronmilich/taotale/blob/master/docs/03-taotale-client.md) §6, [11 — Operations](https://github.com/ronmilich/taotale/blob/master/docs/11-taotale-operations-and-security.md) §6, [12 — Quality](https://github.com/ronmilich/taotale/blob/master/docs/12-taotale-quality-and-acceptance.md) (fixture F9).
 
 
 
 
-**Consumer roadmap:** [TaoTale roadmap](taotale-roadmap.md). TaoTale is the launch design partner: its milestones are **gated** on the milestones below. This library never depends on TaoTale code.
+This file in the Eroxo UI repository is the canonical roadmap. TaoTale links to it for current gate status.
+
+**Consumer roadmap:** [TaoTale roadmap](https://github.com/ronmilich/taotale/blob/master/docs/roadmap/taotale-roadmap.md). TaoTale is the launch design partner: its milestones are **gated** on the milestones below. This library never depends on TaoTale code.
 
 
 
@@ -164,7 +166,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-04 | Technical spike (throwaway prototype) | P1 | — | — | Done |
 | UL-05 | Architecture decisions (ADRs) | P1 | — | (input to TAO-04) | Done |
 | UL-06 | API and styling conventions | P1 | — | — | Done |
-| UL-07 | Repository and toolchain bootstrap | P1 | — | TAO-04–TAO-06 | Planned |
+| UL-07 | Repository and toolchain bootstrap | P1 | — | TAO-04–TAO-06 | In progress |
 | UL-08 | Build, packaging and consumer fixtures | P1 | — | — | Planned |
 | UL-09 | Test, conformance and CI infrastructure | P1 | — | — | Planned |
 | UL-10 | Release pipeline and supply-chain security | P1 | canary | — | Planned |
@@ -215,7 +217,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 
 
 
-*"Hard" means the TaoTale milestone uses what this milestone delivers. Unmarked entries are sequencing gates: library-first ordering that TaoTale also must respect. See the [TaoTale gating rules](taotale-roadmap.md#2-ui-library-gating-rules).*
+*"Hard" means the TaoTale milestone uses what this milestone delivers. Unmarked entries are sequencing gates: library-first ordering that TaoTale also must respect. See the [TaoTale gating rules](https://github.com/ronmilich/taotale/blob/master/docs/roadmap/taotale-roadmap.md#2-ui-library-gating-rules).*
 
 
 
@@ -524,7 +526,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 
 **Exit criteria**
 - [ ] Fresh clone → install → lint → typecheck passes in CI.
-- [ ] The allow-list check is proven by a deliberately failing test.
+- [x] The CLI rejects a manifest containing an unapproved runtime dependency. The regression test checks the nonzero exit and the offending field and package name for regular, optional, peer and bundled dependencies.
 
 
 

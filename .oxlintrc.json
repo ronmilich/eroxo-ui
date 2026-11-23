@@ -3,6 +3,27 @@
   "jsPlugins": ["./scripts/jsx-conventions.mjs"],
   "overrides": [
     {
+      "files": ["src/**/*.{ts,tsx,js,jsx}", "dev/**/*.{ts,tsx,js,jsx}"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "solid-js/web",
+                "message": "Import the Solid 2 renderer from @solidjs/web."
+              },
+              {
+                "name": "solid-js",
+                "importNames": ["splitProps", "mergeProps"],
+                "message": "Use Solid 2 omit or merge and preserve reactive prop access."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "files": ["src/**/*.tsx", "src/**/*.jsx"],
       "rules": { "eroxo/data-attribute": "error" }
     }
