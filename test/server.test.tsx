@@ -25,6 +25,6 @@ describe('createHello', () => {
 describe('Hello', () => {
   it('renders a hello component', () => {
     const string = renderToString(() => <Hello />)
-    expect(string).toBe('<div>Hello World!</div>')
+    expect(string).toBe('<div class="erx-hello">Hello World!</div>')
   })
 })

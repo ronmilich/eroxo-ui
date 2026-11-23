@@ -1,0 +1,24 @@
+{
+  "name": "eroxo-size-probe",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": "./dist/index.js",
+    "./button": "./dist/button.js",
+    "./dialog": "./dist/dialog.js",
+    "./button.css": "./dist/button.css",
+    "./dialog.css": "./dist/dialog.css",
+    "./tokens.css": "./dist/tokens.css"
+  },
+  "peerDependencies": {
+    "solid-js": "^2.0.3",
+    "@solidjs/web": "^2.0.3"
+  }
+}

@@ -17,7 +17,9 @@
     "NOTICE"
   ],
   "private": false,
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -26,19 +28,39 @@
     ".": {
       "types": "./dist/index.d.ts",
       "solid": "./dist/index.jsx",
-      "node": "./dist/server.js",
+      "browser": "./dist/index.js",
+      "node": "./dist/index.server.js",
       "default": "./dist/index.js"
+    },
+    "./hello": {
+      "types": "./dist/hello.d.ts",
+      "solid": "./dist/hello.jsx",
+      "browser": "./dist/hello.js",
+      "node": "./dist/hello.server.js",
+      "default": "./dist/hello.js"
+    },
+    "./tokens.css": {
+      "types": "./dist/tokens.d.css.ts",
+      "default": "./dist/tokens.css"
+    },
+    "./hello.css": {
+      "types": "./dist/hello.d.css.ts",
+      "default": "./dist/hello.css"
+    },
+    "./styles.css": {
+      "types": "./dist/styles.d.css.ts",
+      "default": "./dist/styles.css"
     }
   },
   "scripts": {
     "dev": "pnpm --filter @eroxo-ui/docs run dev",
     "build:docs": "pnpm --filter @eroxo-ui/docs run build",
-    "build": "vite build && vite build --ssr src/index.tsx && tsc -p tsconfig.build.json",
+    "build": "vite build && vite build --ssr && tsc -p tsconfig.build.json && node scripts/build-styles.mjs",
     "test": "pnpm test:conventions && pnpm test:client && pnpm test:ssr",
     "test:conventions": "node --test test/*.test.mjs",
     "test:client": "vitest run",
     "test:ssr": "vitest run --mode ssr",
-    "prepublishOnly": "pnpm build",
+    "prepack": "pnpm build",
     "format": "prettier --ignore-path .gitignore -w \"src/**/*.{js,ts,json,css,tsx,jsx}\" \"dev/**/*.{js,ts,json,css,tsx,jsx}\"",
     "format:check": "prettier --ignore-path .gitignore --check \"src/**/*.{js,ts,json,css,tsx,jsx}\" \"dev/**/*.{js,ts,json,css,tsx,jsx}\"",
     "lint": "pnpm lint:code && pnpm lint:types && pnpm lint:conventions && pnpm lint:dependencies",
@@ -46,23 +68,28 @@
     "lint:conventions": "stylelint \"src/**/*.css\" --allow-empty-input && node scripts/check-exports.mjs",
     "lint:code": "oxlint --type-aware --deny-warnings src test dev",
     "lint:types": "tsc --noEmit && tsc -p dev --noEmit",
-    "update-deps": "pnpm up -Li"
+    "update-deps": "pnpm up -Li",
+    "test:package": "node scripts/test-package.mjs"
   },
   "peerDependencies": {
     "@solidjs/web": "^2.0.3",
     "solid-js": "^2.0.3"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@solidjs/vite-plugin": "^3.0.1",
     "@solidjs/web": "^2.0.3",
     "@types/node": "^26.6.6",
     "jsdom": "^31.0.1",
+    "lightningcss": "^1.33.0",
     "oxlint": "^1.94.0",
     "oxlint-tsgolint": "^7.0.2008",
+    "playwright": "^1.65.1",
     "prettier": "3.10.1",
+    "publint": "^0.3.25",
     "solid-js": "^2.0.3",
     "stylelint": "^18.1.0",
-    "typescript": "^7.0.2",
+    "typescript": "7.0.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.1"
   },

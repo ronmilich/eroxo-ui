@@ -8,7 +8,7 @@ const distTarget = /^\.\/dist\/(?:[a-zA-Z0-9_-]+\/)*[a-zA-Z0-9_-]+(?:\.[a-zA-Z0-
 function validTarget(target, css, types = false) {
   if (typeof target === 'string') {
     if (!distTarget.test(target)) return false
-    if (css) return target.endsWith('.css')
+    if (css) return target.endsWith(types ? '.d.css.ts' : '.css')
     if (types) return target.endsWith('.d.ts') || target.endsWith('.d.mts')
     return /\.(?:mjs|jsx?)$/.test(target)
   }
