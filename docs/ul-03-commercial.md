@@ -25,6 +25,6 @@ Contributors sign the DCO and retain their rights. The owner has not identified 
 
 ## Counsel and design-partner handoff
 
-The owner has not identified counsel or confirmed an appointment. Proposed review deadline is before UL-44 sign-off and in all cases before UL-45. The review should cover the initial GitHub distribution, starter attribution, ownership of new work, DCO, class 9/42 marks and any later proposed terms. Record the appointment and outcome before checking off the counsel criterion.
+The owner has not identified counsel or confirmed an appointment. On 24 November 2026 the owner moved the counsel review into UL-45's final legal review, which lets UL-03 close; the review must finish before `1.0.0` is published. This replaces the earlier deadline of UL-44 sign-off. The review should cover the initial GitHub distribution, starter attribution, ownership of new work, DCO, class 9/42 marks and any later proposed terms. Record the appointment and outcome with UL-45's legal review.
 
 TaoTale decision TT-033 records the TAO-02 handoff for Eroxo UI, free npm package `eroxo-ui`, MIT, current repository `ronmilich/eroxo-ui`. TaoTale and other consumers receive the same free catalog. The long-term business model remains open. Brand reservations and API details remain open.

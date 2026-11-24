@@ -12,7 +12,7 @@ These nine specifications define Eroxo UI's default design language (Iris) and i
 | [Motion and interactions](eroxo-iris-motion-interactions-spec.md) | ERX-DS-MOTION-001 | 0.2.0 |
 | [Iconography](eroxo-iris-iconography-spec.md) | ERX-DS-ICON-001 | 0.2.0 |
 | [Behavior and accessibility](eroxo-iris-behavior-accessibility-spec.md) | ERX-DS-BEHAVIOR-001 | 0.2.0 |
-| [Component anatomy and API](eroxo-iris-component-anatomy-api-spec.md) | ERX-DS-COMPONENT-001 | 0.3.0 |
+| [Component anatomy and API](eroxo-iris-component-anatomy-api-spec.md) | ERX-DS-COMPONENT-001 | 0.4.0 |
 
 ## How they relate to other decisions
 

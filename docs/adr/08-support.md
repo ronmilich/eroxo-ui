@@ -12,4 +12,8 @@ Support Solid 2 and direct Vite 8 SPA/SSR consumers first. Claim SolidStart supp
 
 Dual Solid 1/2 support would double the behavior matrix. A last-two-versions policy would admit features unavailable on supported tablets. UL-09 establishes VoiceOver/Safari and NVDA/Firefox keyboard and announcement checks, plus TalkBack/Chrome for touch patterns. Include Android TalkBack in the UL-42 audit. Record actual browser, OS and reader versions with results.
 
+## Update · 24 November 2026
+
+`solid-js` 2.0.0 was published on 17 November 2026, and its announcement retired SolidStart. Start mode in `@solidjs/vite-plugin` (`start: true`, with `ssr: true` for streaming SSR) replaces it. The framework-level SSR target is therefore Start mode, verified by the UL-09b consumer fixture, alongside the direct Vite SPA and SSR consumers. Consider TanStack Solid Start, whose 2.0 release candidate supports Solid 2, once it is stable. The rest of this decision stands. [Solid 2.0 announcement](https://www.solidjs.com/blog/solid-2-0-the-long-hold/) · [Vite plugin](https://www.npmjs.com/package/@solidjs/vite-plugin)
+
 [UL-05 status and evidence](README.md)

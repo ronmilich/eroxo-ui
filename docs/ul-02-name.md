@@ -16,6 +16,8 @@ Velnori already identifies a software business. Tiravo is an ordinary Italian ve
 
 ## Reservation ledger
 
+On 24 November 2026 the owner moved these reservations to roadmap milestone [UL-09a](ui-library-roadmap.md#ul-09a--name-organisation-and-domain-reservations), which lets UL-02 close. Record each reservation's evidence here when it is done.
+
 | Asset | Observation on 23 November | Evidence needed to close |
 |---|---|---|
 | npm @eroxo-ui | Public core and pro registry queries returned 404. npm returned 403 for the organisation pages for all shortlist candidates and eroxo-ui. Scope status unknown. | Owner-controlled npm organisation and verified publisher access. [Core registry](https://registry.npmjs.org/eroxo-ui) · [npm organisation](https://www.npmjs.com/org/eroxo-ui) |

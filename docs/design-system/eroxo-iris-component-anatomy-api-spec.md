@@ -1,11 +1,13 @@
 # Eroxo Iris — Component Anatomy & API Conventions
 
 **Specification ID:** ERX-DS-COMPONENT-001  
-**Version:** 0.3.0\
-**Decision date:** 23 November 2026  
+**Version:** 0.4.0\
+**Decision date:** 23 November 2026, amended 24 November 2026  
 **Status:** Approved by the owner for UL-06\
 **Owner:** Eroxo UI  
 **Target:** SolidJS 2, TypeScript, ESM, SSR, static CSS, WCAG 2.2 AA
+
+> **0.4.0 (24 November 2026)** makes Select and Combobox data-first (§2) and adds the agent conventions (§11.1), from the owner's decisions in the [product strategy](../product-strategy.md) review.
 
 > **0.3.0 (23 November 2026)** resolves the UL-06 questions in the [Iris reconciliation](reconciliation.md). The [architecture decisions](../adr/README.md) govern build, CSS delivery and native overlays.
 
@@ -15,7 +17,7 @@
 
 | Dimension | Approved contract |
 | --- | --- |
-| Architecture | **Hybrid:** single-component API for atomic controls; compound components for multi-part interactive patterns |
+| Architecture | **Hybrid:** single-component API for atomic controls; compound components for multi-part interactive patterns; Select and Combobox are data-first, with optional parts (0.4.0) |
 | Visual variants | Shared vocabulary: `solid`, `soft`, `outline`, `ghost`, `text` (only meaningful variants per component) |
 | Semantic style | `variant`, `tone`, `size`; named component-specific props only when necessary |
 | Size | `sm`, `md`, `lg`; inherited density selects default; explicit size overrides density |
@@ -41,8 +43,10 @@ This is the UL-06 rulebook for component authors and the CSS contract that TaoTa
 | --- | --- | --- | --- |
 | Atomic | Single JSX component | Button, IconButton, Icon, Spinner, Badge, Separator, Skeleton, Progress | One obvious semantic root and few meaningful parts |
 | Structured | Named optional parts; a convenience root MAY exist | Card, Field, Alert, Table, EmptyState | Rich layout with replaceable content and styling parts |
-| Interactive composition | Compound parts required | Dialog, AlertDialog, Popover, Tooltip, Select, Combobox, Tabs, RadioGroup, DropdownMenu | Shared state, IDs, roles and coordinated interaction across elements |
+| Interactive composition | Compound parts required; Select and Combobox are data-first (below) | Dialog, AlertDialog, Popover, Tooltip, Select, Combobox, Tabs, RadioGroup, DropdownMenu | Shared state, IDs, roles and coordinated interaction across elements |
 | Provider/manager | Provider plus independent child APIs when needed | Toast | Shared notification manager and live-region ownership |
+
+**Data-first collections (0.4.0).** Select and Combobox MUST take an `items` collection as their source of truth. With no parts, `Root` MUST render the default parts, as in `<Select.Root items={countries} />`; parts customize how the same items render, in one implementation. DropdownMenu, Tabs, RadioGroup and ToggleGroup keep registered JSX children. UL-17 builds one keyboard and typeahead core for both.
 
 **Namespace rule:** prefer `Dialog.Root`, `Dialog.Trigger`, `Dialog.Content`, `Dialog.Title` etc. Also export named parts (`DialogRoot`, `DialogTrigger`, `DialogContent`) from documented entry points. Group objects MUST be defined without eagerly importing unrelated implementation families where that would harm tree-shaking. Components with a public standalone name MUST NOT introduce a redundant `Root` unless there is a compound form.
 
@@ -203,6 +207,16 @@ Target **WCAG 2.2 AA** for documented compositions. APG examples and native brow
 7. Ensure CSS is included in distribution: the current repository has `sideEffects: false`; UL-08 MUST verify that static stylesheet entry points survive consumer bundling and consider CSS-aware `sideEffects` entries.
 8. Use the currently declared SolidJS 2 peer dependencies and test against the minimum and latest supported peer versions, including `@solidjs/web`.
 
+### 11.1 Agent conventions (0.4.0)
+
+Coding agents are a first-class consumer of every public API.
+
+1. Public names SHOULD use the vocabulary coding agents already know from Radix, Base UI, Ark and Kobalte: `Root`, `Trigger`, `Content`, `open`/`onOpenChange`, `value`/`onValueChange`. The docs MUST publish a mapping for developers coming from shadcn, Radix or Kobalte.
+2. Public props MUST use literal unions where the values are enumerable and MUST NOT use `any`. Every public prop MUST have JSDoc with a description, its default and a short example. Types SHOULD enforce required accessible names, so that an IconButton without a label fails to type-check.
+3. Development warnings MUST use one format: `[eroxo-ui] <Component>: <problem>. <fix>. <docs URL>.md`.
+4. Docs and examples MUST style through `--erx-*` tokens and documented hooks, never hard-coded values. In Tailwind projects they SHOULD use the theme-aware utilities from the opt-in `eroxo-ui/tailwind.css` bridge.
+5. Docs SHOULD show one pattern per task, and deprecated aliases MUST NOT appear in examples.
+
 ## 12. TypeScript public interfaces (reference)
 
 The exact renderer-provided intrinsic prop types should be confirmed against the installed Solid 2 peer range. The intended discriminated API is:
@@ -319,6 +333,8 @@ Run `pnpm lint` before submitting a component. Oxlint checks directly authored J
 Keep a single styled API in 1.0. Atomic controls expose their native root, and compound parts expose coordinated state and individually styleable elements. A universal polymorphic root or headless switch would require separate accessibility and typing contracts for each rendering path. Stable part classes already identify each styleable element, so a second part selector would add another public name to maintain. A distinct density prefix lets a consumer change an entire scope or override one component independently. Separate modal classes let Dialog and AlertDialog evolve their styling while sharing the browser's modal scroll lock.
 
 The owner approved these decisions on 23 November 2026. [TT-035 records the TaoTale handoff](https://github.com/ronmilich/taotale/commit/0426446). UL-08 verifies export resolution and CSS delivery, UL-14 implements shared utilities, UL-19 verifies the customization contract and UL-25 tests nested native dialogs and focus restoration.
+
+The owner amended these decisions on 24 November 2026 (version 0.4.0): Select and Combobox are data-first, and the agent conventions in §11.1 apply to every component.
 
 ## 17. Source references and design provenance
 
