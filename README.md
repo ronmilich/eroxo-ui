@@ -11,7 +11,7 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-The playground runs at `http://localhost:3000`. Run `pnpm lint` for linting, strict type checks and the runtime dependency policy. Run `pnpm test` for the policy, component and SSR tests. Use `pnpm build` for the library and `pnpm build:docs` for the playground.
+The docs and playground run at `http://localhost:3000`. Run `pnpm lint` for linting, strict type checks and the runtime dependency policy. Run `pnpm test` for the policy, component and SSR tests. Use `pnpm build` for the library and `pnpm build:docs` for the static site. After installing Chromium with `pnpm exec playwright install --only-shell chromium`, run `pnpm test:docs` to verify the built site and reference files.
 
 ## Workspace
 

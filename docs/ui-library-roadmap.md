@@ -173,7 +173,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-09a | Name, organisation and domain reservations | P1 | — | — | Planned |
 | UL-09b | Start-mode consumer fixture | P1 | — | — | Done |
 | UL-10 | Release pipeline and supply-chain security | P1 | canary | — | Planned |
-| UL-11 | Documentation site and playground skeleton | P1 | — | TAO-07, TAO-08, TAO-11 | Planned |
+| UL-11 | Documentation site and playground skeleton | P1 | — | TAO-07, TAO-08, TAO-11 | In progress |
 | UL-12 | Design language and token taxonomy | P2 | — | — | Planned |
 | UL-13 | Default light and dark themes | P2 | canary | — | Planned |
 | UL-14 | Core component utilities | P3 | canary | — | Planned |
@@ -732,7 +732,7 @@ The initial branch protection required pull requests with a passing, up-to-date 
 - Docs framework per UL-05 with live SolidJS examples.
 - Component page template: overview, examples, props table, keyboard table, accessibility notes, styling hooks.
 - Theme playground stub (light, dark, custom).
-- API tables generated from TypeScript where feasible; search; per-PR preview deployments; a versioned-docs strategy for 1.x.
+- API tables generated from TypeScript where feasible, search, and a versioned-docs strategy for 1.x. The GitHub Pages preview builds from `main`; pull requests get downloadable previews during early development.
 - **Agent channels from the first page (product strategy):** every page is also emitted as Markdown, together with `llms.txt`, `llms-full.txt` and component metadata. The metadata takes props and defaults from TypeScript, and parts, state attributes, CSS variables, keyboard tables and examples from the docs source.
 - Examples are real `.tsx` files that are compiled, type-checked and tested. The same files feed the site, the package docs and the Agent Skill.
 - Each component page adds "When to use", "When not to use" and "Common mistakes" to the template.
@@ -742,7 +742,7 @@ The initial branch protection required pull requests with a passing, up-to-date 
 
 **Exit criteria**
 - [ ] Docs site deployed (preview access is enough), with the template and one live example.
-- [ ] CI blocks when a docs example fails to compile or render, and the Markdown, `llms.txt` and metadata outputs are generated.
+- [ ] The docs check fails if an example fails to compile or render or if the Markdown, `llms.txt` or metadata outputs are missing. The check runs in GitHub Actions and locally without blocking direct pushes during early development.
 
 
 

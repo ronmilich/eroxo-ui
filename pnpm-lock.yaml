@@ -241,6 +241,9 @@ importers:
       eroxo-ui:
         specifier: workspace:*
         version: link:..
+      marked:
+        specifier: ^18.2.1
+        version: 18.2.1
       solid-js:
         specifier: ^2.0.3
         version: 2.0.3
@@ -1236,6 +1239,11 @@ packages:
     engines: {node: '>=16.0.0'}
     peerDependencies:
       marked: '>=1 <19'
+
+  marked@18.2.1:
+    resolution: {integrity: sha512-ii4bxCTCqqwpT86XZWgJNs+ZnAIZksmLGYMViWA7PDIXYIeNo1x6cDdX3JOip9NM/cI6p8z57FxliACboTruMA==}
+    engines: {node: '>= 20'}
+    hasBin: true
 
   marked@9.1.6:
     resolution: {integrity: sha512-jcByLnIFkd5gSXZmjNvS1TlmRhCXZjIzHYlaGkPlLIekG55JDR2Z4va9tZwCiP+/RDERiNhMOFu01xd6O5ct1Q==}
@@ -2341,6 +2349,8 @@ snapshots:
       marked: 9.1.6
       node-emoji: 2.2.0
       supports-hyperlinks: 3.2.0
+
+  marked@18.2.1: {}
 
   marked@9.1.6: {}
 

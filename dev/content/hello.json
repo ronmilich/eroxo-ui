@@ -1,0 +1,14 @@
+{
+  "component": "Hello",
+  "importPath": "eroxo-ui/hello",
+  "parts": [],
+  "stateAttributes": [],
+  "cssVariables": [
+    {
+      "name": "--erx-hello-color",
+      "description": "Greeting text color.",
+      "fallback": "--erx-color-text"
+    }
+  ],
+  "keyboard": [{ "key": "—", "behavior": "Hello has no keyboard interaction." }]
+}

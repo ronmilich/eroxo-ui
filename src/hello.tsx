@@ -8,7 +8,16 @@ export function createHello(): [Accessor<string>, (to: string) => void] {
   return [hello, (to: string) => setHello(`Hello ${to}!`)]
 }
 
-export const Hello: Component<{ to?: string }> = props => {
+interface HelloProps {
+  /**
+   * The name to greet.
+   * @defaultValue "World"
+   * @example <Hello to="Iris" />
+   */
+  to?: string
+}
+
+export const Hello: Component<HelloProps> = props => {
   const to = createMemo<string>(previous => props.to ?? previous ?? 'World')
   return <div class="erx-hello">{`Hello ${to()}!`}</div>
 }

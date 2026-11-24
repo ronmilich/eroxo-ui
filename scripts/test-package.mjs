@@ -331,6 +331,12 @@ try {
     'dist/hello.server.js.map',
     'dist/hello.js.map',
     'dist/styles.css.map',
+    'dist/docs/index.md',
+    'dist/docs/components/hello.md',
+    'dist/docs/components/hello.json',
+    'dist/docs/examples/hello.tsx',
+    'dist/docs/llms.txt',
+    'dist/docs/llms-full.txt',
   ]) {
     assert.ok(files.includes(name), name + ' missing from tarball')
   }

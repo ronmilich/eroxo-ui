@@ -1,6 +1,9 @@
-import { render } from '@solidjs/web'
-import './styles.css'
+import { setupSearch } from './search'
 
-import App from './App'
+setupSearch()
 
-render(() => <App />, document.getElementById('root')!)
+const playground = document.getElementById('playground')
+if (playground) {
+  const { mountPlayground } = await import('./Playground')
+  mountPlayground(playground)
+}
