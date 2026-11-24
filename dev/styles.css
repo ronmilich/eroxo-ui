@@ -230,13 +230,10 @@ th {
 }
 .example {
   min-height: 4rem;
+  color: var(--erx-color-text);
+  background: var(--erx-color-surface);
 }
-.example[data-theme='dark'] {
-  color: #f4f3ff;
-  background: #1e2034;
-  --erx-color-text: #f4f3ff;
-}
-.example[data-theme='custom'] {
+.example[data-erx-theme='custom'] {
   --erx-hello-color: var(--demo-color);
 }
 .formats {

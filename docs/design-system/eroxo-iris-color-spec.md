@@ -669,6 +669,6 @@ Selection colors are opt-in: Eroxo ships no global `::selection` rule. An app th
 - [UL-12](ul-12-token-taxonomy.md) assigns `--erx-color-tooltip-border` to the 1 px tooltip edge (D8).
 - **Portal fallback (C7):** whether any overlay can't use the top layer and needs a portal that carries the resolved semantic variables. Settled by the UL-05 native-first ADR.
 - **Tokens folder and generator (record gaps):** `src/styles/tokens/` and the generator are provisional. UL-13 picks one tokens folder and one generator.
-- **Custom theme fallback (record gaps):** what happens when a custom theme such as `[data-erx-theme="acme"]` omits a token. Settled in UL-13.
+- **Custom theme fallback (UL-13):** a partial custom scope inherits omitted roles and the native color scheme. Color-dependent composites recompute on each Eroxo theme scope. See the [token reference](https://ronmilich.github.io/eroxo-ui/tokens/).
 - **Missing companion files (record gaps):** `eroxo-iris.tokens.json` and `eroxo-iris.colors.css` are not in the repository. The owner adds them, or UL-13 generates the token JSON from the tables in this specification.
 - **Design source (record gaps):** a design source, such as Figma, for the light and dark themes. Settled by the owner in UL-12.

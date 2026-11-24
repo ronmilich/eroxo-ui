@@ -4,11 +4,13 @@ import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { Marked, Renderer } from 'marked'
 import { API, SignatureKind, SymbolFlags } from 'typescript/unstable/sync'
+import { iris, contrastRatio, resolveToken } from '../scripts/iris-tokens.mjs'
 
 const here = new URL('./', import.meta.url)
 const library = new URL('../src/', here)
 const definitions = [
   { title: 'Eroxo UI', route: 'index.html', markdown: 'index.md', content: 'index' },
+  { title: 'Iris tokens', route: 'tokens/index.html', markdown: 'tokens.md', content: 'tokens' },
   {
     title: 'Hello',
     route: 'components/hello/index.html',
@@ -30,6 +32,60 @@ function table(headers, rows) {
   return [headers, headers.map(() => '---'), ...rows]
     .map(row => '| ' + row.map(cell).join(' | ') + ' |')
     .join('\n')
+}
+
+function tokenReference() {
+  const sections = Object.entries(iris.groups).map(([family, { primitives, roles }]) => {
+    const rows = Object.entries({ ...primitives, ...roles }).map(([name, value]) => {
+      const [light, dark] = Array.isArray(value) ? value : [value, value]
+      return [
+        code('--erx-' + name),
+        name in primitives ? 'Primitive' : 'Semantic',
+        code(light),
+        code(dark),
+      ]
+    })
+    return (
+      '## ' + family + '\n\n' + table(['Token', 'Tier', 'Light or shared', 'Dark or shared'], rows)
+    )
+  })
+  const density = Object.entries(iris.density.standard).map(([name, standard]) => [
+    code('--erx-' + name),
+    code(iris.density.compact[name]),
+    code(standard),
+    code(iris.density.comfortable[name]),
+  ])
+  sections.push(
+    '## Density\n\n' + table(['Semantic token', 'Compact', 'Standard', 'Comfortable'], density),
+  )
+  for (const [heading, values] of [
+    ['Wide typography at 48rem', iris.wide],
+    ['Reduced-motion defaults', iris.reduced],
+    ['Optional overrides and their fallbacks', iris.optional],
+  ]) {
+    sections.push(
+      '## ' +
+        heading +
+        '\n\n' +
+        table(
+          ['Token', 'Value'],
+          Object.entries(values).map(([name, value]) => [code('--erx-' + name), code(value)]),
+        ),
+    )
+  }
+  const contrast = iris.contrast.map(([foreground, background, minimum]) => [
+    code('--erx-' + foreground),
+    code('--erx-' + background),
+    minimum,
+    ...['light', 'dark'].map(mode =>
+      contrastRatio(resolveToken(foreground, mode), resolveToken(background, mode)).toFixed(2),
+    ),
+  ])
+  sections.push(
+    '## Contrast checks\n\n' +
+      table(['Foreground', 'Background', 'Minimum', 'Light', 'Dark'], contrast),
+  )
+  return sections.join('\n\n')
 }
 
 function componentProps(entry, name) {
@@ -133,7 +189,8 @@ export async function compileDocs(live = '') {
   const pages = []
   for (const definition of definitions) {
     const { title, route, markdown, content, example, entry } = definition
-    const body = `# ${title}\n\n${await read(`content/${content}.md`)}`
+    const intro = await read(`content/${content}.md`)
+    const body = `# ${title}\n\n${intro.replace('{{tokens}}', () => tokenReference())}`
     let reference = body.replaceAll('./components/hello/', './components/hello.md')
     let web = body
     if (example) {

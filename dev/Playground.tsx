@@ -32,7 +32,7 @@ function Playground() {
           </label>
         </Show>
       </div>
-      <div class="example" data-theme={theme()} style={{ '--demo-color': color() }}>
+      <div class="example" data-erx-theme={theme()} style={{ '--demo-color': color() }}>
         <HelloExample />
       </div>
     </div>

@@ -5,7 +5,7 @@ import { defineConfig } from 'vite'
 import { compileDocs } from './compile.mjs'
 
 const root = fileURLToPath(new URL('./', import.meta.url))
-const input = ['index.html', 'components/hello/index.html']
+const input = ['index.html', 'components/hello/index.html', 'tokens/index.html']
 const href = (page, target) => path.posix.relative(path.posix.dirname(page.route), target) || '.'
 const escape = value =>
   value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')

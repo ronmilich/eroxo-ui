@@ -42,19 +42,23 @@ try {
     await page.getByText('Hello Solid!', { exact: true }).waitFor()
     const theme = page.getByLabel('Theme', { exact: true })
     await theme.selectOption('dark')
-    assert.equal(await greeting.evaluate(el => getComputedStyle(el).color), 'rgb(244, 243, 255)')
+    assert.equal(await greeting.evaluate(el => getComputedStyle(el).color), 'rgb(245, 247, 252)')
     await checkAccessibility(page)
     await theme.selectOption('custom')
     await page.getByLabel('Greeting color', { exact: true }).fill('#225577')
     assert.equal(await greeting.evaluate(el => getComputedStyle(el).color), 'rgb(34, 85, 119)')
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
     assert.deepEqual(errors, [])
+    await page.getByRole('link', { name: 'Iris tokens', exact: true }).click()
+    await page.getByRole('heading', { name: 'Contrast checks' }).waitFor()
+    assert.match(await page.locator('article').innerText(), /--erx-color-primary/)
   } finally {
     await browser.close()
   }
 
   for (const name of [
     'index.md',
+    'tokens.md',
     'components/hello.md',
     'components/hello.json',
     'examples/hello.tsx',

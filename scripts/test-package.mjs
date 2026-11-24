@@ -103,6 +103,93 @@ function inspectOutput(label, result) {
   return { css, modules }
 }
 
+async function checkThemeScopes(page) {
+  const observed = await page.evaluate(() => {
+    const root = document.documentElement
+    const scope = document.createElement('section')
+    scope.innerHTML = [
+      '<div data-erx-density="compact">',
+      '  <div data-erx-theme="light" id="packed-light"></div>',
+      '</div>',
+      '<div data-erx-theme="dark">',
+      '  <div data-erx-density="comfortable" data-erx-theme="custom" id="packed-custom"',
+      '    style="--erx-color-shadow: rgb(41, 50, 61); --erx-color-primary: #184b91"></div>',
+      '</div>',
+    ].join('')
+    scope.style.setProperty('--erx-radius-control', '27px')
+    scope.style.setProperty('--erx-type-body-size', '1.125rem')
+    document.body.append(scope)
+    const light = scope.querySelector('#packed-light')
+    const custom = scope.querySelector('#packed-custom')
+    for (const sample of [light, custom]) {
+      Object.assign(sample.style, {
+        color: 'var(--erx-color-text)',
+        backgroundColor: 'var(--erx-color-primary)',
+        minHeight: 'var(--erx-density-control-default-min-block-size)',
+        borderRadius: 'var(--erx-radius-control)',
+        fontSize: 'var(--erx-type-body-size)',
+        boxShadow: 'var(--erx-elevation-card-raised)',
+      })
+    }
+    function read(el) {
+      const style = getComputedStyle(el)
+      return [
+        style.colorScheme,
+        style.color,
+        style.backgroundColor,
+        style.minHeight,
+        style.borderRadius,
+        style.fontSize,
+        style.boxShadow,
+      ]
+    }
+    try {
+      const implicit = getComputedStyle(root).colorScheme
+      root.setAttribute('data-erx-theme', 'light')
+      root.setAttribute('data-erx-density', 'compact')
+      const explicitLight = getComputedStyle(root).colorScheme
+      const rootDensity = getComputedStyle(root)
+        .getPropertyValue('--erx-density-control-default-min-block-size')
+        .trim()
+      root.setAttribute('data-erx-theme', 'dark')
+      const explicitDark = getComputedStyle(root).colorScheme
+      return {
+        implicit,
+        explicitLight,
+        explicitDark,
+        rootDensity,
+        light: read(light),
+        custom: read(custom),
+      }
+    } finally {
+      root.removeAttribute('data-erx-theme')
+      root.removeAttribute('data-erx-density')
+      scope.remove()
+    }
+  })
+  assert.equal(observed.implicit, 'dark')
+  assert.equal(observed.explicitLight, 'light')
+  assert.equal(observed.explicitDark, 'dark')
+  assert.equal(observed.rootDensity, '2rem')
+  assert.deepEqual(observed.light.slice(0, 6), [
+    'light',
+    'rgb(22, 25, 37)',
+    'rgb(81, 69, 205)',
+    '32px',
+    '27px',
+    '18px',
+  ])
+  assert.deepEqual(observed.custom.slice(0, 6), [
+    'dark',
+    'rgb(245, 247, 252)',
+    'rgb(24, 75, 145)',
+    '48px',
+    '27px',
+    '18px',
+  ])
+  assert.match(observed.custom[6], /rgb\(41, 50, 61\)/)
+}
+
 async function checkPage(browser, url, name) {
   const page = await browser.newPage()
   const errors = []
@@ -112,17 +199,22 @@ async function checkPage(browser, url, name) {
   })
   try {
     if (name !== 'spa') {
-      const firstPaint = await browser.newPage({ javaScriptEnabled: false })
-      try {
-        const response = await firstPaint.goto(url)
-        assert.ok(response?.ok(), 'Expected a successful server response')
-        await checkGreeting(firstPaint, 'Hello fixture!')
-        assert.equal(
-          await firstPaint.locator('.erx-hello').evaluate(el => getComputedStyle(el).color),
-          'rgb(22, 25, 37)',
-        )
-      } finally {
-        await firstPaint.close()
+      for (const [colorScheme, color] of [
+        ['light', 'rgb(22, 25, 37)'],
+        ['dark', 'rgb(245, 247, 252)'],
+      ]) {
+        const firstPaint = await browser.newPage({ javaScriptEnabled: false, colorScheme })
+        try {
+          const response = await firstPaint.goto(url)
+          assert.ok(response?.ok(), 'Expected a successful server response')
+          await checkGreeting(firstPaint, 'Hello fixture!')
+          assert.equal(
+            await firstPaint.locator('.erx-hello').evaluate(el => getComputedStyle(el).color),
+            color,
+          )
+        } finally {
+          await firstPaint.close()
+        }
       }
     }
     if (name === 'start') {
@@ -138,7 +230,9 @@ async function checkPage(browser, url, name) {
       })
     }
     await page.goto(url)
-    await page.locator(name === 'ssr' ? 'main[data-hydrated="true"] .erx-hello' : '.erx-hello').waitFor()
+    await page
+      .locator(name === 'ssr' ? 'main[data-hydrated="true"] .erx-hello' : '.erx-hello')
+      .waitFor()
     assert.equal(
       await page.locator('.erx-hello').evaluate(el => getComputedStyle(el).color),
       'rgb(22, 25, 37)',
@@ -165,8 +259,7 @@ async function checkPage(browser, url, name) {
     await page.addStyleTag({
       content: `
       @media (prefers-color-scheme: dark) {
-        :root { color-scheme: dark; background: #161925; color: white; }
-        main { --erx-color-text: white; }
+        :root { background: var(--erx-color-canvas); color: var(--erx-color-text); }
         button { appearance: none; background: white; color: #161925; border: 1px solid white; }
       }
       html { zoom: 2; }
@@ -175,10 +268,11 @@ async function checkPage(browser, url, name) {
     await page.locator('main').evaluate(el => el.style.removeProperty('--erx-hello-color'))
     assert.equal(
       await page.locator('.erx-hello').evaluate(el => getComputedStyle(el).color),
-      'rgb(255, 255, 255)',
+      'rgb(245, 247, 252)',
     )
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
     await checkAccessibility(page)
+    if (name === 'spa') await checkThemeScopes(page)
     assert.deepEqual(errors, [])
   } finally {
     await page.close()
@@ -247,7 +341,7 @@ async function consumers(tarball) {
       )
       assert.equal(roots.size, 1, 'Expected one bundled copy of ' + peer + ': ' + [...roots])
     }
-    assert.equal(css.match(/--erx-color-text\s*:/g)?.length, 1)
+    assert.equal(css.match(/--erx-neutral-25\s*:/g)?.length, 1)
     if (ssr) {
       await checkDomRunner(dir)
       const { html, hydrationScript } = await import(
@@ -330,8 +424,10 @@ try {
     'dist/hello.jsx.map',
     'dist/hello.server.js.map',
     'dist/hello.js.map',
+    'dist/tokens.css',
     'dist/styles.css.map',
     'dist/docs/index.md',
+    'dist/docs/tokens.md',
     'dist/docs/components/hello.md',
     'dist/docs/components/hello.json',
     'dist/docs/examples/hello.tsx',

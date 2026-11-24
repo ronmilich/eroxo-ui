@@ -175,7 +175,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-10 | Release pipeline and supply-chain security | P1 | canary | — | Planned |
 | UL-11 | Documentation site and playground skeleton | P1 | — | TAO-07, TAO-08, TAO-11 | Done |
 | UL-12 | Design language and token taxonomy | P2 | — | — | Done |
-| UL-13 | Default light and dark themes | P2 | canary | — | Planned |
+| UL-13 | Default light and dark themes | P2 | canary | — | In progress |
 | UL-14 | Core component utilities | P3 | canary | — | Planned |
 | UL-15 | Accessibility, motion and localisation utilities | P3 | canary | TAO-12–TAO-15 | Planned |
 | UL-16 | Interaction primitives | P3 | canary | — | Planned |
@@ -814,7 +814,7 @@ The [token decision record](design-system/ul-12-token-taxonomy.md) and [light/da
 **Scope**
 - One source of truth (TS or JSON) generates CSS custom properties for light and dark. Each theme sets `color-scheme`.
 - Automated contrast tests for every documented foreground/background pair.
-- Defined fallback behavior when a consumer theme leaves out a token (08 §5).
+- Omitted custom-theme tokens inherit from the nearest built-in or system theme. Color-dependent aliases resolve within the custom scope.
 - Token reference page in the docs.
 
 
@@ -823,6 +823,8 @@ The [token decision record](design-system/ul-12-token-taxonomy.md) and [light/da
 **Exit criteria**
 - [ ] Token CSS builds and ships in a canary.
 - [ ] Contrast suite green; reference page live.
+
+The [Iris token source](../tokens/iris.json) generates the package stylesheet and the docs reference. Canary publication is deferred until the UL-10 release pipeline.
 
 
 
