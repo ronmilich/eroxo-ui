@@ -3,7 +3,7 @@
 
 
 
-**Status:** Phase P0 remains open. UL-04 is done, the Iris design specs are [reconciled](design-system/reconciliation.md), and [UL-05 architecture decisions](adr/README.md) are approved.
+**Status:** Phase P0 is done: on 24 November 2026 the deferred UL-02 reservations moved to UL-09a and the UL-03 counsel review moved to UL-45. UL-04 is done, the Iris design specs are [reconciled](design-system/reconciliation.md), and [UL-05 architecture decisions](adr/README.md) are approved. The [product strategy](product-strategy.md) review added six milestones with letter suffixes, UL-09a to UL-44a.
 
 
 
@@ -149,6 +149,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 6. **Size:** per-entry JS/CSS size measured and recorded, and within budget once [UL-43](#ul-43--performance-bundle-budgets-and-compatibility) sets budgets.
 7. **Release:** changeset and changelog entry, version published, and the consumer smoke test installs it **from the registry** (not a workspace link) and passes.
 8. **Generic only:** nothing application-specific — no domain rules, assets, fonts or brand colors.
+9. **Agent-ready:** complete JSDoc on every public prop (description, default and a short example), an entry in the component metadata, a Markdown page shipped in the package, and development warnings in the UL-14 format. CI enforces the deterministic checks from UL-11 and UL-20.
 
 
 
@@ -161,14 +162,16 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | ID | Milestone | Phase | Planned release | Gates in TaoTale | Status |
 |---|---|---|---|---|---|
 | UL-01 | Product charter and market scan | P0 | — | — | Done |
-| UL-02 | Name selection and brand reservation | P0 | — | — | In progress |
-| UL-03 | Licence and commercial model | P0 | — | TAO-01–TAO-03 | In progress |
+| UL-02 | Name selection and brand reservation | P0 | — | — | Done |
+| UL-03 | Licence and commercial model | P0 | — | TAO-01–TAO-03 | Done |
 | UL-04 | Technical spike (throwaway prototype) | P1 | — | — | Done |
 | UL-05 | Architecture decisions (ADRs) | P1 | — | (input to TAO-04) | Done |
 | UL-06 | API and styling conventions | P1 | — | — | Done |
 | UL-07 | Repository and toolchain bootstrap | P1 | — | TAO-04–TAO-06 | Done |
 | UL-08 | Build, packaging and consumer fixtures | P1 | — | — | Done |
 | UL-09 | Test, conformance and CI infrastructure | P1 | — | — | Done |
+| UL-09a | Name, organisation and domain reservations | P1 | — | — | Planned |
+| UL-09b | Start-mode consumer fixture | P1 | — | — | Planned |
 | UL-10 | Release pipeline and supply-chain security | P1 | canary | — | Planned |
 | UL-11 | Documentation site and playground skeleton | P1 | — | TAO-07, TAO-08, TAO-11 | Planned |
 | UL-12 | Design language and token taxonomy | P2 | — | — | Planned |
@@ -183,14 +186,17 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-21 | Form field system | P5 | `0.2.0` | — | Planned |
 | UL-22 | Choice controls | P5 | `0.3.0` | — | Planned |
 | UL-23 | Display primitives | P5 | `0.4.0` | TAO-18–TAO-20 | Planned |
+| UL-23a | Accordion and Collapsible | P5 | next 0.x minor | — | Planned |
 | UL-24 | Layering and dismissal | P6 | `0.5.0` | — | Planned |
 | UL-25 | Focus containment, modality, scroll lock and presence | P6 | `0.6.0` | — | Planned |
 | UL-26 | Positioning engine | P6 | `0.7.0` | — | Planned |
 | UL-27 | Tooltip | P6 | `0.8.0` | — | Planned |
 | UL-28 | Popover | P6 | `0.9.0` | — | Planned |
 | UL-29 | Dialog and AlertDialog | P6 | `0.10.0` | — | Planned |
+| UL-29a | Drawer | P6 | next 0.x minor | — | Planned |
 | UL-30 | DropdownMenu | P6 | `0.11.0` | — | Planned |
 | UL-31 | Integration-readiness release | P6 | `0.12.0` | TAO-10 (hard) | Planned |
+| UL-31a | Agent Skill and Solid guidance | P6 | — | — | Planned |
 | UL-32 | Select | P7 | `0.13.0` | — | Planned |
 | UL-33 | Feedback: Alert, Progress, EmptyState | P7 | `0.14.0` | TAO-21 (hard) | Planned |
 | UL-34 | Pagination | P7 | `0.15.0` | TAO-22 (hard) | Planned |
@@ -204,10 +210,11 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-42 | Accessibility audit and conformance report | P8 | `0.22.0` | TAO-47 (hard) | Planned |
 | UL-43 | Performance, bundle budgets and compatibility | P8 | `0.23.0` | TAO-48 (hard); TAO-49, TAO-50 | Planned |
 | UL-44 | API freeze and 1.0 release candidate | P8 | `1.0.0-rc.N` | TAO-51 (hard) | Planned |
+| UL-44a | Launch kit | P8 | — | — | Planned |
 | UL-45 | 1.0 GA and commercial launch | P8 | `1.0.0` | TAO-52, TAO-53, TAO-55–TAO-57, TAO-60 | Planned |
-| UL-46 | Responsive and touch hardening + Drawer/Sheet | P9 | `1.1.0` | (part of TAO-59) | Planned |
+| UL-46 | Responsive and touch hardening | P9 | `1.1.0` | (part of TAO-59) | Planned |
 | UL-47 | Navigation and menus | P9 | `1.2.0` | TAO-59 (hard) | Planned |
-| UL-48 | Disclosure components | P9 | `1.3.0` | TAO-54, TAO-58 (hard) | Planned |
+| UL-48 | HoverCard | P9 | `1.3.0` | TAO-54, TAO-58 (hard) | Planned |
 | UL-49 | Data components | P9 | `1.4.0` | — | Planned |
 | UL-50 | Date and number inputs | P9 | `1.5.0` | — | Planned |
 | UL-51 | Design-token interchange and design kit | P9 | — | — | Planned |
@@ -218,6 +225,11 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 
 
 *"Hard" means the TaoTale milestone uses what this milestone delivers. Unmarked entries are sequencing gates: library-first ordering that TaoTale also must respect. See the [TaoTale gating rules](https://github.com/ronmilich/taotale/blob/master/docs/roadmap/taotale-roadmap.md#2-ui-library-gating-rules).*
+
+
+
+
+*Milestones with a letter suffix were added on 24 November 2026 by the [product strategy](product-strategy.md) review. Each follows the milestone with the same number, so existing numbers and TaoTale's gates do not change. Component milestones with a suffix also publish a 0.x minor, so later planned versions shift; the actual version is recorded when each milestone is Done.*
 
 
 
@@ -304,7 +316,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 
 **Exit criteria**
 - [x] Name, npm package name and CSS/data-attribute prefixes approved and recorded.
-- [ ] npm scope, GitHub organisation and domain reserved. Owner deferred these reservations on 23 November 2026.
+- [x] npm scope, GitHub organisation and domain reservations moved to [UL-09a](#ul-09a--name-organisation-and-domain-reservations) by owner decision on 24 November 2026.
 - [x] Trademark filing decision recorded: file before 1.0 after clearance.
 
 
@@ -339,7 +351,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 - Distribution for each model: free packages on public npm; paid packages via a private registry or licence-gated access. **No runtime licence checks or telemetry inside components.**
 - **Clean-room policy:** behavior is implemented from public specifications and our own tests. Any adapted third-party code needs a compatible licence and recorded attribution (NOTICE). With no runtime dependencies besides `solid-js`, the remaining licence checks cover icon sets, fonts and dev tooling.
 - Contribution policy (DCO vs CLA), trademark usage policy, and the support tiers offered at 1.0.
-- Engage qualified counsel. The legal review must be complete before UL-45.
+- Engage qualified counsel. The legal review must be complete before `1.0.0` is published in UL-45.
 
 
 
@@ -347,7 +359,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 **Exit criteria**
 - [x] MIT and the free initial release approved. Long-term business model deferred by owner until after the initial release. LICENSE text drafted.
 - [x] Clean-room policy, contribution policy and third-party notices process defined.
-- [ ] Counsel review completed, or scheduled with a deadline before UL-45.
+- [x] Counsel review moved into UL-45's final legal review by owner decision on 24 November 2026. It must close before `1.0.0` is published.
 
 
 
@@ -495,11 +507,12 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 **Exit criteria**
 - [x] Component rulebook v0.3.0 approved by the owner on 23 November 2026. [TT-035 records the handoff to TaoTale](https://github.com/ronmilich/taotale/commit/0426446).
 - [x] `pnpm lint` checks CSS and JSX naming, CSS layer order, `!important` and public export patterns. `pnpm test:conventions` exercises the rules.
+- [x] Amended on 24 November 2026: [rulebook](design-system/eroxo-iris-component-anatomy-api-spec.md) v0.4.0 adds the agent conventions and data-first `items` for Select and Combobox (product strategy Q4).
 
 
 
 
-**Depends on:** The approved UL-02 name, package and prefix decisions, and the accepted UL-05 ADRs. UL-02 reservations remain deferred.
+**Depends on:** The approved UL-02 name, package and prefix decisions, and the accepted UL-05 ADRs. UL-02 reservations moved to UL-09a.
 
 
 
@@ -556,7 +569,7 @@ The owner approved pull requests with a passing, up-to-date GitHub Actions `buil
 - `solid-js` as a peer dependency.
 - Import safety: no browser globals at module initialisation (08 §2.2).
 - Packaging checks, e.g. `publint` and "Are the types wrong?".
-- Consumer fixtures install the same `npm pack` tarball in isolated Vite SPA and direct Solid SSR applications. [ADR 08](adr/08-support.md) specifies the SSR target. Stable [SolidStart 2.2.3](https://registry.npmjs.org/@solidjs%2Fstart/2.2.3) still declares a Solid 1 peer. Add its fixture once a compatible stable release is available.
+- Consumer fixtures install the same `npm pack` tarball in isolated Vite SPA and direct Solid SSR applications. [ADR 08](adr/08-support.md) specifies the SSR target. Stable [SolidStart 2.2.3](https://registry.npmjs.org/@solidjs%2Fstart/2.2.3) still declares a Solid 1 peer, and the Solid 2.0 announcement retired SolidStart. [UL-09b](#ul-09b--start-mode-consumer-fixture) adds a fixture for its replacement, Start mode in `@solidjs/vite-plugin`.
 - Size report: per-entry JS/CSS, comparing a Button-only import with an overlay-heavy import.
 
 
@@ -613,6 +626,66 @@ The owner approved pull requests with a passing, up-to-date GitHub Actions `buil
 
 
 
+#### UL-09a — Name, organisation and domain reservations
+
+
+
+
+**Goal:** Secure the names before the first canary is published. The deferred UL-02 reservations moved here on 24 November 2026, so UL-02 could close.
+
+
+
+
+**Scope**
+- Create the `@eroxo-ui` npm organisation with owner-controlled publisher access. The first UL-10 canary then claims the `eroxo-ui` package name.
+- Reserve the `eroxo-ui` GitHub organisation. Moving the repository stays a separate decision.
+- Register the domain (candidate `eroxoui.com`) after checking the price and renewal terms.
+- Check the social handle before advertising it.
+- Record the evidence in the [UL-02 reservation ledger](ul-02-name.md#reservation-ledger).
+
+
+
+
+**Exit criteria**
+- [ ] The npm organisation, GitHub organisation and domain are reserved, with evidence in the UL-02 ledger.
+
+
+
+
+**Depends on:** UL-02
+
+
+
+
+#### UL-09b — Start-mode consumer fixture
+
+
+
+
+**Goal:** Prove the package in Solid's official application setup, now that the Solid 2.0 announcement has retired SolidStart.
+
+
+
+
+**Scope**
+- A packed-consumer fixture built with Start mode in `@solidjs/vite-plugin` (`start: true` with `ssr: true`), checked like the existing SSR fixture: first-paint CSS, hydration of the server DOM and an interaction, in Chromium, Firefox and WebKit.
+- Track TanStack Solid Start, whose 2.0 release candidate supports Solid 2, and add a fixture once it is stable.
+
+
+
+
+**Exit criteria**
+- [x] [ADR 08](adr/08-support.md) names Start mode as the framework-level SSR target (24 November 2026).
+- [ ] The Start-mode fixture passes in CI with the minimum and latest Solid peers.
+
+
+
+
+**Depends on:** UL-09
+
+
+
+
 #### UL-10 — Release pipeline and supply-chain security
 
 
@@ -660,12 +733,16 @@ The owner approved pull requests with a passing, up-to-date GitHub Actions `buil
 - Component page template: overview, examples, props table, keyboard table, accessibility notes, styling hooks.
 - Theme playground stub (light, dark, custom).
 - API tables generated from TypeScript where feasible; search; per-PR preview deployments; a versioned-docs strategy for 1.x.
+- **Agent channels from the first page (product strategy):** every page is also emitted as Markdown, together with `llms.txt`, `llms-full.txt` and component metadata. The metadata takes props and defaults from TypeScript, and parts, state attributes, CSS variables, keyboard tables and examples from the docs source.
+- Examples are real `.tsx` files that are compiled, type-checked and tested. The same files feed the site, the package docs and the Agent Skill.
+- Each component page adds "When to use", "When not to use" and "Common mistakes" to the template.
 
 
 
 
 **Exit criteria**
 - [ ] Docs site deployed (preview access is enough), with the template and one live example.
+- [ ] CI blocks when a docs example fails to compile or render, and the Markdown, `llms.txt` and metadata outputs are generated.
 
 
 
@@ -775,7 +852,7 @@ This phase builds the foundation that a headless library would otherwise provide
 - A controlled/uncontrolled state helper that warns in development when a component switches modes (08 §2.1).
 - Prop splitting/merging patterns, ref merging, event-handler composition (including Solid's bound-handler arrays), and polymorphic `as` with correct types.
 - SSR-safe unique IDs and server guards; no work at import time.
-- Development-only warnings, e.g. an icon-only control without an accessible name. They are removed from production builds.
+- Development-only warnings, e.g. an icon-only control without an accessible name. They are removed from production builds. Every warning uses one format, readable by people and coding agents: `[eroxo-ui] <Component>: <problem>. <fix>. <docs URL>.md`.
 - Implemented in-house (TT-032). Any new runtime dependency needs an ADR.
 
 
@@ -880,7 +957,7 @@ This phase builds the foundation that a headless library would otherwise provide
 - **Virtual focus:** `aria-activedescendant` management for widgets where focus stays in an input (combobox), with the active option scrolled into view.
 - **Typeahead:** a character buffer with a timeout and locale-aware matching.
 - **Selection:** single and multiple, controlled or uncontrolled, disabled items, and Shift-range selection where the APG pattern calls for it.
-- **Collection model:** decide how items are declared (data props or registered JSX children), with stable keys so items can be added or removed without losing focus. Page Up/Down for long lists.
+- **Collection model (decided 24 November 2026, product strategy Q4):** Select and Combobox take an `items` data collection as their source of truth; DropdownMenu, Tabs, RadioGroup and ToggleGroup register JSX children. One keyboard and typeahead core serves both, with stable keys so items can be added or removed without losing focus. Page Up/Down for long lists.
 
 
 
@@ -955,6 +1032,7 @@ This phase builds the foundation that a headless library would otherwise provide
 - Documented precedence: a consumer's unlayered CSS beats the library's layers, so `!important` is never needed.
 - A reusable contract-test harness covering a custom theme, a nested theme, a slot override, a variant override and a missing-token fallback. Every component milestone runs it.
 - First draft of the "Customization" guide.
+- **Tailwind v4 bridge (product strategy Q5):** an opt-in `eroxo-ui/tailwind.css` that maps `--erx-*` tokens into Tailwind's theme. A documented layer order puts Tailwind's preflight below Eroxo components and utilities above them, with unlayered application CSS on top. The file needs exemptions from the `erx` layer-statement and `--erx-` prefix lint rules, and the style build passes `@theme` through unchanged. Tailwind is never required.
 
 
 
@@ -962,6 +1040,7 @@ This phase builds the foundation that a headless library would otherwise provide
 **Exit criteria**
 - [ ] The harness passes on a test component.
 - [ ] A consumer restyles a multi-part test component without private selectors.
+- [ ] A Tailwind v4 fixture confirms the documented layer order and the theme-aware utilities.
 
 
 
@@ -998,6 +1077,9 @@ This phase builds the foundation that a headless library would otherwise provide
 - `Icon` wrapper: any SVG; size and color from tokens; decorative or labelled.
 - Spinner: accessible label and a reduced-motion variant.
 - Installation and theming docs written for external users.
+- Package docs: Markdown for every public component and guide inside the package (for example `eroxo-ui/docs/`), matching the installed version.
+- `npx eroxo-ui agents-md` (product strategy Q8): a zero-dependency script in the package that writes or refreshes a marked Eroxo section in the consumer's AGENTS.md, and creates a CLAUDE.md that imports AGENTS.md when none exists. It runs only when called; the package gains no install scripts.
+- Deterministic agent-kit checks in CI: every public prop documented, metadata and package docs complete, and valid `agents-md` output.
 
 
 
@@ -1006,6 +1088,7 @@ This phase builds the foundation that a headless library would otherwise provide
 - [ ] Component Definition of Done (§2.5) met.
 - [ ] `0.1.0` published, and the fixtures install it from the registry.
 - [ ] A consumer re-theme and slot restyle demo passes.
+- [ ] A packed-consumer fixture runs `agents-md` and validates the section it writes.
 
 
 
@@ -1027,7 +1110,7 @@ This phase builds the foundation that a headless library would otherwise provide
 
 **Scope**
 - Label, and a Field wrapper (label, description, error message, required indicator, counter slot) that wires `aria-describedby`, `aria-invalid` and `aria-errormessage`.
-- TextField (text, search, email, URL and similar) and Textarea (rows, optional auto-resize, resize policy).
+- TextField (text, search, email, URL and similar, plus styled native `date`, `time` and `datetime-local` inputs) and Textarea (rows, optional auto-resize, resize policy).
 - A counter helper with a pluggable counting function, e.g. Unicode code points or UTF-16 units. The library displays the count; the counting rule stays with the consumer.
 - Native form integration (`name`, `required`, reset), immediate `onInput` updates, and read-only, disabled and invalid states.
 - **IME-safe:** controlled values never overwrite text while an input method is composing (UL-16).
@@ -1097,6 +1180,8 @@ This phase builds the foundation that a headless library would otherwise provide
 - Card: media, header, body and footer slots, plus a documented pattern for interactive cards (no nested interactive elements inside a clickable card).
 - Separator (semantic or decorative).
 - Skeleton: reduced-motion aware, hidden from assistive technology, paired with a loading-announcement pattern.
+- Avatar (charter scope change, 24 November 2026): an image with an initials or icon fallback, sizes, and an optional status indicator that is not conveyed by color alone.
+- Layout primitives (charter scope change): Stack, Inline, Grid and Container with token-based gaps and alignment props. The props extend the UL-06 vocabulary and lint rules.
 
 
 
@@ -1108,6 +1193,35 @@ This phase builds the foundation that a headless library would otherwise provide
 
 
 **Depends on:** UL-20 · **Release:** `0.4.0` · **Gates in TaoTale:** TAO-18–TAO-20
+
+
+
+
+#### UL-23a — Accordion and Collapsible
+
+
+
+
+**Goal:** Disclosure sections built on native HTML (charter scope change, 24 November 2026).
+
+
+
+
+**Scope**
+- Collapsible on native `<details>` and `<summary>`, styled, controlled or uncontrolled.
+- Accordion: grouped Collapsibles with single or multiple open items. Single-open groups use the native `name` attribute where the browser policy allows it, and a small fallback otherwise.
+- Heading levels for the triggers, the APG accordion keyboard behavior where it applies, reduced motion and find-in-page behavior.
+
+
+
+
+**Exit criteria**
+- [ ] Component Definition of Done met; a 0.x minor published.
+
+
+
+
+**Depends on:** UL-23 · **Release:** 0.x minor
 
 
 
@@ -1332,6 +1446,35 @@ The overlay engine is the core of the in-house behavior layer. UL-24 to UL-26 bu
 
 
 
+#### UL-29a — Drawer
+
+
+
+
+**Goal:** A side panel for navigation, filters and details (charter scope change, 24 November 2026).
+
+
+
+
+**Scope**
+- Built as a side-anchored Dialog on the UL-29 engine: modal by default, opening from the start, end, top or bottom, with start and end following the writing direction.
+- Sizes; header, body and footer parts; a close button; presence animations with reduced-motion support.
+- Touch gestures, safe areas and the full-screen dialog variant stay in UL-46.
+
+
+
+
+**Exit criteria**
+- [ ] Component Definition of Done met; a 0.x minor published.
+
+
+
+
+**Depends on:** UL-29 · **Release:** 0.x minor
+
+
+
+
 #### UL-30 — DropdownMenu
 
 
@@ -1398,6 +1541,35 @@ The overlay engine is the core of the in-house behavior layer. UL-24 to UL-26 bu
 
 
 
+#### UL-31a — Agent Skill and Solid guidance
+
+
+
+
+**Goal:** Give coding agents the workflow knowledge that reference pages do not carry (product strategy, agent kit).
+
+
+
+
+**Scope**
+- A small Agent Skill, `eroxo-ui`, for setup, theming, forms, overlays and accessibility checks. It lives in the repository and installs with `npx skills add`.
+- Solid 2 guidance by reference: the AGENTS.md section points to the Agent Skills inside `solid-js` and to Solid's `llms.txt`. The Eroxo skill adds only UI patterns, such as forwarding props with `omit` and `merge`, refs and controlled state.
+- Updated with each later component milestone, and reviewed against the mistakes agents make in real use.
+
+
+
+
+**Exit criteria**
+- [ ] The skill covers every component published so far, and its examples type-check in CI.
+
+
+
+
+**Depends on:** UL-31
+
+
+
+
 ### Phase P7 — Application-driven components
 
 
@@ -1423,6 +1595,7 @@ These are ordered by the design partner's needs, then by commercial completeness
 - Keyboard and typeahead.
 - Native form integration, plus Field integration for label, description and error.
 - Sizes; positioning and dismissal from the overlay engine.
+- Data-first (product strategy Q4): `items` is the source of truth. With no parts, `Select.Root` renders the default parts; parts customize how the same items render. The data source also lets a closed Select show its selected label during SSR.
 
 
 
@@ -1543,6 +1716,7 @@ These are ordered by the design partner's needs, then by commercial completeness
 - Virtual focus via `aria-activedescendant` (UL-17), so focus stays in the input.
 - Filtering, built-in or consumer-controlled. **Filtering and selection wait until IME composition ends** (UL-16) — essential for Chinese and Korean input.
 - An async loading state and a localisable empty state.
+- Data-first, like Select (product strategy Q4): `items` is the source of truth, with default parts and optional custom parts.
 - A "create option" affordance and a maximum number of selections.
 - WAI-ARIA combobox keyboard pattern, removing chips by keyboard, and announced result counts.
 - Form integration.
@@ -1817,6 +1991,37 @@ These are ordered by the design partner's needs, then by commercial completeness
 
 
 
+#### UL-44a — Launch kit
+
+
+
+
+**Goal:** Everything the one public launch at 1.0 needs besides the components (product strategy Q2, Q3, Q9 and Q10).
+
+
+
+
+**Scope**
+- Theme builder on the docs site: accent, neutral, radius, density and font on real components, exporting CSS variables, with three to five distinct presets.
+- SaaS starter built on Start mode, deployed as a live demo, with a client-only variant.
+- Copy-and-own blocks, including the application shell and the command menu, published in the shadcn registry format (universal items with explicit targets) and copyable from the docs. Blocks are tested like fixtures against every release.
+- Consumer lint rules for Eroxo misuse and Solid 2 pitfalls.
+- Landing page. The showcase is the starter's live demo and the blocks gallery; it does not feature TaoTale.
+
+
+
+
+**Exit criteria**
+- [ ] Every item is live, and the blocks install with `npx shadcn add` into a fresh Start-mode app.
+
+
+
+
+**Depends on:** UL-44
+
+
+
+
 #### UL-45 — 1.0 GA and commercial launch
 
 
@@ -1828,13 +2033,13 @@ These are ordered by the design partner's needs, then by commercial completeness
 
 
 **Scope**
-- Final legal review, including the clean-room record; LICENSE and third-party NOTICE files.
+- Final legal review, including the counsel review moved from UL-03 and the clean-room record; LICENSE and third-party NOTICE files.
 - Publish `1.0.0`, with versioned docs.
 - Product website, support channels and support policy.
 - Maintenance/LTS policy, e.g. security fixes for the previous major for a stated period.
 - Trademark status.
 - If UL-03 chose a paid tier: pricing, checkout and licence delivery.
-- Launch announcement.
+- The one public launch (product strategy Q2): the announcement on every channel, together with the UL-44a launch kit. The 0.x releases before it were published but not announced.
 - No telemetry or licence checks in components.
 
 
@@ -1847,7 +2052,7 @@ These are ordered by the design partner's needs, then by commercial completeness
 
 
 
-**Depends on:** UL-03, UL-44 · **Release:** `1.0.0` · **Gates in TaoTale:** TAO-52, TAO-53, TAO-55, TAO-56, TAO-57, TAO-60
+**Depends on:** UL-03, UL-44, UL-44a · **Release:** `1.0.0` · **Gates in TaoTale:** TAO-52, TAO-53, TAO-55, TAO-56, TAO-57, TAO-60
 
 
 
@@ -1864,12 +2069,12 @@ Each milestone ships as a 1.x minor unless noted. It gets a full Goal/Scope/Exit
 
 | ID | Milestone | Content | Gates in TaoTale |
 |---|---|---|---|
-| UL-46 | Responsive and touch hardening + Drawer/Sheet | Small-screen audit of every component; overlays that survive the on-screen keyboard; safe-area insets; Drawer/Sheet; a full-screen dialog variant. | part of TAO-59 |
+| UL-46 | Responsive and touch hardening | Small-screen audit of every component; overlays that survive the on-screen keyboard; safe-area insets; touch gestures for the Drawer from UL-29a; a full-screen dialog variant. | part of TAO-59 |
 | UL-47 | Navigation and menus | NavigationMenu, Breadcrumbs, ContextMenu. | TAO-59 (hard) |
-| UL-48 | Disclosure components | Accordion, Collapsible, HoverCard. | TAO-54, TAO-58 (hard) |
+| UL-48 | HoverCard | HoverCard. Accordion and Collapsible moved to UL-23a on 24 November 2026. | TAO-54, TAO-58 (hard) |
 | UL-49 | Data components | DataTable (sorting/filtering state, column visibility) and a virtualized list. | — |
 | UL-50 | Date and number inputs | NumberField, Calendar/DatePicker (Intl-aware). | — |
-| UL-51 | Design-token interchange and design kit | Token export in the W3C Design Tokens Community Group format; a design-tool kit; a theme builder on the docs site. | — |
+| UL-51 | Design-token interchange and design kit | Token export in the W3C Design Tokens Community Group format; a design-tool kit. The theme builder moved to UL-44a. | — |
 | UL-52 | Public headless package (evaluate) | Offer the in-house primitives as a separately versioned headless package for teams that bring their own styles — only if the UL-05 boundary has held up and there is demand. Needs its own API review, docs and stability commitment. | — |
 | UL-53 | Commercial expansion (conditional on UL-03) | Paid components, templates and theme presets; licence delivery; customer-support processes. | — |
 
@@ -1902,6 +2107,11 @@ Consumers pin exact versions before 1.0. The planned version numbers are a guide
 
 
 
+**Public launch (product strategy Q2).** The 0.x releases are published but not announced; they serve TaoTale and early validation. The one public launch is 1.0 (UL-45). Milestones with a letter suffix publish a 0.x minor like their neighbours, so later planned version numbers shift.
+
+
+
+
 ## 6. Open decisions and where they close
 
 
@@ -1916,7 +2126,7 @@ Consumers pin exact versions before 1.0. The planned version numbers are a guide
 | Docs/examples site | UL-05, UL-11 |
 | Behavior-layer architecture (internal module vs public headless package) | UL-05, UL-52 |
 | Native-first overlay choices (`<dialog>`, Popover API, `inert`, CSS anchor positioning) | UL-04, UL-05 |
-| Collection model (data props vs registered children) | UL-17 |
+| Collection model (data props vs registered children) | Product strategy Q4, 24 November 2026; UL-17 implements |
 | Animation/presence implementation | UL-05, UL-25 |
 | Icon library, motion library | UL-05 |
 | Theming-helper scope, `unstyled` mode | UL-06, UL-18 |
@@ -1937,7 +2147,7 @@ Consumers pin exact versions before 1.0. The planned version numbers are a guide
 | Keyboard handling or controlled inputs break IME (Chinese/Japanese/Korean) input | The composition guard (UL-16), composition tests in UL-21 and UL-36, and manual checks with Chinese and Korean input methods. |
 | Copied third-party code undermines the commercial licence | The clean-room policy (UL-03, 08 §2.3); attribution recorded whenever code is adapted. |
 | The larger 1.0 scope delays the design partner | Primitives are built only when the next component needs them; TaoTale's backend work continues in sequencing-gated blocks. |
-| The Solid 2 ecosystem lags (SolidStart still required Solid 1.9 on 23 November 2026), or another Solid major lands during 0.x | Explicit peer range; test matrix; SSR verified with a plain `@solidjs/web` app until SolidStart supports Solid 2, then a SolidStart fixture; revisit the ADR when either happens. |
+| The Solid 2 ecosystem lags, or another Solid major lands during 0.x. The Solid 2.0 announcement retired SolidStart | Explicit peer range; test matrix; SSR verified with a plain `@solidjs/web` app and, from UL-09b, Start mode in `@solidjs/vite-plugin`; consider TanStack Solid Start once it is stable; revisit ADR 08 when the platform changes. |
 | CSS silently dropped by bundlers (`sideEffects`) or broken under SSR | Proven in real fixtures from UL-08; per-bundler checks in UL-43. |
 | Name or trademark conflict discovered after launch | Knockout search and reservation in UL-02; counsel review in UL-03 and UL-45. |
 | The licence model hurts adoption or revenue | Decided early, with counsel; open-core leaves room for UL-53. |

@@ -9,7 +9,7 @@
 5. [Internal behavior layer](05-behavior.md)
 6. [Native platform and fallback policy](06-native.md)
 7. [Dependency policy](07-dependencies.md)
-8. [Framework, browser and assistive technology support](08-support.md)
+8. [Framework, browser and assistive technology support](08-support.md), updated on 24 November 2026 for SolidStart's retirement
 9. [Icon source and packaging](09-icons.md)
 10. [Motion and presence](10-motion.md)
 11. [Documentation technology](11-docs.md)
