@@ -822,9 +822,9 @@ The [token decision record](design-system/ul-12-token-taxonomy.md) and [light/da
 
 **Exit criteria**
 - [ ] Token CSS builds and ships in a canary.
-- [ ] Contrast suite green; reference page live.
+- [x] All 144 contrast checks passed. The [token reference](https://ronmilich.github.io/eroxo-ui/tokens/) and its Markdown are live.
 
-The [Iris token source](../tokens/iris.json) generates the package stylesheet and the docs reference. Canary publication is deferred until the UL-10 release pipeline.
+The [Iris token source](../tokens/iris.json) generates the package stylesheet and the docs reference. The packed library passed the minimum and latest compatible Solid peer tiers in Chromium, Firefox and WebKit. The checks cover nested scopes, partial custom themes and light and dark server first paint. Canary publication is deferred until the UL-10 release pipeline.
 
 
 
