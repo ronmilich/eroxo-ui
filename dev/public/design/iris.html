@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iris theme study · Eroxo UI</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root { font: 100%/1.5 system-ui, sans-serif; color: #161925; background: #fafafc; }
+    body { max-width: 76rem; margin: auto; padding: 1.5rem clamp(1rem, 4vw, 3rem) 3rem; }
+    header { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid #c1c7d4; padding-bottom: 1rem; }
+    header a { color: #4338b5; }
+    h1, h2, h3 { line-height: 1.18; font-weight: 600; }
+    h1 { font-size: clamp(2.4rem, 6vw, 4.25rem); margin: 2.5rem 0 .6rem; letter-spacing: -.045em; }
+    .intro { max-width: 58ch; margin: 0 0 1.5rem; color: #434b5c; }
+    fieldset { border: 0; padding: 0; margin: 0 0 1.25rem; display: flex; flex-wrap: wrap; gap: .4rem; }
+    legend { font-weight: 600; margin-bottom: .5rem; }
+    fieldset label { cursor: pointer; display: flex; align-items: center; gap: .4rem; padding: .35rem .65rem; border: 1px solid #8792a3; border-radius: .625rem; font-size: .875rem; }
+    fieldset label:has(:checked) { background: #eeebff; border-color: #5145cd; }
+    input[type=radio] { accent-color: #5145cd; }
+    .themes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem;
+      --height: 2.5rem; --inline: 1rem; --block: .375rem; --card: 1.25rem; --gap: 1rem; --label-gap: .375rem; }
+    body:has(#compact:checked) .themes { --height: 2rem; --inline: .75rem; --block: .25rem; --card: 1rem; --gap: .75rem; --label-gap: .25rem; }
+    body:has(#comfortable:checked) .themes { --height: 3rem; --inline: 1.25rem; --block: .5rem; --card: 1.5rem; --gap: 1.25rem; --label-gap: .5rem; }
+    .theme { border: 1px solid var(--edge); border-radius: 1.25rem; padding: clamp(1rem, 3vw, 2rem);
+      color: var(--text); background: var(--canvas); }
+    [data-mode=light] { color-scheme: light; --canvas: #fafafc; --surface: #fff; --text: #161925; --secondary: #5b6374; --edge: #e1e4ec; --field: #8792a3;
+      --primary: #5145cd; --hover: #4338b5; --pressed: #352b9b; --on-primary: #fff; --focus: #4338b5;
+      --success-soft: #e7f7ef; --success-text: #146344; --tooltip: #1b2130; --on-tooltip: #f5f7fc; --tooltip-border: #30384b; --shadow: rgb(25 30 50 / 12%); }
+    [data-mode=dark] { color-scheme: dark; --canvas: #0b0e15; --surface: #141925; --text: #f5f7fc; --secondary: #a9b2c3; --edge: #30384b; --field: #69758e;
+      --primary: #a49cff; --hover: #b8b2ff; --pressed: #cdc9ff; --on-primary: #1a153b; --focus: #b8b2ff;
+      --success-soft: #113428; --success-text: #70e3ad; --tooltip: #f5f7fc; --on-tooltip: #1b2130; --tooltip-border: #c1c7d4; --shadow: rgb(0 0 0 / 35%); }
+    .theme h2 { margin: 0 0 1.25rem; font-size: 1.75rem; }
+    form { margin: 0; background: var(--surface); border: 1px solid var(--edge); border-radius: .875rem; padding: var(--card); display: grid; gap: var(--gap); }
+    h3 { margin: 0; font-size: 1.125rem; }
+    .field { display: grid; gap: var(--label-gap); font-weight: 500; }
+    .theme input, button { min-block-size: var(--height); padding: var(--block) var(--inline); border-radius: .625rem; font: inherit; }
+    .theme input { min-inline-size: 0; width: 100%; border: 1px solid var(--field); color: var(--text); background: var(--surface); }
+    .theme input:focus-visible { border-color: var(--focus); }
+    button { width: fit-content; color: var(--on-primary); background: var(--primary); border: 1px solid transparent; font-weight: 500; cursor: pointer; }
+    button:hover { background: var(--hover); }
+    button:active { background: var(--pressed); }
+    :focus-visible { outline: 2px solid var(--focus, #4338b5); outline-offset: 2px; }
+    form, .samples { font-size: .875rem; }
+    output { display: block; background: var(--success-soft); color: var(--success-text); padding: .5rem .75rem; border-radius: .375rem; overflow-wrap: anywhere; }
+    .samples { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem; margin-top: 1.25rem; }
+    figure { margin: 0; }
+    figcaption { margin-bottom: .6rem; font-weight: 500; color: var(--secondary); }
+    .focus-sample, .tooltip { display: inline-block; border-radius: .625rem; padding: .4rem .65rem; }
+    .focus-sample { background: var(--surface); border: 1px solid var(--focus); outline: 2px solid var(--focus); outline-offset: 2px; }
+    .tooltip { color: var(--on-tooltip); background: var(--tooltip); border: 1px solid var(--tooltip-border);
+      box-shadow: 0 4px 12px var(--shadow), 0 2px 4px var(--shadow); }
+    .swatches { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); margin: 1.5rem 0 0; gap: .75rem; font-size: .875rem; }
+    .swatches dt { border-top: .35rem solid var(--swatch); padding-top: .4rem; color: var(--secondary); }
+    .swatches dd { font-family: ui-monospace, monospace; margin: .2rem 0 0; }
+    @media(max-width: 48rem) { .themes { grid-template-columns: minmax(0, 1fr); } }
+    @media(forced-colors: active) {
+      .theme, form, .tooltip, .theme input, output { border: 1px solid CanvasText; }
+      button { color: ButtonText; background: ButtonFace; border-color: ButtonText; }
+      :focus-visible, .focus-sample { outline-color: Highlight; }
+      .tooltip { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <header><strong>Eroxo UI</strong><a href="https://github.com/ronmilich/eroxo-ui/blob/main/docs/design-system/ul-12-token-taxonomy.md">Token specification</a></header>
+  <main>
+    <h1>Iris theme study</h1>
+    <p class="intro">Compare the same settings form in light and dark. Change density to inspect control sizes, or use Tab to follow the focus ring.</p>
+    <fieldset>
+      <legend>Density</legend>
+      <label><input name="density" type="radio" id="compact">Compact · 32 px</label>
+      <label><input name="density" type="radio" checked>Standard · 40 px</label>
+      <label><input name="density" type="radio" id="comfortable">Comfortable · 48 px</label>
+    </fieldset>
+    <div class="themes">
+      <section class="theme" data-mode="light" aria-labelledby="Light-heading">
+        <h2 id="Light-heading">Light</h2>
+        <form>
+          <h3>Workspace settings</h3>
+          <label class="field">Workspace name<input name="workspace" value="Studio" required maxlength="60"></label>
+          <button>Save changes</button>
+          <output aria-live="polite">✓ Saved · Studio</output>
+        </form>
+        <div class="samples">
+          <figure><figcaption>Keyboard focus</figcaption><span class="focus-sample">Focused field</span></figure>
+          <figure><figcaption>Tooltip surface</figcaption><span class="tooltip">Workspace details</span></figure>
+        </div>
+        <dl class="swatches">
+          <div><dt style="--swatch:var(--text)">Text</dt><dd>#161925</dd></div>
+          <div><dt style="--swatch:var(--primary)">Action</dt><dd>#5145CD</dd></div>
+          <div><dt style="--swatch:var(--focus)">Focus</dt><dd>#4338B5</dd></div>
+        </dl>
+      </section>
+      <section class="theme" data-mode="dark" aria-labelledby="Dark-heading">
+        <h2 id="Dark-heading">Dark</h2>
+        <form>
+          <h3>Workspace settings</h3>
+          <label class="field">Workspace name<input name="workspace" value="Studio" required maxlength="60"></label>
+          <button>Save changes</button>
+          <output aria-live="polite">✓ Saved · Studio</output>
+        </form>
+        <div class="samples">
+          <figure><figcaption>Keyboard focus</figcaption><span class="focus-sample">Focused field</span></figure>
+          <figure><figcaption>Tooltip surface</figcaption><span class="tooltip">Workspace details</span></figure>
+        </div>
+        <dl class="swatches">
+          <div><dt style="--swatch:var(--text)">Text</dt><dd>#F5F7FC</dd></div>
+          <div><dt style="--swatch:var(--primary)">Action</dt><dd>#A49CFF</dd></div>
+          <div><dt style="--swatch:var(--focus)">Focus</dt><dd>#B8B2FF</dd></div>
+        </dl>
+      </section>
+    </div>
+  </main>
+  <script>
+    for (const form of document.forms) {
+      form.addEventListener('submit', event => {
+        event.preventDefault()
+        form.querySelector('output').textContent = '✓ Saved · ' + form.elements.workspace.value
+      })
+    }
+  </script>
+</body>
+</html>
