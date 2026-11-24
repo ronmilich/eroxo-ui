@@ -48,7 +48,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: pnpm exec playwright install --with-deps --only-shell chromium firefox webkit
-      - name: Verify packed SPA, SSR, keyboard, input and axe in three browsers
+      - name: Verify packed SPA, SSR and Start consumers in three browsers
         run: pnpm test:package
       - uses: actions/upload-artifact@v7
         with:
@@ -56,7 +56,7 @@ jobs:
           path: artifacts/size-report.md
           if-no-files-found: error
 
-  # Branch protection requires this stable check name.
+  # Keep the check name stable for when release branch protection is enabled.
   build:
     if: ${{ always() }}
     needs: [quality, consumers]

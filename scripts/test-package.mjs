@@ -11,7 +11,7 @@ import { JSDOM } from 'jsdom'
 import { chromium, firefox, webkit } from 'playwright'
 import { checkAccessibility, checkGreeting } from '../test/browser/harness.mjs'
 import { checkInputPatterns } from '../test/browser/conformance.mjs'
-import { build, preview } from 'vite'
+import { build, createBuilder, preview } from 'vite'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const artifacts = path.join(root, 'artifacts')
@@ -103,7 +103,7 @@ function inspectOutput(label, result) {
   return { css, modules }
 }
 
-async function checkPage(browser, url, ssr) {
+async function checkPage(browser, url, name) {
   const page = await browser.newPage()
   const errors = []
   page.on('pageerror', error => errors.push(error.message))
@@ -111,11 +111,12 @@ async function checkPage(browser, url, ssr) {
     if (['warning', 'error'].includes(message.type())) errors.push(message.text())
   })
   try {
-    if (ssr) {
+    if (name !== 'spa') {
       const firstPaint = await browser.newPage({ javaScriptEnabled: false })
       try {
-        await firstPaint.goto(url)
-        assert.equal(await firstPaint.locator('main').innerText(), 'Hello fixture!')
+        const response = await firstPaint.goto(url)
+        assert.ok(response?.ok(), 'Expected a successful server response')
+        await checkGreeting(firstPaint, 'Hello fixture!')
         assert.equal(
           await firstPaint.locator('.erx-hello').evaluate(el => getComputedStyle(el).color),
           'rgb(22, 25, 37)',
@@ -124,8 +125,20 @@ async function checkPage(browser, url, ssr) {
         await firstPaint.close()
       }
     }
+    if (name === 'start') {
+      await page.addInitScript(() => {
+        // The streamed markup is parsed before the generated module entry hydrates it.
+        const observer = new MutationObserver(() => {
+          const greeting = document.querySelector('.erx-hello')
+          if (!greeting) return
+          window.serverGreeting = greeting
+          observer.disconnect()
+        })
+        observer.observe(document, { childList: true, subtree: true })
+      })
+    }
     await page.goto(url)
-    await page.locator(ssr ? 'main[data-hydrated="true"] .erx-hello' : '.erx-hello').waitFor()
+    await page.locator(name === 'ssr' ? 'main[data-hydrated="true"] .erx-hello' : '.erx-hello').waitFor()
     assert.equal(
       await page.locator('.erx-hello').evaluate(el => getComputedStyle(el).color),
       'rgb(22, 25, 37)',
@@ -134,6 +147,12 @@ async function checkPage(browser, url, ssr) {
     await checkAccessibility(page)
     await page.getByRole('button', { name: 'Update' }).click()
     await page.getByText('Hello updated!', { exact: true }).waitFor()
+    if (name === 'start') {
+      assert.ok(
+        await page.locator('.erx-hello').evaluate(el => el === window.serverGreeting),
+        'Start mode replaced the server-rendered greeting',
+      )
+    }
     await page
       .locator('main')
       .evaluate(el => el.style.setProperty('--erx-hello-color', 'rgb(30, 60, 90)'))
@@ -163,6 +182,28 @@ async function checkPage(browser, url, ssr) {
     assert.deepEqual(errors, [])
   } finally {
     await page.close()
+  }
+}
+
+async function checkInBrowsers(name, config) {
+  const server = await preview({
+    ...config,
+    preview: { host: '127.0.0.1', port: 0 },
+  })
+  const url = 'http://127.0.0.1:' + server.httpServer.address().port
+  try {
+    for (const engine of [chromium, firefox, webkit]) {
+      const browser = await engine.launch()
+      try {
+        console.log(`Checking ${name} in ${engine.name()} ${browser.version()}`)
+        await checkPage(browser, url, name)
+        if (name === 'spa') await checkInputPatterns(browser, url)
+      } finally {
+        await browser.close()
+      }
+    }
+  } finally {
+    await server.close()
   }
 }
 
@@ -232,27 +273,15 @@ async function consumers(tarball) {
         },
       })
     }
-    const server = await preview({
-      root: dir,
-      configFile: false,
-      preview: { host: '127.0.0.1', port: 0 },
-    })
-    const url = 'http://127.0.0.1:' + server.httpServer.address().port
-    try {
-      for (const engine of [chromium, firefox, webkit]) {
-        const browser = await engine.launch()
-        try {
-          console.log(`Checking ${name} in ${engine.name()} ${browser.version()}`)
-          await checkPage(browser, url, ssr)
-          if (!ssr) await checkInputPatterns(browser, url)
-        } finally {
-          await browser.close()
-        }
-      }
-    } finally {
-      await server.close()
-    }
+    await checkInBrowsers(name, { root: dir, configFile: false })
   }
+
+  const start = await installFixture('start', tarball, 'eroxo-ui')
+  tool('node_modules/typescript/bin/tsc', ['-p', start])
+  const config = { root: start, configFile: false }
+  const builder = await createBuilder({ ...config, plugins: [solid({ start: true, ssr: true })] })
+  await builder.buildApp()
+  await checkInBrowsers('start', { ...config, plugins: [solid({ start: true, ssr: true })] })
 }
 
 async function benchmark() {

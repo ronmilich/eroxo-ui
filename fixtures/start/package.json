@@ -1,0 +1,9 @@
+{
+  "name": "@eroxo-ui/fixture-start",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "solid-js": "2.0.3",
+    "@solidjs/web": "2.0.3"
+  }
+}

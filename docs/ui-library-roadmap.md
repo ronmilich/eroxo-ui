@@ -171,7 +171,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-08 | Build, packaging and consumer fixtures | P1 | — | — | Done |
 | UL-09 | Test, conformance and CI infrastructure | P1 | — | — | Done |
 | UL-09a | Name, organisation and domain reservations | P1 | — | — | Planned |
-| UL-09b | Start-mode consumer fixture | P1 | — | — | Planned |
+| UL-09b | Start-mode consumer fixture | P1 | — | — | Done |
 | UL-10 | Release pipeline and supply-chain security | P1 | canary | — | Planned |
 | UL-11 | Documentation site and playground skeleton | P1 | — | TAO-07, TAO-08, TAO-11 | Planned |
 | UL-12 | Design language and token taxonomy | P2 | — | — | Planned |
@@ -541,7 +541,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 - [x] A [clean GitHub Actions checkout](https://github.com/ronmilich/eroxo-ui/actions/runs/45249181255) passed the frozen workspace install, lint, strict type checks, formatting, tests and both builds.
 - [x] The CLI rejects a manifest containing an unapproved runtime dependency. The regression test checks the nonzero exit and the offending field and package name for regular, optional, peer and bundled dependencies.
 
-The owner approved pull requests with a passing, up-to-date GitHub Actions `build` check and zero required reviews. GitHub enforces the rule for administrators and blocks force pushes and deletion of `main`. [TaoTale links to this roadmap](https://github.com/ronmilich/taotale/commit/9159df8) for TAO-04 through TAO-06.
+The initial branch protection required pull requests with a passing, up-to-date GitHub Actions `build` check and zero required reviews. During early development, the owner approved direct pushes to `main` while keeping the protections against force pushes and deletion. Restore the required pull request and build check before release. [TaoTale links to this roadmap](https://github.com/ronmilich/taotale/commit/9159df8) for TAO-04 through TAO-06.
 
 
 
@@ -669,14 +669,14 @@ The owner approved pull requests with a passing, up-to-date GitHub Actions `buil
 
 **Scope**
 - A packed-consumer fixture built with Start mode in `@solidjs/vite-plugin` (`start: true` with `ssr: true`), checked like the existing SSR fixture: first-paint CSS, hydration of the server DOM and an interaction, in Chromium, Firefox and WebKit.
-- Track TanStack Solid Start, whose 2.0 release candidate supports Solid 2, and add a fixture once it is stable.
+- Track [TanStack Solid Start 2.0](https://www.npmjs.com/package/@tanstack/solid-start?activeTab=versions) and add a fixture once that version is stable.
 
 
 
 
 **Exit criteria**
 - [x] [ADR 08](adr/08-support.md) names Start mode as the framework-level SSR target (24 November 2026).
-- [ ] The Start-mode fixture passes in CI with the minimum and latest Solid peers.
+- [x] The packed Start-mode fixture passed locally in Chromium, Firefox and WebKit with the minimum and latest compatible Solid peers. Both tiers resolved `solid-js` and `@solidjs/web` 2.0.3. The same harness runs in GitHub Actions.
 
 
 

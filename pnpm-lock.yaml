@@ -275,6 +275,15 @@ importers:
         specifier: 2.0.3
         version: 2.0.3
 
+  fixtures/start:
+    dependencies:
+      '@solidjs/web':
+        specifier: 2.0.3
+        version: 2.0.3(solid-js@2.0.3)
+      solid-js:
+        specifier: 2.0.3
+        version: 2.0.3
+
   scripts: {}
 
 packages:
