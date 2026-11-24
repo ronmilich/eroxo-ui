@@ -16,7 +16,7 @@ These nine specifications define Eroxo UI's default design language (Iris) and i
 
 ## How they relate to other decisions
 
-The [UL-12 token decision record](ul-12-token-taxonomy.md) and [light/dark design study](../../dev/public/design/iris.html) are ready for owner review. The record collects the proposed resolutions for the remaining foundation-token questions.
+The owner approved the [UL-12 token decision record](ul-12-token-taxonomy.md) and [light/dark design study](../../dev/public/design/iris.html) on 24 November 2026. The record settles the UL-12 items listed in the foundation specs and provides the implementation contract for UL-13.
 
 - The [reconciliation record](reconciliation.md), approved on 23 November 2026, checked v0.1.0 against the recorded decisions (UL-01 to UL-04) and against each other. Version 0.2.0 folds in its resolutions.
 - The [UL-06 component rulebook](eroxo-iris-component-anatomy-api-spec.md) resolves the component API, part classes and density namespace in 0.3.0. Earlier reconciliation findings describe the 0.1.0 baseline.

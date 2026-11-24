@@ -1,6 +1,6 @@
 # UL-12 · Iris design language and token taxonomy
 
-**Status** Proposed for owner review. The seven foundation specifications and the approved [reconciliation](reconciliation.md) supply the baseline. This decision record resolves the outstanding UL-12 choices for the proposed light and dark designs. Owner sign-off is pending.
+**Approved on 24 November 2026.** The owner approved this token specification and both default theme designs for UL-13. The reviewed [design revision](https://github.com/ronmilich/eroxo-ui/commit/6e45279bb29f97629867a2c01cfbc7a3c18feb7f) incorporates the seven foundation specifications and the approved [reconciliation](reconciliation.md).
 
 **Design source** Open the [editable HTML study](../../dev/public/design/iris.html) in a browser or use the [hosted comparison](https://ronmilich.github.io/eroxo-ui/design/iris.html). Change density, tab through the fields, and save an edit on each surface. The same composition in each theme makes differences in the field boundary, action, floating surface and focus ring visible.
 
@@ -62,7 +62,7 @@ The prefix for every suffix below is `--erx-density-`. Dimensions are nominal CS
 
 The control-default row selects five primitives from SPACE §4. In column order those five measurements are 32/12/4/6/16 for sm, 40/16/6/8/18 for md, and 48/20/8/10/20 for lg. The 48 px control provides the touch-first option. Preserve a 24 × 24 CSS px minimum interactive target or a documented applicable exception.
 
-## Decisions for review
+## Approved decisions
 
 - **Tooltip edge (D8).** Use a 1 px solid `--erx-color-tooltip-border` on the inverse surface, radius 10 px, elevation 2. The borderless shape option loses the explicit edge when shadows disappear. Use a visible system-color border in forced colors.
 - **Tooltip exit (D12).** Map `--erx-motion-tooltip-exit` to `--erx-motion-duration-fast` (120 ms). Keeping the 90 ms draft would add a scale step for a single exit. UL-27 owns the hover-delay token and interaction profile.
@@ -84,4 +84,4 @@ Ratios use sRGB relative luminance for the two opaque colors. Body and control t
 
 The study was checked in Chromium at 32, 40 and 48 px control minimums. Keyboard navigation reached the editable field with visible focus, both forms reported the saved name, the layout fit a 320 px viewport, and forced-colors emulation removed the tooltip shadow. The repository's axe scan passed on the study.
 
-Approval of this record and the two visual designs closes UL-12. UL-13 owns the production token source, generated CSS, complete contrast matrix and public token reference. The existing Eroxo package, selectors and CSS delivery contract continue to govern TaoTale integration at TAO-09/10.
+UL-12 is complete. UL-13 owns the production token source, generated CSS, complete contrast matrix and public token reference. The existing Eroxo package, selectors and CSS delivery contract continue to govern TaoTale integration at TAO-09/10.

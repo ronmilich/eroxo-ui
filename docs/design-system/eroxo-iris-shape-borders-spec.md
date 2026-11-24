@@ -104,7 +104,7 @@ A skeleton representing a circular avatar MUST be circular; one representing a p
 | Card / standard Alert / Toast | 1px | `border-subtle` | 14px |
 | Popover / Dropdown / Menu | 1px | `border-default` or `border-subtle` where adequately distinguished | 14px |
 | Dialog / AlertDialog | Optional 1px | `border-subtle` | 20px |
-| Tooltip | None by default | n/a | 10px |
+| Tooltip | 1px solid | `--erx-color-tooltip-border` | 10px |
 | Badge / Chip | 0 or 1px by variant | Status / interactive role | Full |
 | Table outer shell / Separator | 1px | `border-subtle` | 14px shell / no radius for separator |
 | FileDropzone | 1px default, strong boundary when interactive | `border-interactive` | 14px |
@@ -358,7 +358,7 @@ This document freezes the approved v0.2.0 geometry, not future elevation, motion
 ## Open items after 0.2.0
 
 - **Token naming grammar and tiers** (D5): UL-12 reviews whether primitives (`sm`, `md`) and roles (`field`, `tooltip`) share the `--erx-radius-*` namespace (§3, §5). The [UL-06 component rulebook](eroxo-iris-component-anatomy-api-spec.md) sets the component hook budget.
-- **Tooltip border** (D8): COLOR defines `--erx-color-tooltip-border`, while §6 gives the tooltip no border by default. Settled by the designer in UL-12.
+- [UL-12](ul-12-token-taxonomy.md) resolves D8 with a 1 px tooltip border.
 - **Portal fallback** (C7): whether any overlay can't use the top layer and so needs a portal, to which §10's portal caveat then applies. Settled by the UL-05 native-first ADR.
 - **Tokens folder and generator** (record gap on paths): `tokens/shape.json` and `scripts/generate-shape.mjs` (§14.1, §15) are provisional until one tokens folder and one generator are picked. Settled in UL-13.
 - **Fallback when a custom theme omits a token** (record gap): what a custom theme scope falls back to when it leaves out a shape token. Settled in UL-13.

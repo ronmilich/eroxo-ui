@@ -174,7 +174,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-09b | Start-mode consumer fixture | P1 | — | — | Done |
 | UL-10 | Release pipeline and supply-chain security | P1 | canary | — | Planned |
 | UL-11 | Documentation site and playground skeleton | P1 | — | TAO-07, TAO-08, TAO-11 | Done |
-| UL-12 | Design language and token taxonomy | P2 | — | — | In progress |
+| UL-12 | Design language and token taxonomy | P2 | — | — | Done |
 | UL-13 | Default light and dark themes | P2 | canary | — | Planned |
 | UL-14 | Core component utilities | P3 | canary | — | Planned |
 | UL-15 | Accessibility, motion and localisation utilities | P3 | canary | TAO-12–TAO-15 | Planned |
@@ -789,9 +789,9 @@ StackBlitz examples can use the public package once UL-10 publishes a canary.
 
 
 **Exit criteria**
-- [ ] Token specification and default light/dark designs approved.
+- [x] Owner approved the token specification and both default theme designs on 24 November 2026.
 
-Awaiting owner review of the [token decision record](design-system/ul-12-token-taxonomy.md) and [light/dark design study](https://ronmilich.github.io/eroxo-ui/design/iris.html).
+The [token decision record](design-system/ul-12-token-taxonomy.md) and [light/dark design study](https://ronmilich.github.io/eroxo-ui/design/iris.html) are the approved inputs for UL-13.
 
 
 

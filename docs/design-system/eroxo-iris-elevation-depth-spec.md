@@ -320,7 +320,7 @@ A future change to any value or component default MUST record visual rationale, 
 
 - **Portal or manual-inert fallback** (C7): whether any overlay can't use the top layer and so needs a z-index token other than `--erx-z-base` and `--erx-z-sticky`, a portal, a fallback scrim element or a manual `inert` fallback (Sections 7, 8 and 12). Settled by the UL-05 native-first ADR.
 - **Token naming and tiers** (D5): a naming grammar that shows each token's tier, and a cap on the component tier, which covers this spec's component-named aliases such as `--erx-elevation-card` and `--erx-elevation-dialog`. Settled in UL-06 and UL-12.
-- **Tooltip border** (D8): COLOR defines `--erx-color-tooltip-border` and SHAPE gives the tooltip none. Section 6 keeps a 1px border with a shadow unless a component-specific exception is documented, so the level-2 tooltip follows that decision. Settled by the designer in UL-12.
+- [UL-12](ul-12-token-taxonomy.md) pairs the level-2 tooltip shadow with a 1 px border (D8).
 - **Custom theme that omits a token** (record gap): what the redeclared shadow and elevation aliases resolve to when a custom theme leaves out a color token they use, such as `--erx-color-shadow`. Settled in UL-13.
 - **Tokens folder and generator** (record gap on paths): where `tokens/depth.json` and the generated `src/styles/depth.css` live, and the single generator that produces them. Settled in UL-13.
 - **Companion files** (record gap, missing companion files): the owner adds `tokens/depth.json`, the reference CSS, the scripts, the token test and the HTML fixture, or UL-13 generates the token JSON from this spec's tables. Settled by the owner or in UL-13.

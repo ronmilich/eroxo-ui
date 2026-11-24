@@ -72,7 +72,7 @@ Semantic roles are public CSS custom properties. All timings are derived from pr
 | `--erx-motion-press-duration` | `var(--erx-motion-duration-instant)` | Immediate press appearance |
 | `--erx-motion-selection-duration` | `var(--erx-motion-duration-normal)` | Checkbox, radio, switch, tabs |
 | `--erx-motion-tooltip-enter` | `var(--erx-motion-duration-fast)` | Tooltip opening |
-| `--erx-motion-tooltip-exit` | `90ms` | Tooltip dismissal |
+| `--erx-motion-tooltip-exit` | `var(--erx-motion-duration-fast)` | Tooltip dismissal |
 | `--erx-motion-floating-enter` | `var(--erx-motion-duration-normal)` | Dropdown/popover opening |
 | `--erx-motion-floating-exit` | `var(--erx-motion-duration-fast)` | Dropdown/popover dismissal |
 | `--erx-motion-dialog-enter` | `var(--erx-motion-duration-moderate)` | Dialog opening |
@@ -88,7 +88,7 @@ Semantic roles are public CSS custom properties. All timings are derived from pr
 | Switch | Thumb translation 180ms | 180ms | Coordinate with RTL layout; thumb movement is functional |
 | ToggleGroup | Selected surface and indicator 180ms | 180ms | Selection always visible without motion |
 | Tabs | Indicator translate or fade 180ms | 180ms | No horizontal scrolling animation unless consumer asks |
-| Tooltip | Fade 120ms | Fade 90ms | No required info accessible only by hover |
+| Tooltip | Fade 120ms | Fade 120ms | No required info accessible only by hover |
 | Dropdown / Popover | Fade + 4px toward settled position, 180ms | Fade + 4px toward trigger, 120ms | Placement drives direction; do not alter positioning transform |
 | Dialog / AlertDialog | Fade + `0.985` scale, 250ms | Fade + slight scale, 180ms | Native top-layer/focus lifecycle governs release |
 | Toast | Fade + 8px logical-direction translation, 250ms | 180ms | Do not make announcement await animation |
@@ -328,7 +328,7 @@ No remaining *visual-design* decision needs owner approval before this contract 
 ## Open items after 0.2.0
 
 - **`entering` presence phase** (D11): whether presence tracks `entering` at all; `PresencePhase` and the `data-erx-presence` DOM contract in Section 7 keep `entering` until then. Settled in UL-25.
-- **Tooltip exit timing** (D12): `--erx-motion-tooltip-exit` is `90ms`, which isn't on the duration scale (0/120/180/250/350 ms), so either the scale gains a 90 ms step or the tooltip exit becomes 120 ms. Settled in UL-12.
+- [UL-12](ul-12-token-taxonomy.md) resolves D12 with the 120 ms fast duration for tooltip exit.
 - **Tooltip hover-delay token** (D12): no token owns the delay before a tooltip opens on hover; its name and value come with the Tooltip's behavior profile. Settled in UL-27.
 - **Dialog backdrop and exit motion** (record gap): whether `::backdrop` fades, and whether the dialog scales on exit. Section 5 gives only the entry scale (`0.985` → `1`), and the Section 4 mapping's "Fade + slight scale" close has no token or value. Settled in UL-25.
 - **Token naming and tiers** (D5): a naming grammar that shows each token's tier, and a cap on the component tier, which covers this spec's component-named timing tokens such as `--erx-motion-tooltip-enter` and `--erx-motion-dialog-exit` (Section 10). Settled in UL-06 and UL-12.

@@ -666,7 +666,7 @@ Selection colors are opt-in: Eroxo ships no global `::selection` rule. An app th
 ## Open items after 0.2.0
 
 - **Naming grammar and tiers (D5):** the token naming grammar that shows each tier; whether semantic tokens may hold literal values (92 of the 258 semantic hex values in this specification aren't in the primitive palette); and a cap on the component tier, which includes component-local aliases such as `--erx-button-bg`. Settled in UL-06 and UL-12.
-- **Tooltip border (D8):** this specification defines `--erx-color-tooltip-border`; ERX-DS-SHAPE-001 gives tooltips no border. The designer settles it in UL-12.
+- [UL-12](ul-12-token-taxonomy.md) assigns `--erx-color-tooltip-border` to the 1 px tooltip edge (D8).
 - **Portal fallback (C7):** whether any overlay can't use the top layer and needs a portal that carries the resolved semantic variables. Settled by the UL-05 native-first ADR.
 - **Tokens folder and generator (record gaps):** `src/styles/tokens/` and the generator are provisional. UL-13 picks one tokens folder and one generator.
 - **Custom theme fallback (record gaps):** what happens when a custom theme such as `[data-erx-theme="acme"]` omits a token. Settled in UL-13.
