@@ -173,7 +173,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-09a | Name, organisation and domain reservations | P1 | — | — | Planned |
 | UL-09b | Start-mode consumer fixture | P1 | — | — | Done |
 | UL-10 | Release pipeline and supply-chain security | P1 | canary | — | Planned |
-| UL-11 | Documentation site and playground skeleton | P1 | — | TAO-07, TAO-08, TAO-11 | In progress |
+| UL-11 | Documentation site and playground skeleton | P1 | — | TAO-07, TAO-08, TAO-11 | Done |
 | UL-12 | Design language and token taxonomy | P2 | — | — | Planned |
 | UL-13 | Default light and dark themes | P2 | canary | — | Planned |
 | UL-14 | Core component utilities | P3 | canary | — | Planned |
@@ -741,8 +741,10 @@ The initial branch protection required pull requests with a passing, up-to-date 
 
 
 **Exit criteria**
-- [ ] Docs site deployed (preview access is enough), with the template and one live example.
-- [ ] The docs check fails if an example fails to compile or render or if the Markdown, `llms.txt` or metadata outputs are missing. The check runs in GitHub Actions and locally without blocking direct pushes during early development.
+- [x] The [GitHub Pages preview](https://ronmilich.github.io/eroxo-ui/) serves the component template and [live Hello example](https://ronmilich.github.io/eroxo-ui/components/hello/).
+- [x] The docs check verifies example compilation and rendering, Markdown, `llms.txt` and metadata locally and in [GitHub Actions](https://github.com/ronmilich/eroxo-ui/actions/runs/45471670599). Direct pushes remain available during early development.
+
+StackBlitz examples can use the public package once UL-10 publishes a canary.
 
 
 
