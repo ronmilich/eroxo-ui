@@ -18,7 +18,7 @@ Use `erx-forced-border` on controls with an essential border. The control suppli
 
 ## Motion
 
-`MotionScope` provides a DOM scope and shares a reactive `useReducedMotion()` accessor among its children. Its optional `reduce` flag can further reduce motion. A nested scope inherits reduction, and `false` leaves inherited and system preferences in effect. The CSS tokens follow the system preference before hydration. JavaScript observes the initial system preference and subsequent changes once mounted. Consumers using the hook outside a scope get an owner-managed system subscription. Disposal removes subscriptions.
+`MotionScope` provides a DOM scope and shares a reactive `useReducedMotion()` accessor among its children. Its optional `reduce` flag can further reduce motion. A nested scope inherits reduction, and `false` leaves inherited and system preferences in effect. The CSS tokens follow the system preference before hydration. Scopes and hooks used outside a scope share one system preference. A component created in a client-only render or after hydration reads the current preference immediately. During hydration, it keeps the server value, which is not reduced, until it settles. The shared media-query listener starts when the first consumer mounts and is removed when the last consumer is disposed.
 
 Use motion tokens for transitions and the accessor for JavaScript-driven motion. A portal can read the logical scope's accessor and apply `data-erx-motion="reduce"` to its remote DOM root when the accessor is true.
 
@@ -28,7 +28,7 @@ Use motion tokens for transitions and the accessor for JavaScript-driven motion.
 
 ## Verification
 
-The automated browser fixture exercises the existing regions before hydration, keyboard focus transfer, polite and assertive DOM mutations, portal announcements, disposal, motion preference changes, and a Hebrew label and direction override that preserves an edited input. Forced-colors checks run where the engine exposes that media mode. Unit tests also check timer and media-listener cleanup.
+The automated browser fixture exercises the existing regions before hydration, keyboard focus transfer, polite and assertive DOM mutations, portal announcements, disposal, motion preference changes, and a Hebrew label and direction override that preserves an edited input. Forced-colors checks run where the engine exposes that media mode. Unit tests also check timer cleanup, the shared media listener and the motion preference a new component reads.
 
 Manual speech verification is pending for the [screen-reader protocol](screen-reader-protocol.md). The fixture's **Close** button sends a polite “Saved” message, **Clear** sends an assertive “Error,” and the portal button sends a polite “From portal” message. Repeat the polite message and check speech, interruption, and stable focus with the supported pairings.
 

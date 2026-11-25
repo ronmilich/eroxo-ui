@@ -1,5 +1,5 @@
 import { render } from '@solidjs/web'
-import { createRoot, createSignal, flush } from 'solid-js'
+import { createRoot, createSignal, flush, onSettled, untrack } from 'solid-js'
 import { afterEach, expect, it, vi } from 'vitest'
 import { AnnouncerProvider, useAnnounce } from '../src/internal/announcer.jsx'
 import { focusElement } from '../src/internal/focus.js'
@@ -145,6 +145,73 @@ it('combines scoped and system motion preferences and removes its media listener
   expect(root.textContent).toBe('full')
   expect(matchMedia).toHaveBeenCalledTimes(2)
   disposeStandalone()
+})
+
+function stubMotionPreference(initial: boolean) {
+  let matches = initial
+  const query = Object.defineProperty(new EventTarget(), 'matches', { get: () => matches })
+  const matchMedia = vi.fn(() => query)
+  vi.stubGlobal('matchMedia', matchMedia)
+  return {
+    matchMedia,
+    add: vi.spyOn(query, 'addEventListener'),
+    remove: vi.spyOn(query, 'removeEventListener'),
+    change(next: boolean) {
+      matches = next
+      query.dispatchEvent(new Event('change'))
+      flush()
+    },
+  }
+}
+
+it('shares one system motion listener until the last consumer is disposed', () => {
+  const preference = stubMotionPreference(true)
+  function Reader() {
+    const reduced = useReducedMotion()
+    return <p>{reduced() ? 'reduced' : 'full'}</p>
+  }
+  const roots = [1, 2, 3].map(() => document.createElement('main'))
+  const disposers = roots.map(root => render(() => <Reader />, root))
+  flush()
+  expect(roots.map(root => root.textContent)).toEqual(['reduced', 'reduced', 'reduced'])
+  expect(preference.matchMedia).toHaveBeenCalledOnce()
+  expect(preference.add).toHaveBeenCalledOnce()
+  preference.change(false)
+  expect(roots.map(root => root.textContent)).toEqual(['full', 'full', 'full'])
+  for (const dispose of disposers.slice(0, -1)) dispose()
+  expect(preference.remove).not.toHaveBeenCalled()
+  disposers.at(-1)?.()
+  expect(preference.remove).toHaveBeenCalledExactlyOnceWith(
+    'change',
+    preference.add.mock.calls[0]?.[1],
+  )
+})
+
+it('gives a new component the current motion preference while it renders and settles', () => {
+  const preference = stubMotionPreference(true)
+  const seen: string[] = []
+  function Animated(props: { name: string }) {
+    const reduced = useReducedMotion()
+    seen.push(`${props.name} render:${untrack(reduced)}`)
+    onSettled(() => {
+      seen.push(`${props.name} settled:${reduced()}`)
+    })
+    return null
+  }
+  const disposeFirst = render(() => <Animated name="first" />, document.createElement('main'))
+  flush()
+  preference.change(false)
+  const disposeLater = render(() => <Animated name="later" />, document.createElement('main'))
+  flush()
+  expect(seen).toEqual([
+    'first render:true',
+    'first settled:true',
+    'later render:false',
+    'later settled:false',
+  ])
+  disposeFirst()
+  disposeLater()
+  expect(preference.remove).toHaveBeenCalledOnce()
 })
 
 it('inherits locale, direction, and each fallback message without remounting', () => {
