@@ -3,3 +3,6 @@
 @import './accessibility.css';
 @import './theme.css';
 @import './hello.css';
+@import './button.css';
+@import './icon.css';
+@import './spinner.css';

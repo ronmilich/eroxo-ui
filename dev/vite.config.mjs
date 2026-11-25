@@ -2,10 +2,17 @@ import solid from '@solidjs/vite-plugin'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
-import { compileDocs } from './compile.mjs'
+import { compileDocs, componentPages } from './compile.mjs'
 
 const root = fileURLToPath(new URL('./', import.meta.url))
-const input = ['index.html', 'components/hello/index.html', 'tokens/index.html']
+const input = [
+  'index.html',
+  'components/hello/index.html',
+  'tokens/index.html',
+  'customization/index.html',
+  'theming/index.html',
+  ...componentPages.map(([, slug]) => 'components/' + slug + '/index.html'),
+]
 const href = (page, target) => path.posix.relative(path.posix.dirname(page.route), target) || '.'
 const escape = value =>
   value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
@@ -57,7 +64,7 @@ function layout(page, pages) {
         <footer class="formats">
           <a href="${href(page, page.markdown)}">Markdown</a>
           <a href="${href(page, 'llms.txt')}">llms.txt</a>
-          ${page.route === input[1] ? `<a href="${href(page, 'components/hello.json')}">Component metadata</a>` : ''}
+          ${page.markdown.startsWith('components/') ? `<a href="${href(page, page.markdown.replace(/\.md$/, '.json'))}">Component metadata</a>` : ''}
         </footer>
       </main>
       <nav class="outline" aria-label="On this page"><b>On this page</b>${sections}</nav>
@@ -120,6 +127,10 @@ export default defineConfig(({ command, isPreview }) => ({
     alias:
       command === 'serve' && !isPreview
         ? [
+            {
+              find: /^eroxo-ui$/,
+              replacement: fileURLToPath(new URL('../src/index.tsx', import.meta.url)),
+            },
             {
               find: 'eroxo-ui/hello',
               replacement: fileURLToPath(new URL('../src/hello.tsx', import.meta.url)),

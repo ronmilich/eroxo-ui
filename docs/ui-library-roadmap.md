@@ -115,7 +115,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-17  | Collection and navigation primitives                         | P3    | canary           | —                                                        | Planned     |
 | UL-18  | Theming API                                                  | P4    | canary           | —                                                        | In progress |
 | UL-19  | Component customization contract                             | P4    | canary           | —                                                        | In progress |
-| UL-20  | Button, IconButton, Icon, Spinner — **first public release** | P5    | `0.1.0`          | TAO-09 (hard), TAO-16, TAO-17                            | Planned     |
+| UL-20  | Button, IconButton, Icon, Spinner — **first public release** | P5    | `0.1.0`          | TAO-09 (hard), TAO-16, TAO-17                            | In progress |
 | UL-21  | Form field system                                            | P5    | `0.2.0`          | —                                                        | Planned     |
 | UL-22  | Choice controls                                              | P5    | `0.3.0`          | —                                                        | Planned     |
 | UL-23  | Display primitives                                           | P5    | `0.4.0`          | TAO-18–TAO-20                                            | Planned     |
@@ -712,8 +712,10 @@ On 25 November 2026 the owner chose a Tailwind bridge that maps semantic roles o
 
 - [ ] Component Definition of Done (§2.5) met.
 - [ ] `0.1.0` published, and the fixtures install it from the registry.
-- [ ] A consumer re-theme and slot restyle demo passes.
-- [ ] A packed-consumer fixture runs `agents-md` and validates the section it writes.
+- [x] A consumer re-theme and slot restyle demo passes.
+- [x] A packed-consumer fixture runs `agents-md` and validates the section it writes.
+
+The four components, installation and customization guides, package metadata and opt-in CLI are implemented locally. Button uses the native anchor branch for router-managed navigation under the UL-06 polymorphism contract. Packed consumers passed on Solid 2.0.3 and 2.0.4 in Chromium, Firefox and WebKit. The foundation fixture covers native keyboard activation, router-managed links, touch, SSR hydration, theme and slot overrides, and light and dark axe scans. The package suite records per-component JavaScript and CSS sizes in the size report. Manual screen-reader speech checks remain pending under the [device protocol](screen-reader-protocol.md). Publication and the registry-install check are deferred until npm access returns and UL-10 is complete.
 
 **Depends on:** UL-10, UL-11, UL-15, UL-19 · **Release:** `0.1.0` · **Gates in TaoTale:** TAO-09 (hard), TAO-16, TAO-17
 

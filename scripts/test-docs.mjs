@@ -48,6 +48,21 @@ try {
     await page.getByLabel('Greeting color', { exact: true }).fill('#225577')
     assert.equal(await greeting.evaluate(el => getComputedStyle(el).color), 'rgb(34, 85, 119)')
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+    for (const [slug, selector] of [
+      ['button', 'button.erx-button'],
+      ['icon-button', 'button.erx-icon-button'],
+      ['icon', 'svg.erx-icon'],
+      ['spinner', '.erx-spinner'],
+      ['theme-scope', '.erx-theme-scope'],
+    ]) {
+      await page.goto(new URL('components/' + slug + '/', url).href)
+      await page.locator('#playground ' + selector).waitFor()
+      const metadata = await (await fetch(new URL('components/' + slug + '.json', url))).json()
+      assert.ok(
+        metadata.props.length &&
+          metadata.props.every(prop => prop.description && prop.example && prop.default),
+      )
+    }
     assert.deepEqual(errors, [])
     await page.getByRole('link', { name: 'Iris tokens', exact: true }).click()
     await page.getByRole('heading', { name: 'Contrast checks' }).waitFor()

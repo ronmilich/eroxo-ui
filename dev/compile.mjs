@@ -8,6 +8,13 @@ import { iris, contrastRatio, resolveToken } from '../scripts/iris-tokens.mjs'
 
 const here = new URL('./', import.meta.url)
 const library = new URL('../src/', here)
+export const componentPages = [
+  ['Button', 'button'],
+  ['IconButton', 'icon-button'],
+  ['Icon', 'icon'],
+  ['Spinner', 'spinner'],
+  ['ThemeScope', 'theme-scope'],
+]
 const definitions = [
   { title: 'Eroxo UI', route: 'index.html', markdown: 'index.md', content: 'index' },
   { title: 'Iris tokens', route: 'tokens/index.html', markdown: 'tokens.md', content: 'tokens' },
@@ -18,6 +25,26 @@ const definitions = [
     content: 'hello',
     example: 'examples/hello.tsx',
     entry: 'hello.tsx',
+  },
+  ...componentPages.map(([title, slug]) => ({
+    title,
+    route: 'components/' + slug + '/index.html',
+    markdown: 'components/' + slug + '.md',
+    content: slug,
+    example: 'examples/' + slug + '.tsx',
+    entry: ({ 'icon-button': 'button', 'theme-scope': 'theme' }[slug] ?? slug) + '.tsx',
+  })),
+  {
+    title: 'Theming',
+    route: 'theming/index.html',
+    markdown: 'theming.md',
+    guide: '../docs/ul-18-theming-api.md',
+  },
+  {
+    title: 'Customization',
+    route: 'customization/index.html',
+    markdown: 'customization.md',
+    guide: '../docs/customization.md',
   },
 ]
 const read = (name, root = here) => readFile(new URL(name, root), 'utf8')
@@ -107,9 +134,19 @@ function componentProps(entry, name) {
     assert.ok(signature, `Expected ${name} to be a callable component`)
     const [props] = signature.getParameters()
     if (!props) return []
-    return checker.getPropertiesOfType(checker.getTypeOfSymbol(props)).map(prop => {
+    // Native DOM attributes come from Solid. Document every prop defined by the library.
+    const publicProps = checker
+      .getPropertiesOfType(checker.getTypeOfSymbol(props))
+      .filter(prop =>
+        prop.declarations.some(declaration => !declaration.path.includes('/node_modules/')),
+      )
+    return publicProps.map(prop => {
       const description = prop.getDocumentationComment(checker)
       const tags = new Map(prop.getJsDocTags(checker).map(tag => [tag.name, tag.text]))
+      assert.ok(
+        tags.get('example') && tags.get('defaultValue'),
+        name + '.' + prop.name + ' needs a default and example',
+      )
       assert.ok(description, `${name}.${prop.name} is missing a JSDoc description`)
       return {
         name: prop.name,
@@ -189,7 +226,9 @@ export async function compileDocs(live = '') {
   const pages = []
   for (const definition of definitions) {
     const { title, route, markdown, content, example, entry } = definition
-    const intro = await read(`content/${content}.md`)
+    const intro = definition.guide
+      ? (await read(definition.guide)).replace(/^# .*\r?\n/, '').trimStart()
+      : await read(`content/${content}.md`)
     const body = `# ${title}\n\n${intro.replace('{{tokens}}', () => tokenReference())}`
     let reference = body.replaceAll('./components/hello/', './components/hello.md')
     let web = body
@@ -202,7 +241,12 @@ export async function compileDocs(live = '') {
         examples: [{ source: example }],
       }
       reference = componentMarkdown(reference, metadata, source)
-      web = componentMarkdown(web, metadata, source, live)
+      web = componentMarkdown(
+        web,
+        metadata,
+        source,
+        live.replace('id="playground"', 'id="playground" data-example="' + content + '"'),
+      )
       files.set(example, source)
       files.set(markdown.replace(/\.md$/, '.json'), json(metadata))
     }
@@ -220,7 +264,16 @@ export async function compileDocs(live = '') {
       '## Documentation',
       '',
       ...pages.map(page => `- [${page.title}](./${page.markdown})`),
-      '- [Hello component metadata](./components/hello.json)',
+      ...pages
+        .filter(page => page.markdown.startsWith('components/'))
+        .map(
+          page =>
+            '- [' +
+            page.title +
+            ' component metadata](./' +
+            page.markdown.replace(/\.md$/, '.json') +
+            ')',
+        ),
       '',
     ].join('\n'),
   )

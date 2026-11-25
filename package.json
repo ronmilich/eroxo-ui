@@ -14,7 +14,8 @@
   },
   "files": [
     "dist",
-    "NOTICE"
+    "NOTICE",
+    "bin"
   ],
   "private": false,
   "sideEffects": [
@@ -65,6 +66,46 @@
     "./styles.css": {
       "types": "./dist/styles.d.css.ts",
       "default": "./dist/styles.css"
+    },
+    "./button": {
+      "types": "./dist/button.d.ts",
+      "solid": "./dist/button.jsx",
+      "browser": "./dist/button.js",
+      "node": "./dist/button.server.js",
+      "default": "./dist/button.js"
+    },
+    "./button.css": {
+      "types": "./dist/button.d.css.ts",
+      "default": "./dist/button.css"
+    },
+    "./icon-button": {
+      "types": "./dist/icon-button.d.ts",
+      "solid": "./dist/icon-button.jsx",
+      "browser": "./dist/icon-button.js",
+      "node": "./dist/icon-button.server.js",
+      "default": "./dist/icon-button.js"
+    },
+    "./icon": {
+      "types": "./dist/icon.d.ts",
+      "solid": "./dist/icon.jsx",
+      "browser": "./dist/icon.js",
+      "node": "./dist/icon.server.js",
+      "default": "./dist/icon.js"
+    },
+    "./icon.css": {
+      "types": "./dist/icon.d.css.ts",
+      "default": "./dist/icon.css"
+    },
+    "./spinner": {
+      "types": "./dist/spinner.d.ts",
+      "solid": "./dist/spinner.jsx",
+      "browser": "./dist/spinner.js",
+      "node": "./dist/spinner.server.js",
+      "default": "./dist/spinner.js"
+    },
+    "./spinner.css": {
+      "types": "./dist/spinner.d.css.ts",
+      "default": "./dist/spinner.css"
     }
   },
   "scripts": {
@@ -120,5 +161,8 @@
   "engines": {
     "node": "^22.22.2 || ^24.15.0 || >=26",
     "pnpm": ">=12.21.0"
+  },
+  "bin": {
+    "eroxo-ui": "./bin/eroxo-ui.mjs"
   }
 }

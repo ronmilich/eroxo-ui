@@ -8,7 +8,7 @@ import {
   type PartClasses,
   type StyleAxisProps,
 } from '../../../src/internal/styling.js'
-import './probe.css'
+import './prob.css'
 
 // A private multi-part component that exercises the UL-19 styling plumbing the
 // way a production component would. It is never published.

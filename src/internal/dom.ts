@@ -26,22 +26,35 @@ interface BoundEventHandler<E extends Event> {
 
 export function composeEventHandlers<E extends Event>(
   consumer: Accessor<EventHandler<E> | BoundEventHandler<E> | undefined>,
-  action: EventHandler<E>,
+  action?: EventHandler<E>,
 ): EventHandler<E> {
   return event => {
     const handler = consumer()
     if (typeof handler === 'function') handler.call(event.currentTarget, event)
     else if (handler) handler[0].call(event.currentTarget, handler[1], event)
-    if (!event.cancelable || !event.defaultPrevented) action(event)
+    if (!event.cancelable || !event.defaultPrevented) action?.(event)
   }
 }
 
 export type ButtonOrAnchorProps<OwnProps extends object> = OwnProps &
   (
-    | ({ as?: 'button'; href?: never; type?: 'button' | 'submit' | 'reset' } & Omit<
-        JSX.IntrinsicElements['button'],
-        keyof OwnProps | 'type'
-      >)
+    | ({
+        /** Native root element. Keep this choice stable for the lifetime of the control.
+         * @defaultValue button
+         * @example as="a"
+         */
+        as?: 'button'
+        /** Navigation destination, required when rendering an anchor.
+         * @defaultValue none
+         * @example href="/settings"
+         */
+        href?: never
+        /** Native form behavior of a button.
+         * @defaultValue button
+         * @example type="submit"
+         */
+        type?: 'button' | 'submit' | 'reset'
+      } & Omit<JSX.IntrinsicElements['button'], keyof OwnProps | 'type'>)
     | ({ as: 'a'; href: string; type?: never } & Omit<
         JSX.IntrinsicElements['a'],
         keyof OwnProps | 'href' | 'type'

@@ -1,0 +1,24 @@
+{
+  "component": "Icon",
+  "importPath": "eroxo-ui/icon",
+  "parts": ["erx-icon"],
+  "stateAttributes": ["data-erx-size"],
+  "cssVariables": [
+    {
+      "name": "--erx-icon-size",
+      "description": "Glyph dimensions",
+      "fallback": "--erx-icon-size-default"
+    },
+    {
+      "name": "--erx-icon-color",
+      "description": "Glyph color",
+      "fallback": "currentColor"
+    }
+  ],
+  "keyboard": [
+    {
+      "key": "None",
+      "behavior": "Adds no tab stop."
+    }
+  ]
+}

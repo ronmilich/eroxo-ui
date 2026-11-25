@@ -1,0 +1,51 @@
+{
+  "component": "Button",
+  "importPath": "eroxo-ui/button",
+  "parts": [
+    "erx-button",
+    "erx-button__label",
+    "erx-button__start-icon",
+    "erx-button__end-icon",
+    "erx-button__spinner"
+  ],
+  "stateAttributes": [
+    "data-erx-variant",
+    "data-erx-tone",
+    "data-erx-size",
+    "data-erx-shape",
+    "data-erx-disabled",
+    "data-erx-loading",
+    "data-erx-full-width"
+  ],
+  "cssVariables": [
+    {
+      "name": "--erx-button-bg",
+      "description": "Background",
+      "fallback": "tone and variant"
+    },
+    {
+      "name": "--erx-button-fg",
+      "description": "Foreground",
+      "fallback": "tone and variant"
+    },
+    {
+      "name": "--erx-button-radius",
+      "description": "Corner radius",
+      "fallback": "--erx-radius-control"
+    }
+  ],
+  "keyboard": [
+    {
+      "key": "Enter",
+      "behavior": "Activate a button or follow a link."
+    },
+    {
+      "key": "Space",
+      "behavior": "Activate a button on release. A link retains native scrolling."
+    },
+    {
+      "key": "Tab",
+      "behavior": "Move focus. Native disabled controls are skipped."
+    }
+  ]
+}

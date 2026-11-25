@@ -2,6 +2,7 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "paths": {
+      "eroxo-ui": ["../src/index.tsx"],
       "eroxo-ui/hello": ["../src/hello.tsx"],
       "eroxo-ui/styles.css": ["../src/styles.d.ts"]
     },

@@ -1,0 +1,24 @@
+{
+  "component": "ThemeScope",
+  "importPath": "eroxo-ui/theme",
+  "parts": ["erx-theme-scope"],
+  "stateAttributes": ["data-erx-theme", "data-erx-density"],
+  "cssVariables": [
+    {
+      "name": "--erx-color-canvas",
+      "description": "Surface background.",
+      "fallback": "Iris canvas color"
+    },
+    {
+      "name": "--erx-color-text",
+      "description": "Foreground text.",
+      "fallback": "Iris text color"
+    }
+  ],
+  "keyboard": [
+    {
+      "key": "None",
+      "behavior": "Children keep their native keyboard behavior."
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+@layer erx.tokens, erx.components;
+@import './accessibility.css';
+@layer erx.components {
+  .erx-spinner {
+    display: inline-block;
+    vertical-align: middle;
+    box-sizing: border-box;
+    flex: none;
+    inline-size: var(--erx-spinner-size, var(--erx-density-control-default-icon-size));
+    block-size: var(--erx-spinner-size, var(--erx-density-control-default-icon-size));
+    border: var(--erx-border-width-emphasis) solid currentColor;
+    border-inline-end-color: transparent;
+    border-radius: var(--erx-radius-full);
+    animation: erx-spin var(--erx-motion-duration-spin) linear infinite;
+  }
+  @keyframes erx-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .erx-spinner {
+      animation: none;
+    }
+  }
+  [data-erx-motion='reduce'] .erx-spinner {
+    animation: none;
+  }
+}

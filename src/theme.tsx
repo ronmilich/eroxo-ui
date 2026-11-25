@@ -115,6 +115,7 @@ type DivProps = JSX.IntrinsicElements['div']
 export interface ThemeScopeProps extends DivProps {
   /**
    * The color scheme when the parent controls it. Pair it with `onColorSchemeChange`.
+   * @defaultValue Inherited or system
    * @example <ThemeScope colorScheme={scheme()} onColorSchemeChange={setScheme} />
    */
   colorScheme?: ColorScheme
@@ -122,12 +123,14 @@ export interface ThemeScopeProps extends DivProps {
    * The initial color scheme when the scope manages it. Without `colorScheme` or
    * `defaultColorScheme`, a nested scope inherits its parent's scheme, and the
    * outermost scope continues the scheme on `<html>`, or follows the system.
+   * @defaultValue Inherited or system
    * @example <ThemeScope defaultColorScheme="dark" />
    */
   defaultColorScheme?: ColorScheme
   /**
    * Called with the new color scheme when `setColorScheme` changes this scope.
    * Save the choice here.
+   * @defaultValue none
    * @example <ThemeScope onColorSchemeChange={next => localStorage.setItem('scheme', next)} />
    */
   onColorSchemeChange?: (colorScheme: ColorScheme) => void

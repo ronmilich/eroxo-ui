@@ -1,6 +1,6 @@
 # Customizing Eroxo UI
 
-**Draft (UL-19, 25 November 2026).** The examples use the planned Button and Dialog names; Button arrives with UL-20 (`0.1.0`), which also moves this guide into the docs site and the package.
+Button examples use the public foundation components. Dialog examples illustrate the planned compound component API.
 
 Eroxo components are styled by default, and you can change their look without forking them. Five layers go from the broadest change to the narrowest: tokens, theme scopes, variants and sizes, parts and state attributes, and your own class and style. Every name in this guide is public API. Anything else, such as `--_erx-*` variables or the elements inside a component, can change in any release.
 
@@ -46,7 +46,7 @@ const brand = createTheme('brand', {
 </ThemeScope>
 ```
 
-Load `brand.css` once, in a stylesheet or a `<style>` element. The [theming notes](ul-18-theming-api.md) cover persistence, first paint, portals and the native top layer.
+Load `brand.css` once, in a stylesheet or a `<style>` element. The [theming notes](https://github.com/ronmilich/eroxo-ui/blob/main/docs/ul-18-theming-api.md) cover persistence, first paint, portals and the native top layer.
 
 ## 3. Variants, tones and sizes
 

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { execFileSync, execSync } from 'node:child_process'
-import { cp, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, readFile, readdir, realpath, rm, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -16,6 +16,7 @@ import { buildPrimitiveFixture } from '../test/browser/primitive-fixture.mjs'
 import { checkInteraction } from '../test/browser/interaction.mjs'
 import { buildThemeFixture, checkTheme } from '../test/browser/theme.mjs'
 import { buildCustomizationFixture, checkCustomization } from '../test/browser/customization.mjs'
+import { buildFoundationFixture, checkFoundation } from '../test/browser/foundation.mjs'
 import { checkTailwind } from '../test/browser/tailwind.mjs'
 import {
   buildAccessibilityUtilitiesFixture,
@@ -90,6 +91,15 @@ async function installFixture(
   return dir
 }
 
+function recordSize(label, ext, buffers) {
+  sizes.push([
+    label,
+    ext,
+    buffers.reduce((n, b) => n + b.length, 0),
+    buffers.reduce((n, b) => n + gzipSync(b).length, 0),
+  ])
+}
+
 function inspectOutput(label, result) {
   const outputs = (Array.isArray(result) ? result : [result]).flatMap(build => build.output)
   const modules = outputs
@@ -103,12 +113,7 @@ function inspectOutput(label, result) {
   for (const ext of ['js', 'css']) {
     const files = outputs.filter(file => file.fileName.endsWith('.' + ext))
     const buffers = files.map(file => Buffer.from(file.type === 'chunk' ? file.code : file.source))
-    sizes.push([
-      label,
-      ext,
-      buffers.reduce((n, b) => n + b.length, 0),
-      buffers.reduce((n, b) => n + gzipSync(b).length, 0),
-    ])
+    recordSize(label, ext, buffers)
   }
   return { css, modules }
 }
@@ -308,6 +313,7 @@ async function checkInBrowsers(name, config) {
           await checkInteraction(browser, url)
           await checkTheme(browser, url)
           await checkCustomization(browser, url)
+          await checkFoundation(browser, url)
         }
       } finally {
         await browser.close()
@@ -322,11 +328,20 @@ async function checkInBrowsers(name, config) {
 async function checkTailwindConsumer(tarball) {
   const dir = await installFixture('tailwind', tarball, 'eroxo-ui')
   tool('node_modules/typescript/bin/tsc', ['-p', dir])
-  const plugin = pathToFileURL(path.join(dir, 'tailwind-plugin.mjs')).href
-  const { default: tailwindcss } = await import(plugin)
-  const config = { root: dir, configFile: false, plugins: [solid(), tailwindcss()] }
-  inspectOutput('tailwind', await build(config))
-  const server = await preview({ ...config, preview: { host: '127.0.0.1', port: 0 } })
+  tool('scripts/build-tailwind-fixture.mjs', [dir])
+  const assets = path.join(dir, 'dist/assets')
+  const files = await readdir(assets)
+  for (const ext of ['js', 'css']) {
+    const buffers = await Promise.all(
+      files.filter(file => file.endsWith('.' + ext)).map(file => readFile(path.join(assets, file))),
+    )
+    recordSize('tailwind', ext, buffers)
+  }
+  const server = await preview({
+    root: dir,
+    configFile: false,
+    preview: { host: '127.0.0.1', port: 0 },
+  })
   const url = 'http://127.0.0.1:' + server.httpServer.address().port
   try {
     for (const engine of [chromium, firefox, webkit]) {
@@ -362,6 +377,60 @@ async function checkDomRunner(dir) {
     assert.equal(dom.window.document.body.textContent, 'Hello updated!')
   } finally {
     dom.window.close()
+  }
+}
+
+async function checkAgentKit(dir) {
+  const installed = path.join(dir, 'node_modules/eroxo-ui')
+  const manifest = JSON.parse(await readFile(path.join(installed, 'package.json'), 'utf8'))
+  const exports = await import(pathToFileURL(path.join(installed, manifest.exports['.'].node)).href)
+  for (const [name, value] of Object.entries(exports)) {
+    if (!/^[A-Z]/.test(name) || typeof value !== 'function') continue
+    const slug = name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
+    const base = path.join(installed, 'dist/docs/components', slug)
+    const metadata = JSON.parse(await readFile(base + '.json', 'utf8'))
+    assert.equal(metadata.component, name)
+    assert.ok((await readFile(base + '.md', 'utf8')).startsWith('# ' + name))
+    for (const example of metadata.examples)
+      await readFile(path.join(installed, 'dist/docs', example.source))
+  }
+  const command = path.join(installed, manifest.bin['eroxo-ui'])
+  const invoke = () => execFileSync(process.execPath, [command, 'agents-md'], { cwd: dir })
+  const agents = path.join(dir, 'AGENTS.md')
+  const claude = path.join(dir, 'CLAUDE.md')
+  await writeFile(agents, '# Application instructions\r\n')
+  invoke()
+  const first = await readFile(agents, 'utf8')
+  assert.ok(first.startsWith('# Application instructions\r\n'))
+  assert.ok(first.includes(manifest.version))
+  assert.equal((await readFile(claude, 'utf8')).trim(), '@AGENTS.md')
+  await writeFile(claude, 'Existing configuration')
+  await writeFile(agents, first.replace(manifest.version, 'stale'))
+  invoke()
+  assert.equal(await readFile(agents, 'utf8'), first)
+  assert.equal(await readFile(claude, 'utf8'), 'Existing configuration')
+}
+
+async function measureFoundationEntries(dir) {
+  for (const [name, slug] of [
+    ['Button', 'button'],
+    ['IconButton', 'icon-button'],
+    ['Icon', 'icon'],
+    ['Spinner', 'spinner'],
+  ]) {
+    const entry = path.join(dir, 'measure-' + slug + '.js')
+    await writeFile(entry, 'export { ' + name + ' } from "eroxo-ui/' + slug + '"')
+    const result = await build({
+      root: dir,
+      configFile: false,
+      build: { write: false, rolldownOptions: { input: entry, preserveEntrySignatures: 'strict' } },
+    })
+    const { css, modules } = inspectOutput(name, result)
+    assert.ok(css.includes('.erx-' + slug), name + ' CSS missing')
+    assert.ok(
+      !modules.some(id => id.includes('/dist/theme.') || id.includes('/dist/dialog.')),
+      name + ' included unrelated code',
+    )
   }
 }
 
@@ -413,6 +482,9 @@ async function consumers(tarball) {
       await buildPrimitiveFixture(dir, 'interaction', { styles: true })
       await buildThemeFixture(dir)
       await buildCustomizationFixture(dir)
+      await buildFoundationFixture(dir)
+      await checkAgentKit(dir)
+      await measureFoundationEntries(dir)
     }
     await checkInBrowsers(name, { root: dir, configFile: false })
   }
@@ -485,6 +557,14 @@ try {
     'dist/docs/examples/hello.tsx',
     'dist/docs/llms.txt',
     'dist/docs/llms-full.txt',
+    'dist/docs/customization.md',
+    'dist/docs/theming.md',
+    'bin/eroxo-ui.mjs',
+    ...['button', 'icon-button', 'icon', 'spinner', 'theme-scope'].flatMap(name => [
+      'dist/docs/components/' + name + '.md',
+      'dist/docs/components/' + name + '.json',
+      'dist/docs/examples/' + name + '.tsx',
+    ]),
   ]) {
     assert.ok(files.includes(name), name + ' missing from tarball')
   }
@@ -505,7 +585,7 @@ try {
   const report = [
     '# UL-08 package sizes',
     '',
-    'Bytes are summed per emitted asset. Browser rows include the Solid runtime. The private probes measure import isolation ahead of the production components.',
+    'Bytes are summed per emitted asset. Browser rows include the Solid runtime. The per-component rows measure isolated public imports, and the private probes check import isolation.',
     '',
     '| Entry | Type | Bytes | Gzip bytes |',
     '|---|---|---:|---:|',

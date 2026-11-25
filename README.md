@@ -31,7 +31,7 @@ The check runs `npm pack`, installs the tarball in two temporary projects outsid
 
 The default consumer install tests the minimum Solid peers. Set `SOLID_PEER_TIER=latest` in your shell to test the newest versions npm resolves within the public peer ranges. CI runs both installs and logs the resolved versions. Run `pnpm test:coverage` for the source-level V8 report in `artifacts/coverage/`. See the [screen-reader protocol](docs/screen-reader-protocol.md) for device checks and how to add keyboard rows.
 
-The build workflow attaches `artifacts/size-report.md`. It lists the shipped entries and browser bundles in raw and gzip bytes. The Button and Dialog rows use a separately packed private benchmark under `fixtures/size/`. Their production implementations belong to later component milestones.
+The build workflow attaches `artifacts/size-report.md`. It lists the shipped entries and browser bundles in raw and gzip bytes. Button, IconButton, Icon and Spinner each have a packed-consumer size measurement. The separately named probe rows use the private benchmark under `fixtures/size/`.
 
 The [library roadmap](docs/ui-library-roadmap.md) is maintained here and supplies the milestone status used by TaoTale.
 
@@ -39,12 +39,14 @@ The [library roadmap](docs/ui-library-roadmap.md) is maintained here and supplie
 
 Consumers need both `solid-js` and `@solidjs/web` at compatible 2.x versions (2.0.3 or later). Once the library is installed, import its named exports.
 
-`eroxo-ui/hello` and the root export share the same component. A client import brings in its styles and tokens. For server-rendered pages, include `eroxo-ui/styles.css` in the document's first-paint stylesheet. The individual stylesheets are `eroxo-ui/tokens.css`, `eroxo-ui/theme.css` and `eroxo-ui/hello.css`. `eroxo-ui/theme` and the root export the theming API. Tailwind v4 apps can opt in to `eroxo-ui/tailwind.css`. The [Customization guide](docs/customization.md) is a draft until UL-20.
+Button, IconButton, Icon and Spinner are available from the root export and from their flat component subpaths, such as `eroxo-ui/button`. A client import includes component CSS and tokens. For server-rendered pages, load `eroxo-ui/styles.css` for first paint. The [Customization guide](docs/customization.md) covers theme scopes, part classes, component hooks and the optional Tailwind bridge.
 
 ```tsx
-import { Hello } from 'eroxo-ui'
+import { Button } from 'eroxo-ui'
 
-export function App() {
-  return <Hello to="Solid" />
+export function SettingsLink() {
+  return <Button as="a" href="/settings">Settings</Button>
 }
 ```
+
+The installed package contains version-matched Markdown, examples and prop metadata under `dist/docs/`. Run `npx eroxo-ui agents-md` from the consumer project to add pointers to those files to its coding-agent instructions.

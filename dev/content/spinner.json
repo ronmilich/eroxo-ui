@@ -1,0 +1,19 @@
+{
+  "component": "Spinner",
+  "importPath": "eroxo-ui/spinner",
+  "parts": ["erx-spinner"],
+  "stateAttributes": [],
+  "cssVariables": [
+    {
+      "name": "--erx-spinner-size",
+      "description": "Indicator size",
+      "fallback": "--erx-density-control-default-icon-size"
+    }
+  ],
+  "keyboard": [
+    {
+      "key": "None",
+      "behavior": "Adds no tab stop."
+    }
+  ]
+}

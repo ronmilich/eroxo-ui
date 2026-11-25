@@ -1,0 +1,21 @@
+@layer erx.tokens, erx.components;
+@layer erx.components {
+  .erx-icon {
+    inline-size: var(--erx-icon-size, var(--erx-icon-size-default));
+    block-size: var(--erx-icon-size, var(--erx-icon-size-default));
+    flex: none;
+    color: var(--erx-icon-color, currentColor);
+  }
+  .erx-icon[data-erx-size='sm'] {
+    inline-size: var(--erx-icon-size, var(--erx-icon-size-sm));
+    block-size: var(--erx-icon-size, var(--erx-icon-size-sm));
+  }
+  .erx-icon[data-erx-size='md'] {
+    inline-size: var(--erx-icon-size, var(--erx-icon-size-md));
+    block-size: var(--erx-icon-size, var(--erx-icon-size-md));
+  }
+  .erx-icon[data-erx-size='lg'] {
+    inline-size: var(--erx-icon-size, var(--erx-icon-size-lg));
+    block-size: var(--erx-icon-size, var(--erx-icon-size-lg));
+  }
+}
