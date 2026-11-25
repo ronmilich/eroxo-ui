@@ -51,26 +51,51 @@ test('Oxlint checks library-authored JSX data attributes and permits forwarded p
 
 test('a component stylesheet can consume a public hook, set a private value and select a part', async () => {
   const code = `${order}
-    @layer erx.components {
-      .erx-alert-dialog__title[data-erx-state="open"][aria-live] {
-        --_erx-title-color: var(--erx-color-primary);
-        color: var(--erx-alert-dialog-title-color, var(--_erx-title-color));
-      }
-    }`
+   @layer erx.components {
+     .erx-alert-dialog__title[data-erx-state="open"][aria-live] {
+       --_erx-title-color: var(--erx-color-primary);
+       color: var(--erx-alert-dialog-title-color, var(--_erx-title-color));
+     }
+     .erx-alert-dialog {
+       background-color: var(--erx-alert-dialog-bg, var(--erx-color-surface-elevated));
+       border-radius: var(--erx-alert-dialog-radius, var(--erx-radius-dialog));
+       padding: var(--erx-alert-dialog-padding, var(--erx-density-dialog-padding));
+     }
+   }
+   @layer erx.tokens {
+     :root { --erx-color-primary: #5145cd; }
+   }`
   const result = await stylelint.lint({ code, configFile })
   assert.deepEqual(result.results[0].warnings, [])
 })
 
+test('the Tailwind bridge may declare Tailwind theme variables outside the erx layers', async () => {
+  const code = '@theme inline {\n  --color-erx-surface: var(--erx-color-surface);\n}\n'
+  const codeFilename = fileURLToPath(new URL('../src/tailwind.css', import.meta.url))
+  const result = await stylelint.lint({ code, codeFilename, configFile })
+  assert.deepEqual(result.results[0].warnings, [])
+})
+
 test('library CSS rejects broken part, attribute, property and layer conventions', async () => {
+  const layered = rule => `${order} @layer erx.components { ${rule} }`
+  const fiveHooks = ['color', 'background-color', 'border-color', 'outline-color', 'caret-color']
+    .map((property, index) => `${property}: var(--erx-button-hook-${index});`)
+    .join(' ')
   const examples = [
-    ['.erx-button {}', 'eroxo/layer-order'],
-    [order + '.button {}', 'selector-class-pattern'],
-    [order + '.erx-button--primary {}', 'selector-class-pattern'],
-    [order + '[data-state] {}', 'selector-attribute-name-disallowed-list'],
-    [order + '[data-erx-slot] {}', 'selector-attribute-name-disallowed-list'],
-    [order + ':root { --brand: blue; }', 'custom-property-pattern'],
-    [order + '.erx-button { color: var(--brand); }', 'custom-property-pattern'],
-    [order + '.erx-button { color: red !important; }', 'declaration-no-important'],
+    ['@layer erx.components { .erx-button {} }', 'eroxo/layer-order'],
+    [order + '.erx-button {}', 'eroxo/layered-rules'],
+    [order + '@layer erx.utilities { .erx-button {} }', 'eroxo/layered-rules'],
+    [layered('.button {}'), 'selector-class-pattern'],
+    [layered('.erx-button--primary {}'), 'selector-class-pattern'],
+    [layered('[data-state] {}'), 'selector-attribute-name-disallowed-list'],
+    [layered('[data-erx-slot] {}'), 'selector-attribute-name-disallowed-list'],
+    [layered(':root { --brand: blue; }'), 'custom-property-pattern'],
+    [layered('.erx-button { color: var(--brand); }'), 'custom-property-pattern'],
+    [layered('.erx-button { color: red !important; }'), 'declaration-no-important'],
+    [layered('.erx-button { --erx-button-bg: red; }'), 'eroxo/public-properties'],
+    [layered('.erx-button { color: var(--erx-color-primry); }'), 'eroxo/component-hooks'],
+    [layered('.erx-button { color: var(--erx-dialog-color); }'), 'eroxo/component-hooks'],
+    [layered(`.erx-button { ${fiveHooks} }`), 'eroxo/component-hooks'],
   ]
   for (const [code, rule] of examples) {
     const result = await stylelint.lint({ code, configFile })

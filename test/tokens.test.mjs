@@ -4,9 +4,11 @@ import { test } from 'node:test'
 import {
   contrastRatio,
   iris,
+  renderTailwindCSS,
   renderThemeTokens,
   renderTokenCSS,
   resolveToken,
+  tailwindTokens,
   themeTokenNames,
 } from '../scripts/iris-tokens.mjs'
 
@@ -23,6 +25,29 @@ test('checked-in theme token types match the Iris source', async () => {
     await renderThemeTokens(),
     'Run pnpm generate:tokens',
   )
+})
+
+test('checked-in Tailwind bridge matches the Iris source', async () => {
+  const source = await readFile(new URL('../src/tailwind.css', import.meta.url), 'utf8')
+  assert.equal(
+    source.replaceAll('\r\n', '\n'),
+    await renderTailwindCSS(),
+    'Run pnpm generate:tokens',
+  )
+})
+
+test('the Tailwind bridge maps only semantic roles into Tailwind namespaces', () => {
+  const mapped = new Map(tailwindTokens())
+  assert.equal(mapped.size, tailwindTokens().length, 'Duplicate Tailwind variable')
+  assert.equal(mapped.get('color-erx-surface'), 'color-surface')
+  assert.equal(mapped.get('radius-erx-control'), 'radius-control')
+  assert.equal(mapped.get('shadow-erx-popover'), 'elevation-popover')
+  assert.equal(mapped.get('font-erx-sans'), 'font-sans')
+  assert.equal(mapped.get('spacing-erx-card-padding'), 'density-card-padding')
+  for (const [variable] of mapped) {
+    assert.match(variable, /^(color|radius|shadow|font|spacing)-erx-[a-z0-9-]+$/)
+    assert.doesNotMatch(variable, /-erx-(iris|neutral|success|error|warning|info)-\d|z-|weight/)
+  }
 })
 
 test('custom themes can set only tokens that every use reads inside the scope', () => {

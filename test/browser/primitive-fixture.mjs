@@ -16,14 +16,15 @@ function chunks(result) {
 export async function buildPrimitiveFixture(
   dir,
   name,
-  { styles = false, head = '', verifyChunk } = {},
+  { styles = false, css = false, head = '', verifyChunk } = {},
 ) {
   const fixture = `test/browser/${name}-fixture.tsx`
   const local = path.resolve(dir) === path.resolve(root)
   // Compile private sources with the peers installed in the selected packed consumer.
   if (!local) {
-    await mkdir(path.join(dir, 'test/browser'), { recursive: true })
-    await cp(path.join(root, fixture), path.join(dir, fixture))
+    // Fixtures can import shared helpers, such as the customization contract.
+    await mkdir(path.join(dir, 'test'), { recursive: true })
+    await cp(path.join(root, 'test/browser'), path.join(dir, 'test/browser'), { recursive: true })
     await cp(path.join(root, 'src/internal'), path.join(dir, 'src/internal'), { recursive: true })
   }
 
@@ -34,7 +35,7 @@ export async function buildPrimitiveFixture(
     ...config(),
     build: {
       outDir: clientDir,
-      lib: { entry, formats: ['es'], fileName: () => 'fixture.js' },
+      lib: { entry, formats: ['es'], fileName: () => 'fixture.js', cssFileName: 'fixture' },
     },
   })
   const serverDir = `dist/${name}-server`
@@ -58,6 +59,8 @@ export async function buildPrimitiveFixture(
     await cp(path.join(dir, dist, 'styles.css'), path.join(dir, clientDir, 'styles.css'))
     stylesheet = '<link rel="stylesheet" href="./styles.css">'
   }
+  // Link the CSS that the fixture's own components import, such as a test component.
+  if (css) stylesheet += '<link rel="stylesheet" href="./fixture.css">'
   await writeFile(
     path.join(dir, clientDir, 'index.html'),
     `<!doctype html><html lang="en"><head><meta charset="utf-8">${firstHead}<title>Primitive conformance</title>` +

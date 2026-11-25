@@ -1,7 +1,13 @@
 {
-  "plugins": ["./scripts/css-layers.mjs"],
+  "plugins": [
+    "./scripts/css-layers.mjs",
+    "./scripts/css-contract.mjs"
+  ],
   "rules": {
     "eroxo/layer-order": true,
+    "eroxo/layered-rules": true,
+    "eroxo/public-properties": true,
+    "eroxo/component-hooks": true,
     "custom-property-pattern": "^_?erx-[a-z0-9]+(?:-[a-z0-9]+)*$",
     "selector-class-pattern": "^erx-[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:__[a-z][a-z0-9]*(?:-[a-z0-9]+)*)?$",
     "selector-attribute-name-disallowed-list": [
@@ -9,5 +15,17 @@
       "data-erx-slot"
     ],
     "declaration-no-important": true
-  }
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/tailwind.css"
+      ],
+      "rules": {
+        "eroxo/layer-order": null,
+        "eroxo/layered-rules": null,
+        "custom-property-pattern": null
+      }
+    }
+  ]
 }

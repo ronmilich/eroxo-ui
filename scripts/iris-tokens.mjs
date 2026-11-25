@@ -178,6 +178,39 @@ export async function renderThemeTokens() {
   return format(source, { filepath, ...(await resolveConfig(filepath)) })
 }
 
+// The opt-in Tailwind v4 bridge maps semantic roles into Tailwind theme
+// namespaces. `inline` makes each utility read the Eroxo variable where it is
+// used, so utilities follow nested theme and density scopes.
+export function tailwindTokens() {
+  const roles = group => Object.keys(iris.groups[group].roles)
+  const map = (names, prefix, namespace) =>
+    names
+      .filter(name => name.startsWith(prefix))
+      .map(name => [namespace + '-erx-' + name.slice(prefix.length), name])
+  return [
+    ...map(roles('Color'), 'color-', 'color'),
+    ...map(roles('Shape and borders'), 'radius-', 'radius'),
+    ...map(roles('Elevation and depth'), 'elevation-', 'shadow'),
+    ...map(Object.keys(iris.groups.Typography.primitives), 'font-', 'font').filter(
+      ([, name]) => !name.startsWith('font-weight-'),
+    ),
+    ...map(Object.keys(iris.density.standard), 'density-', 'spacing'),
+  ]
+}
+
+export async function renderTailwindCSS() {
+  const css =
+    '/* Generated from tokens/iris.json. Run pnpm generate:tokens. */\n' +
+    '/* Opt-in Tailwind v4 bridge: import it after tailwindcss. docs/customization.md lists the layer order. */\n' +
+    '@theme inline {\n' +
+    tailwindTokens()
+      .map(([variable, token]) => '  --' + variable + ': var(--erx-' + token + ');\n')
+      .join('') +
+    '}\n'
+  const filepath = fileURLToPath(new URL('../src/tailwind.css', import.meta.url))
+  return format(css, { filepath, ...(await resolveConfig(filepath)) })
+}
+
 export function resolveToken(name, mode, trail = []) {
   if (trail.includes(name))
     throw new Error('Circular token reference: ' + [...trail, name].join(' → '))

@@ -15,7 +15,13 @@
     "noUncheckedIndexedAccess": true,
     "jsx": "preserve",
     "jsxImportSource": "@solidjs/web",
-    "types": ["node", "vite/client"]
+    "types": ["node", "vite/client"],
+    // Browser fixtures import the package by name. Type-check them against the
+    // source, because lint runs before the build creates dist/.
+    "paths": {
+      "eroxo-ui": ["./src/index.tsx"],
+      "eroxo-ui/theme": ["./src/theme.tsx"]
+    }
   },
   "exclude": ["node_modules", "dist", "./dev", "fixtures", "artifacts"]
 }

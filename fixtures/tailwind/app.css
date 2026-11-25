@@ -1,0 +1,19 @@
+/* The documented order: Tailwind's theme and preflight, then Eroxo, then
+   Tailwind components and utilities. Unlayered application CSS wins over all. */
+@layer theme, base, erx, components, utilities;
+@import 'tailwindcss';
+@import 'eroxo-ui/tailwind.css';
+
+/* A base-layer rule with high specificity, standing in for preflight. */
+@layer base {
+  #component,
+  #utility,
+  #application {
+    background-color: rgb(1, 1, 1);
+  }
+}
+
+/* Unlayered application CSS with zero specificity. */
+:where(.application) {
+  background-color: rgb(3, 4, 5);
+}

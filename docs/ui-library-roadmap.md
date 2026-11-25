@@ -114,7 +114,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-16  | Interaction primitives                                       | P3    | canary           | —                                                        | In progress |
 | UL-17  | Collection and navigation primitives                         | P3    | canary           | —                                                        | Planned     |
 | UL-18  | Theming API                                                  | P4    | canary           | —                                                        | In progress |
-| UL-19  | Component customization contract                             | P4    | canary           | —                                                        | Planned     |
+| UL-19  | Component customization contract                             | P4    | canary           | —                                                        | In progress |
 | UL-20  | Button, IconButton, Icon, Spinner — **first public release** | P5    | `0.1.0`          | TAO-09 (hard), TAO-16, TAO-17                            | Planned     |
 | UL-21  | Form field system                                            | P5    | `0.2.0`          | —                                                        | Planned     |
 | UL-22  | Choice controls                                              | P5    | `0.3.0`          | —                                                        | Planned     |
@@ -677,9 +677,11 @@ On 25 November 2026 the owner chose a small typed theme helper, confirmed that 1
 
 **Exit criteria**
 
-- [ ] The harness passes on a test component.
-- [ ] A consumer restyles a multi-part test component without private selectors.
-- [ ] A Tailwind v4 fixture confirms the documented layer order and the theme-aware utilities.
+- [x] The harness passes on a test component.
+- [x] A consumer restyles a multi-part test component without private selectors.
+- [x] A Tailwind v4 fixture confirms the documented layer order and the theme-aware utilities.
+
+On 25 November 2026 the owner chose a Tailwind bridge that maps semantic roles only, and put the first draft of the [Customization guide](customization.md) in the repository docs. See the [maintainer specification](ul-19-customization-contract.md). Chromium and WebKit passed locally; Firefox runs in CI. Canary publication and registry verification are deferred until npm account access is restored and UL-10 publishes a canary.
 
 **Depends on:** UL-06, UL-18 · **Release:** canary
 

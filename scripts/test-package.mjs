@@ -15,6 +15,8 @@ import { buildCoreUtilitiesFixture, checkCoreUtilities } from '../test/browser/c
 import { buildPrimitiveFixture } from '../test/browser/primitive-fixture.mjs'
 import { checkInteraction } from '../test/browser/interaction.mjs'
 import { buildThemeFixture, checkTheme } from '../test/browser/theme.mjs'
+import { buildCustomizationFixture, checkCustomization } from '../test/browser/customization.mjs'
+import { checkTailwind } from '../test/browser/tailwind.mjs'
 import {
   buildAccessibilityUtilitiesFixture,
   checkAccessibilityUtilities,
@@ -266,12 +268,12 @@ async function checkPage(browser, url, name) {
     await page.setViewportSize({ width: 640, height: 480 })
     await page.addStyleTag({
       content: `
-     @media (prefers-color-scheme: dark) {
-       :root { background: var(--erx-color-canvas); color: var(--erx-color-text); }
-       button { appearance: none; background: white; color: #161925; border: 1px solid white; }
-     }
-     html { zoom: 2; }
-   `,
+    @media (prefers-color-scheme: dark) {
+      :root { background: var(--erx-color-canvas); color: var(--erx-color-text); }
+      button { appearance: none; background: white; color: #161925; border: 1px solid white; }
+    }
+    html { zoom: 2; }
+  `,
     })
     await page.locator('main').evaluate(el => el.style.removeProperty('--erx-hello-color'))
     assert.equal(
@@ -305,7 +307,33 @@ async function checkInBrowsers(name, config) {
           await checkAccessibilityUtilities(browser, url)
           await checkInteraction(browser, url)
           await checkTheme(browser, url)
+          await checkCustomization(browser, url)
         }
+      } finally {
+        await browser.close()
+      }
+    }
+  } finally {
+    await server.close()
+  }
+}
+
+// The opt-in Tailwind v4 bridge in a consumer that installs Tailwind itself.
+async function checkTailwindConsumer(tarball) {
+  const dir = await installFixture('tailwind', tarball, 'eroxo-ui')
+  tool('node_modules/typescript/bin/tsc', ['-p', dir])
+  const plugin = pathToFileURL(path.join(dir, 'tailwind-plugin.mjs')).href
+  const { default: tailwindcss } = await import(plugin)
+  const config = { root: dir, configFile: false, plugins: [solid(), tailwindcss()] }
+  inspectOutput('tailwind', await build(config))
+  const server = await preview({ ...config, preview: { host: '127.0.0.1', port: 0 } })
+  const url = 'http://127.0.0.1:' + server.httpServer.address().port
+  try {
+    for (const engine of [chromium, firefox, webkit]) {
+      const browser = await engine.launch()
+      try {
+        console.log(`Checking tailwind in ${engine.name()} ${browser.version()}`)
+        await checkTailwind(browser, url)
       } finally {
         await browser.close()
       }
@@ -384,9 +412,11 @@ async function consumers(tarball) {
       await buildAccessibilityUtilitiesFixture(dir)
       await buildPrimitiveFixture(dir, 'interaction', { styles: true })
       await buildThemeFixture(dir)
+      await buildCustomizationFixture(dir)
     }
     await checkInBrowsers(name, { root: dir, configFile: false })
   }
+  await checkTailwindConsumer(tarball)
 
   const start = await installFixture('start', tarball, 'eroxo-ui')
   tool('node_modules/typescript/bin/tsc', ['-p', start])
@@ -445,6 +475,7 @@ try {
     'dist/theme.jsx',
     'dist/theme.server.js',
     'dist/theme.css',
+    'dist/tailwind.css',
     'dist/tokens.css',
     'dist/styles.css.map',
     'dist/docs/index.md',

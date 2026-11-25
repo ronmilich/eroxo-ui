@@ -27,7 +27,7 @@ pnpm build
 pnpm test:package
 ```
 
-The check runs `npm pack`, installs the tarball in two temporary projects outside the workspace and type-checks their imports. The SPA fixture uses the preserved JSX. The SSR fixture renders in Node and hydrates with the compiled browser entry. Chromium, Firefox and WebKit check server-rendered styling with JavaScript disabled, DOM reuse during hydration, a click-driven update and a local CSS override. They also run axe, keyboard-table, touch-pointer and IME composition checks, and theme checks that include first paint with a stored color scheme.
+The check runs `npm pack`, installs the tarball in two temporary projects outside the workspace and type-checks their imports. The SPA fixture uses the preserved JSX. The SSR fixture renders in Node and hydrates with the compiled browser entry. Chromium, Firefox and WebKit check server-rendered styling with JavaScript disabled, DOM reuse during hydration, a click-driven update and a local CSS override. They also run axe, keyboard-table, touch-pointer and IME composition checks, theme checks that include first paint with a stored color scheme, and the customization contract. A third consumer installs Tailwind v4 and checks the opt-in bridge.
 
 The default consumer install tests the minimum Solid peers. Set `SOLID_PEER_TIER=latest` in your shell to test the newest versions npm resolves within the public peer ranges. CI runs both installs and logs the resolved versions. Run `pnpm test:coverage` for the source-level V8 report in `artifacts/coverage/`. See the [screen-reader protocol](docs/screen-reader-protocol.md) for device checks and how to add keyboard rows.
 
@@ -39,7 +39,7 @@ The [library roadmap](docs/ui-library-roadmap.md) is maintained here and supplie
 
 Consumers need both `solid-js` and `@solidjs/web` at compatible 2.x versions (2.0.3 or later). Once the library is installed, import its named exports.
 
-`eroxo-ui/hello` and the root export share the same component. A client import brings in its styles and tokens. For server-rendered pages, include `eroxo-ui/styles.css` in the document's first-paint stylesheet. The individual stylesheets are `eroxo-ui/tokens.css`, `eroxo-ui/theme.css` and `eroxo-ui/hello.css`. `eroxo-ui/theme` and the root export the theming API, described in the [UL-18 maintainer note](docs/ul-18-theming-api.md) until UL-20 adds the theming guide.
+`eroxo-ui/hello` and the root export share the same component. A client import brings in its styles and tokens. For server-rendered pages, include `eroxo-ui/styles.css` in the document's first-paint stylesheet. The individual stylesheets are `eroxo-ui/tokens.css`, `eroxo-ui/theme.css` and `eroxo-ui/hello.css`. `eroxo-ui/theme` and the root export the theming API. Tailwind v4 apps can opt in to `eroxo-ui/tailwind.css`. The [Customization guide](docs/customization.md) is a draft until UL-20.
 
 ```tsx
 import { Hello } from 'eroxo-ui'
