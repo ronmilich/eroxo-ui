@@ -33,7 +33,7 @@ Stylelint now enforces the contract on `src/**/*.css` and on the test component'
 
 The consumer CSS uses zero-specificity `:where()` selectors, so it can win only through layer precedence. As a negative control, the check failed when the test component's CSS lost its layer.
 
-`Probe` (`test/browser/customization/probe.tsx`) is the private test component: a root, an icon part and a label part, two variants, three tones, sizes, a disabled state and three hooks. The customization fixture runs the harness on it. A separate restyle section changes every part, a state, a tone, a size and a hook from unlayered CSS. The check scans that CSS and accepts only documented classes, attributes and hooks, and no `--_erx-*` or `!important`.
+`Probe` (`test/browser/customization/prob.tsx`) is the private test component: a root, an icon part and a label part, two variants, three tones, sizes, a disabled state and three hooks. The customization fixture runs the harness on it. A separate restyle section changes every part, a state, a tone, a size and a hook from unlayered CSS. The check scans that CSS and accepts only documented classes, attributes and hooks, and no `--_erx-*` or `!important`.
 
 ## Tailwind bridge
 
