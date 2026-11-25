@@ -8,5 +8,7 @@
     "sourceMap": true,
     "inlineSources": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Component imports pull in private helpers when a shipped entry uses them.
+  "exclude": ["src/internal"]
 }

@@ -1,6 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { isServer, renderToString } from '@solidjs/web'
 import { Hello, createHello } from '../src'
+import { createControllableState } from '../src/internal/create-controllable-state.js'
+import { createElementId } from '../src/internal/dom.js'
 
 describe('environment', () => {
   it('runs on server', () => {
@@ -27,4 +29,42 @@ describe('Hello', () => {
     const string = renderToString(() => <Hello />)
     expect(string).toBe('<div class="erx-hello">Hello World!</div>')
   })
+})
+
+it('renders stable ID relationships and initial state without a change request', () => {
+  const onChange = vi.fn()
+  function Field(props: { value?: string; defaultValue?: string }) {
+    const id = createElementId()
+    const [value] = createControllableState({
+      component: 'Field',
+      prop: 'value',
+      fallback: '',
+      get value() {
+        return props.value
+      },
+      get defaultValue() {
+        return props.defaultValue
+      },
+      onChange,
+    })
+    return (
+      <div>
+        <label for={id()}>{value()}</label>
+        <input id={id()} />
+      </div>
+    )
+  }
+  const render = () =>
+    renderToString(() => (
+      <>
+        <Field defaultValue="Initial" />
+        <Field value="Controlled" />
+      </>
+    ))
+  const html = render()
+  expect(render()).toBe(html)
+  expect(html).toMatch(/<label for="(erx-[^"]+)">Initial<\/label><input id="\1"/)
+  expect(html).toMatch(/<label for="(erx-[^"]+)">Controlled<\/label><input id="\1"/)
+  expect(new Set(Array.from(html.matchAll(/<input id="([^"]+)"/g), match => match[1])).size).toBe(2)
+  expect(onChange).not.toHaveBeenCalled()
 })

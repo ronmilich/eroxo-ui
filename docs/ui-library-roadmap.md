@@ -176,8 +176,8 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-11 | Documentation site and playground skeleton | P1 | — | TAO-07, TAO-08, TAO-11 | Done |
 | UL-12 | Design language and token taxonomy | P2 | — | — | Done |
 | UL-13 | Default light and dark themes | P2 | canary | — | In progress |
-| UL-14 | Core component utilities | P3 | canary | — | Planned |
-| UL-15 | Accessibility, motion and localisation utilities | P3 | canary | TAO-12–TAO-15 | Planned |
+| UL-14 | Core component utilities | P3 | canary | — | In progress |
+| UL-15 | Accessibility, motion and localisation utilities | P3 | canary | TAO-12–TAO-15 | In progress |
 | UL-16 | Interaction primitives | P3 | canary | — | Planned |
 | UL-17 | Collection and navigation primitives | P3 | canary | — | Planned |
 | UL-18 | Theming API | P4 | canary | — | Planned |
@@ -633,6 +633,8 @@ The initial branch protection required pull requests with a passing, up-to-date 
 
 **Goal:** Secure the names before the first canary is published. The deferred UL-02 reservations moved here on 24 November 2026, so UL-02 could close.
 
+**Deferred (25 November 2026).** Resume reservations when npm account access is restored. The account is temporarily suspended.
+
 
 
 
@@ -692,6 +694,8 @@ The initial branch protection required pull requests with a passing, up-to-date 
 
 
 **Goal:** Publishing is automated, traceable and safe before the first public component exists.
+
+**Deferred (25 November 2026).** Resume release pipeline work when npm account access is restored.
 
 
 
@@ -824,7 +828,7 @@ The [token decision record](design-system/ul-12-token-taxonomy.md) and [light/da
 - [ ] Token CSS builds and ships in a canary.
 - [x] All 144 contrast checks passed. The [token reference](https://ronmilich.github.io/eroxo-ui/tokens/) and its Markdown are live.
 
-The [Iris token source](../tokens/iris.json) generates the package stylesheet and the docs reference. The packed library passed the minimum and latest compatible Solid peer tiers in Chromium, Firefox and WebKit. The checks cover nested scopes, partial custom themes and light and dark server first paint. Canary publication is deferred until the UL-10 release pipeline.
+The [Iris token source](../tokens/iris.json) generates the package stylesheet and the docs reference. The packed library passed the minimum and latest compatible Solid peer tiers in Chromium, Firefox and WebKit. The checks cover nested scopes, partial custom themes and light and dark server first paint. The final canary check is deferred until npm account access is restored and UL-10 publishes a canary.
 
 
 
@@ -865,8 +869,10 @@ This phase builds the foundation that a headless library would otherwise provide
 
 
 **Exit criteria**
-- [ ] Primitive Definition of Done (§2.4) met.
-- [ ] Production build verified free of development warnings.
+- [x] Primitive Definition of Done (§2.4) verified locally. See the [maintainer specification](ul-14-core-utilities.md).
+- [x] Production client and server fixture builds contain no library development warnings. Hydration and interaction checks passed in Chromium, Firefox and WebKit with Solid 2.0.3 and 2.0.4.
+
+Canary publication and registry verification remain pending until npm account access is restored and UL-10 publishes a canary.
 
 
 
@@ -897,8 +903,10 @@ This phase builds the foundation that a headless library would otherwise provide
 
 
 **Exit criteria**
-- [ ] Primitive Definition of Done met, including tests of the DOM that screen readers depend on.
-- [ ] A fixture demonstrates overriding the built-in labels.
+- [x] Primitive Definition of Done (§2.4) verified locally, including the live-region DOM before and after hydration. See the [maintainer specification](ul-15-accessibility-utilities.md).
+- [x] The fixture overrides built-in labels and direction while preserving mounted input state.
+
+Manual screen-reader speech verification remains pending. Canary publication and registry verification depend on restored npm access and UL-10.
 
 
 

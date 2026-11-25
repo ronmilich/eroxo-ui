@@ -15,7 +15,7 @@
     "noUncheckedIndexedAccess": true,
     "jsx": "preserve",
     "jsxImportSource": "@solidjs/web",
-    "types": ["node"]
+    "types": ["node", "vite/client"]
   },
   "exclude": ["node_modules", "dist", "./dev", "fixtures", "artifacts"]
 }

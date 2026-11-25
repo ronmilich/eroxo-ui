@@ -11,6 +11,11 @@ import { JSDOM } from 'jsdom'
 import { chromium, firefox, webkit } from 'playwright'
 import { checkAccessibility, checkGreeting } from '../test/browser/harness.mjs'
 import { checkInputPatterns } from '../test/browser/conformance.mjs'
+import { buildCoreUtilitiesFixture, checkCoreUtilities } from '../test/browser/core-utilities.mjs'
+import {
+  buildAccessibilityUtilitiesFixture,
+  checkAccessibilityUtilities,
+} from '../test/browser/accessibility-utilities.mjs'
 import { build, createBuilder, preview } from 'vite'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
@@ -291,7 +296,11 @@ async function checkInBrowsers(name, config) {
       try {
         console.log(`Checking ${name} in ${engine.name()} ${browser.version()}`)
         await checkPage(browser, url, name)
-        if (name === 'spa') await checkInputPatterns(browser, url)
+        if (name === 'spa') {
+          await checkInputPatterns(browser, url)
+          await checkCoreUtilities(browser, url)
+          await checkAccessibilityUtilities(browser, url)
+        }
       } finally {
         await browser.close()
       }
@@ -366,6 +375,8 @@ async function consumers(tarball) {
           rolldownOptions: { input: path.join(dir, 'conformance.html') },
         },
       })
+      await buildCoreUtilitiesFixture(dir)
+      await buildAccessibilityUtilitiesFixture(dir)
     }
     await checkInBrowsers(name, { root: dir, configFile: false })
   }
