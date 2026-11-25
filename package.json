@@ -110,6 +110,7 @@
   },
   "scripts": {
     "dev": "pnpm --filter @eroxo-ui/docs run dev",
+    "docs": "npm --prefix dev run dev -- --host 127.0.0.1",
     "build:docs": "pnpm build && pnpm --filter @eroxo-ui/docs run build",
     "build": "node scripts/generate-tokens.mjs && vite build && vite build --ssr && tsc -p tsconfig.build.json && node scripts/build-styles.mjs && node dev/compile.mjs dist/docs",
     "test": "pnpm test:conventions && pnpm test:client && pnpm test:ssr",
