@@ -2,7 +2,7 @@
 
 /* Generated from tokens/iris.json. Run pnpm generate:tokens. */
 @layer erx.tokens {
-  :root {
+  :where(:root) {
     --erx-iris-50: #eeeafe;
     --erx-iris-100: #dfd9ff;
     --erx-iris-200: #c6beff;
@@ -806,7 +806,7 @@
   }
 
   @media (min-width: 48rem) {
-    :root {
+    :where(:root) {
       --erx-type-heading-xl-size: 2.25rem;
       --erx-type-heading-xl-line-height: 2.75rem;
       --erx-type-display-size: 3rem;
@@ -815,7 +815,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    :root {
+    :where(:root) {
       --erx-motion-duration-instant: 0ms;
       --erx-motion-duration-fast: 0ms;
       --erx-motion-duration-normal: 0ms;

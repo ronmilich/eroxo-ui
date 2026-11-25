@@ -16,8 +16,8 @@ This milestone makes the five customization layers of [08 §3.1](https://github.
 Stylelint now enforces the contract on `src/**/*.css` and on the test component's CSS:
 
 - `eroxo/layered-rules`: every rule sits inside `@layer erx.tokens` or `@layer erx.components`. Unlayered consumer CSS therefore always wins, so `!important` is never needed.
-- `eroxo/public-properties`: public `--erx-*` values are declared only in `erx.tokens`. Components set private `--_erx-*` variables.
-- `eroxo/component-hooks`: in `erx.components`, a `var(--erx-*)` that is not an Iris token must be a hook named `--erx-<component>-<property>` for a component class in the same selector. Each component may read at most four. The rule also catches misspelled token names.
+- `eroxo/public-properties`: public `--erx-*` values are declared only in `erx.tokens`, judged by the full layer name, so a token layer nested inside `erx.components` doesn't count. Components set private `--_erx-*` variables.
+- `eroxo/component-hooks`: in `erx.components`, a `var(--erx-*)` that is not an Iris token must be a hook named `--erx-<component>-<property>` for a component class in the same selector, read with a fallback. Each component may read at most four. Because real tokens need no fallback, the rule also catches misspelled token names.
 
 `src/tailwind.css` is exempt from the layer statement, layered rules and the `--erx-` name pattern, because it contains Tailwind theme variables.
 

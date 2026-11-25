@@ -4,7 +4,7 @@ The theming API is public: the root entry and `eroxo-ui/theme` export `ThemeScop
 
 ## Theme attributes
 
-`data-erx-theme` holds a space-separated list: an optional custom theme name and a color scheme, for example `acme dark`. Select a value with `~=`, as in `[data-erx-theme~='acme']`. The color scheme is `light`, `dark` or `system`. `system` follows `prefers-color-scheme` in CSS, so it paints correctly before any script runs. The root follows the system unless it selects `light` or `dark`. A custom name without a scheme keeps the inherited scheme. `iris`, `light`, `dark` and `system` are reserved. Every built-in token selector has zero specificity, so a custom theme rule in `erx.tokens` always wins. `data-erx-density` keeps its UL-13 values.
+`data-erx-theme` holds a space-separated list: an optional custom theme name and a color scheme, for example `acme dark`. Select a value with `~=`, as in `[data-erx-theme~='acme']`. The color scheme is `light`, `dark` or `system`. `system` follows `prefers-color-scheme` in CSS, so it paints correctly before any script runs. The root follows the system unless it selects `light` or `dark`. A custom name without a scheme keeps the inherited scheme. `iris`, `light`, `dark` and `system` are reserved. Every built-in token selector, the root defaults included, has zero specificity, so a custom theme rule in `erx.tokens` wins whatever the stylesheet order, also on `<html>`. `data-erx-density` keeps its UL-13 values.
 
 ## ThemeScope
 
@@ -13,11 +13,11 @@ The theming API is public: the root entry and `eroxo-ui/theme` export `ThemeScop
 | Prop                                                       | Meaning                                                                                                        |
 | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `colorScheme`, `defaultColorScheme`, `onColorSchemeChange` | A controlled or uncontrolled pair built on `createControllableState`. The callback fires once per real change. |
-| `theme`                                                    | A `createTheme` result, the name of a theme in your CSS, or `iris`.                                            |
+| `theme`                                                    | A `createTheme` result, the name of a theme in your CSS, or `iris` to return to the default theme.             |
 | `density`                                                  | `compact`, `standard` or `comfortable`.                                                                        |
 | `root`                                                     | Also writes the theme and density to `<html>`, and restores the earlier values on disposal.                    |
 
-A nested scope inherits each value it doesn't set from its parent through context, and writes the inherited values on its own element. The outermost scope continues the theme, scheme and density on `<html>`, which a first-paint script may have applied. Without them, it follows the system. During hydration it renders without them and reads `<html>` once it settles.
+A nested scope inherits each value it doesn't set from its parent through context, and writes the inherited values on its own element. The outermost scope continues the theme, scheme and density on `<html>`, which a first-paint script may have applied. Without them, it follows the system. It reads `<html>` when it is created, before a `root` scope writes its own values there. During hydration it renders without those values and applies them once it settles. An explicit `theme="iris"` is written to the attribute too, so the CSS from `createTheme` can return that subtree to Iris values.
 
 Without its own `colorScheme` or `defaultColorScheme`, a nested scope passes `setColorScheme` requests to its parent. A theme toggle inside it therefore changes the scope that owns the setting. The outermost scope always owns its setting. Use `root` on one outermost scope. Then the page background, scrollbars and portals mounted in `<body>` follow it.
 
@@ -48,9 +48,11 @@ const quietStudy = createTheme('quiet-study', {
 // }
 ```
 
-A color set for one scheme uses the shared value or the Iris value in the other scheme. `light-dark()` resolves where the token is used, from that element's `color-scheme`. The same theme therefore works under an explicit, inherited or system scheme. The rule sits in `@layer erx.tokens`, so your unlayered CSS still overrides it. Invalid names, token names and values containing braces, semicolons, angle brackets or `!` throw a `TypeError`. In development, the helper resolves each documented contrast pair with your overrides and warns about any pair below its minimum. It checks only opaque hex colors.
+A color set for one scheme uses the shared value or the Iris value in the other scheme. `light-dark()` resolves where the token is used, from that element's `color-scheme`. The same theme therefore works under an explicit, inherited or system scheme. When a theme replaces a palette shade, such as `--erx-iris-700`, its rule also re-declares the color roles that read the shade. The new shade then reaches those roles even in a scope whose attribute has no color-scheme word. A second rule returns nested `theme="iris"` scopes to the Iris values of every token the theme changes, including the wide-screen sizes. The rules sit in `@layer erx.tokens`, so your unlayered CSS still overrides them.
 
-Load `css` once. The best place is a stylesheet written at build time, because `createTheme` runs in Node. A `<style>` element in the server-rendered `<head>` also works. Calling `createTheme` in browser code adds the Iris color table, about 2.3 KB gzipped. Apps that only use `ThemeScope` don't load the table.
+`createTheme` throws a `TypeError` for an invalid name, a malformed token name, and a value that could break the stylesheet. That covers braces, semicolons, angle brackets, comments, backslashes, line breaks, `!`, and unbalanced quotes or brackets. It also throws for the motion tokens that reduced motion replaces, even from untyped code. Setting a token that root or density aliases copy, such as `--erx-radius-md`, gives a development warning, because it has no effect in a scope. In development, the helper resolves each documented contrast pair with your overrides and warns about any pair below its minimum. It checks only opaque hex colors.
+
+Load `css` once. The best place is a stylesheet written at build time, because `createTheme` runs in Node. A `<style>` element in the server-rendered `<head>` also works. Calling `createTheme` in browser code adds about 6 KB gzipped, mostly the table of Iris values it needs for fallbacks and resets. Its development checks are left out of production builds. Apps that only use `ThemeScope` don't load the table.
 
 ## First paint
 
@@ -64,7 +66,7 @@ Native top-layer content, such as `<dialog>.showModal()` and popovers, keeps its
 
 ## Shared media queries
 
-`createMediaQuery(query)` in `src/internal/media-query.ts` serves both themes and motion. Each query has one source and at most one listener while consumers exist. A new client render reads the query at once. Hydration keeps the server value, `false`, until the component settles. Each call registers exactly one `onSettled`, because the server reserves a hydration ID for it.
+`createMediaQuery(query)` in `src/internal/media-query.ts` serves both themes and motion. Each query has one source and at most one listener while consumers exist. A new client render reads the query at once. Hydration keeps the server value, `false`, until the component settles. Where `matchMedia` doesn't exist, as in jsdom unit tests, the query doesn't match and no listener is added. Each call registers exactly one `onSettled`, because the server reserves a hydration ID for it.
 
 Code that runs only in development must not create Solid owners, such as effects, memos or `onSettled`, in a hydrating component. A server built without development mode would then disagree with a development client about hydration IDs. The development-only effect in `createControllableState` breaks this rule: it is safe while the server and the client agree on `import.meta.env.DEV`, as they do in Vite.
 
@@ -72,7 +74,7 @@ Code that runs only in development must not create Solid owners, such as effects
 
 The browser fixture imports the packed package from both entries. It checks first paint with a stored scheme before the application module runs: stored dark on a light system, stored light on a dark system, and the system default. It then checks that hydration keeps the server element, and that light, dark, system and custom themes switch without remounting an edited input. It also covers the nested dark compact scope, dialog and backdrop inheritance, portal inheritance with and without a scope, the saved choice, a reload and the restored `<html>` after disposal. Axe runs in light and dark.
 
-Unit tests cover inheritance, ownership, the shared listener, document adoption, `<html>` restoration, the theme CSS, validation, contrast warnings and the script. Server tests render nested scopes. Chromium 156 and WebKit 27.2 passed locally. Firefox can't run on the maintainer's Mac, so the CI run covers it. Removing the inline script made the stored dark scheme paint light, which shows that the first-paint check detects a flash.
+The fixture also checks a palette theme on a scope without a color-scheme word, a `theme="iris"` scope inside a custom theme, and a custom radius on `<html>` that wins although the theme's CSS loads before Eroxo's. Each of those three checks failed against the earlier CSS. Unit tests cover inheritance, ownership, the shared listener, document adoption, including hydration, `<html>` restoration, the theme CSS, validation, contrast warnings, requests made before a flush, rendering without `matchMedia` and the script. Server tests render nested scopes. Chromium 156 and WebKit 27.2 passed locally. Firefox can't run on the maintainer's Mac, so the CI run covers it. Removing the inline script made the stored dark scheme paint light, which shows that the first-paint check detects a flash.
 
 To open the fixture, run the following commands and visit `/theme/` on the preview server.
 

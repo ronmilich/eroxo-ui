@@ -12,12 +12,18 @@ interface MediaSource {
 // listener. Both exist only while at least one consumer does.
 const sources = new Map<string, MediaSource>()
 
+// Some environments, such as jsdom in unit tests, have no matchMedia. There the
+// query never matches and no listener is added.
+function mediaList(query: string): MediaQueryList | undefined {
+  return typeof window.matchMedia === 'function' ? window.matchMedia(query) : undefined
+}
+
 function createSource(query: string): MediaSource {
   // Read the query at once so a new component renders with the current value.
   // During hydration, start from the server's value and read the query after mount.
-  let media = isServer || isHydrating() ? undefined : window.matchMedia(query)
+  let media = isServer || isHydrating() ? undefined : mediaList(query)
   const [matches, setMatches] = createSignal(media?.matches ?? false)
-  const update = () => setMatches(media!.matches)
+  const update = () => setMatches(media?.matches ?? false)
   let listening = false
   return {
     matches,
@@ -25,12 +31,12 @@ function createSource(query: string): MediaSource {
     listen() {
       if (listening) return
       listening = true
-      media ??= window.matchMedia(query)
+      media ??= mediaList(query)
       update()
-      media.addEventListener('change', update)
+      media?.addEventListener('change', update)
     },
     stop() {
-      if (listening) media!.removeEventListener('change', update)
+      if (listening) media?.removeEventListener('change', update)
       listening = false
     },
   }

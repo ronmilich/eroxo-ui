@@ -18,6 +18,28 @@ test('checked-in token CSS matches the Iris source', async () => {
   assert.equal(css.replaceAll('\r\n', '\n'), generated, 'Run pnpm generate:tokens')
 })
 
+test('every built-in token selector has zero specificity, so custom themes always win', async () => {
+  const css = (await renderTokenCSS()).replace(/\/\*[\s\S]*?\*\//g, '')
+  // Split a selector list on its top-level commas only.
+  const selectors = prelude => {
+    const result = ['']
+    let depth = 0
+    for (const character of prelude) {
+      if (character === '(') depth++
+      if (character === ')') depth--
+      if (character === ',' && depth === 0) result.push('')
+      else result[result.length - 1] += character
+    }
+    return result.map(selector => selector.trim())
+  }
+  for (const [, prelude] of css.matchAll(/([^{};]+)\{/g)) {
+    if (prelude.trim().startsWith('@')) continue
+    for (const selector of selectors(prelude)) {
+      assert.match(selector, /^:where\(.*\)$/, 'Selector with specificity: ' + selector)
+    }
+  }
+})
+
 test('checked-in theme token types match the Iris source', async () => {
   const source = await readFile(new URL('../src/internal/theme-tokens.ts', import.meta.url), 'utf8')
   assert.equal(

@@ -17,13 +17,19 @@ const tokens = new Set([
   ...Object.keys(iris.reduced),
 ])
 
+// The full name of the layer a node is in, for example erx.components.erx.tokens
+// for a token layer nested inside the component layer.
 function layerOf(node) {
+  const names = []
   for (let parent = node.parent; parent; parent = parent.parent) {
-    if (parent.type === 'atrule' && parent.name.toLowerCase() === 'layer')
-      return parent.params.trim()
+    if (parent.type === 'atrule' && parent.name.toLowerCase() === 'layer') {
+      names.unshift(parent.params.trim())
+    }
   }
-  return undefined
+  return names.length > 0 ? names.join('.') : undefined
 }
+
+const within = (layer, name) => layer === name || layer?.startsWith(name + '.')
 
 function ruleOf(node) {
   for (let parent = node.parent; parent; parent = parent.parent) {
@@ -55,7 +61,7 @@ const publicProperties = createPlugin('eroxo/public-properties', enabled => (roo
   if (!enabled) return
   root.walkDecls(/^--erx-/, declaration => {
     const layer = layerOf(declaration)
-    if (layer === undefined || layer === 'erx.tokens') return
+    if (layer === undefined || within(layer, 'erx.tokens')) return
     utils.report({
       ruleName: 'eroxo/public-properties',
       result,
@@ -69,13 +75,25 @@ const componentHooks = createPlugin('eroxo/component-hooks', enabled => (root, r
   if (!enabled) return
   const hooks = new Map()
   root.walkDecls(declaration => {
-    if (layerOf(declaration) !== 'erx.components') return
+    if (!within(layerOf(declaration), 'erx.components')) return
     const blocks = Array.from(
       (ruleOf(declaration)?.selector ?? '').matchAll(/\.erx-([a-z][a-z0-9]*(?:-[a-z0-9]+)*)/g),
       match => match[1],
     )
-    for (const [, name] of declaration.value.matchAll(/var\(\s*--erx-([a-z0-9-]+)/g)) {
+    for (const [, name, fallback] of declaration.value.matchAll(
+      /var\(\s*--erx-([a-z0-9-]+)\s*(,?)/g,
+    )) {
       if (tokens.has(name)) continue
+      // A hook is optional, so it needs a fallback. A misspelled token has none.
+      if (!fallback) {
+        utils.report({
+          ruleName: 'eroxo/component-hooks',
+          result,
+          node: declaration,
+          message: `--erx-${name} is not an Iris token, and a hook needs a fallback. Fix the token name, or read the hook as var(--erx-${name}, <token>)`,
+        })
+        continue
+      }
       const block = blocks
         .filter(candidate => name.startsWith(candidate + '-'))
         .sort((a, b) => b.length - a.length)[0]

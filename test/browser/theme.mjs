@@ -11,30 +11,31 @@ const color = {
   brandLightCanvas: 'rgb(242, 246, 252)',
   brandLightPrimary: 'rgb(28, 97, 191)',
   brandDarkPrimary: 'rgb(143, 184, 255)',
+  palettePrimary: 'rgb(10, 125, 79)',
 }
 
 export function buildThemeFixture(dir) {
   return buildPrimitiveFixture(dir, 'theme', {
     styles: true,
     head: `<style>
-     html { background-color: var(--erx-color-canvas); color: var(--erx-color-text); }
-     @layer erx.components {
-       .swatch {
-         background-color: var(--erx-color-primary);
-         color: var(--erx-color-on-primary);
-         border-radius: var(--erx-radius-control);
-         min-block-size: var(--erx-density-control-default-min-block-size);
-       }
-       dialog::backdrop { background-color: var(--erx-color-overlay-scrim); }
-       button, input {
-         min-block-size: 44px;
-         min-inline-size: 44px;
-         color: var(--erx-color-text);
-         background-color: var(--erx-color-surface);
-         border: 1px solid var(--erx-color-input-border);
-       }
-     }
-   </style>`,
+    html { background-color: var(--erx-color-canvas); color: var(--erx-color-text); }
+    @layer erx.components {
+      .swatch {
+        background-color: var(--erx-color-primary);
+        color: var(--erx-color-on-primary);
+        border-radius: var(--erx-radius-control);
+        min-block-size: var(--erx-density-control-default-min-block-size);
+      }
+      dialog::backdrop { background-color: var(--erx-color-overlay-scrim); }
+      button, input {
+        min-block-size: 44px;
+        min-inline-size: 44px;
+        color: var(--erx-color-text);
+        background-color: var(--erx-color-surface);
+        border: 1px solid var(--erx-color-input-border);
+      }
+    }
+  </style>`,
   })
 }
 
@@ -158,8 +159,20 @@ export async function checkTheme(browser, base) {
     })
     await checkAccessibility(page)
 
+    // A palette shade reaches the primary color in a scope without a color-scheme word.
+    assert.equal((await read(page, '#palette')).background, color.palettePrimary)
+    assert.equal((await read(page, '#outer')).background, color.irisLightPrimary)
+
     await page.getByRole('button', { name: 'Custom theme' }).click()
     await status.filter({ hasText: 'fixture-brand light light' }).waitFor()
+    // theme="iris" inside the custom theme returns to Iris values.
+    assert.equal(await page.locator('#iris-scope').getAttribute('data-erx-theme'), 'iris light')
+    assert.deepEqual(await read(page, '#iris-reset'), {
+      background: color.irisLightPrimary,
+      radius: '10px',
+      minHeight: '40px',
+      scheme: 'light',
+    })
     const nestedScope = page.locator('#nested').locator('xpath=..')
     assert.equal(await root.getAttribute('data-erx-theme'), 'fixture-brand light')
     assert.equal(await nestedScope.getAttribute('data-erx-theme'), 'fixture-brand dark')
@@ -238,6 +251,8 @@ export async function checkTheme(browser, base) {
     })
     // Portal content without a scope inherits <html>, which follows the outermost scope.
     assert.equal((await read(page, '#portal-plain')).background, color.brandLightPrimary)
+    // The theme's CSS loads before Eroxo's, and its radius still wins on <html>.
+    assert.equal((await read(page, '#portal-plain')).radius, '4px')
 
     await page.getByRole('button', { name: 'Dispose' }).click()
     await root.waitFor({ state: 'detached' })

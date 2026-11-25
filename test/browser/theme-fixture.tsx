@@ -6,6 +6,8 @@ import { ThemeScope as SubpathThemeScope, useTheme } from 'eroxo-ui/theme'
 if (ThemeScope !== SubpathThemeScope) throw new Error('Root and subpath resolved different scopes')
 
 const storageKey = 'erx-fixture-color-scheme'
+// Replaces a palette shade only, so the primary color must follow it.
+const palette = createTheme('fixture-palette', { shared: { '--erx-iris-700': '#0a7d4f' } })
 const brand = createTheme('fixture-brand', {
   shared: { '--erx-radius-control': '4px' },
   light: { '--erx-color-primary': '#1c61bf', '--erx-color-canvas': '#f2f6fc' },
@@ -61,6 +63,13 @@ function Fixture() {
         Draft <input />
       </label>
       <Swatch id="outer" />
+      {/* A custom theme without a color-scheme word inherits the scheme. */}
+      <div data-erx-theme="fixture-palette">
+        <Swatch id="palette" />
+      </div>
+      <ThemeScope theme="iris" id="iris-scope">
+        <Swatch id="iris-reset" />
+      </ThemeScope>
       <section aria-label="Nested scope">
         <ThemeScope colorScheme="dark" density="compact">
           <Swatch id="nested" />
@@ -88,7 +97,7 @@ export const html = import.meta.env.SSR ? renderToString(() => <Fixture />) : ''
 export const hydrationScript = import.meta.env.SSR ? generateHydrationScript() : ''
 // The first-paint script and the custom theme CSS go in <head>.
 export const head = import.meta.env.SSR
-  ? `<script>${themeScript({ storageKey })}</script><style>${brand.css}</style>`
+  ? `<script>${themeScript({ storageKey })}</script><style>${brand.css}${palette.css}</style>`
   : ''
 
 if (!import.meta.env.SSR) {

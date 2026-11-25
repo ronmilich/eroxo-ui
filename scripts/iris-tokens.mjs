@@ -64,8 +64,9 @@ function media(query, rule) {
 }
 
 // data-erx-theme holds a space-separated list: an optional custom theme name
-// and a color scheme, for example "acme dark". Every selector here has zero
-// specificity so that custom theme rules in the same layer always win.
+// and a color scheme, for example "acme dark". Every selector here, the root
+// defaults included, has zero specificity, so custom theme rules in the same
+// layer always win, whatever the stylesheet order.
 const scheme = name => '[data-erx-theme~="' + name + '"]'
 
 export async function renderTokenCSS() {
@@ -83,7 +84,7 @@ export async function renderTokenCSS() {
   const motion = { ...iris.reduced, ...aliasesOf(Object.keys(iris.reduced)) }
 
   const rules = [
-    rule(':root', shared),
+    rule(':where(:root)', shared),
     rule(':where(:root),\n  ' + light, themes.light, 'light'),
     media('prefers-color-scheme: dark', rule(system, themes.dark, 'dark')),
     rule(dark, themes.dark, 'dark'),
@@ -92,8 +93,8 @@ export async function renderTokenCSS() {
       const scope = ':where([data-erx-density="' + name + '"])'
       return rule(name === 'standard' ? ':where(:root),\n  ' + scope : scope, iris.density[name])
     }),
-    media('min-width: 48rem', rule(':root', iris.wide)),
-    media('prefers-reduced-motion: reduce', rule(':root', motion)),
+    media('min-width: 48rem', rule(':where(:root)', iris.wide)),
+    media('prefers-reduced-motion: reduce', rule(':where(:root)', motion)),
     rule(':where([data-erx-motion="reduce"])', motion),
   ]
 
@@ -126,26 +127,35 @@ export function themeTokenNames() {
   }
   const allowed = name => !copied.has(name) && !reduced.has(name)
   const names = ({ primitives, roles }) => [...Object.keys(primitives), ...Object.keys(roles)]
+  const groups = Object.values(iris.groups).flatMap(names)
   return {
     color: names(iris.groups.Color).filter(allowed),
-    all: [
-      ...new Set([
-        ...Object.values(iris.groups).flatMap(names).filter(allowed),
-        ...Object.keys(iris.optional),
-      ]),
+    all: [...new Set([...groups.filter(allowed), ...Object.keys(iris.optional)])],
+    // Tokens a theme must not set: reduced motion replaces the first group, and
+    // root or density aliases copy the second, so setting it in a scope has no effect.
+    reduced: groups.filter(name => reduced.has(name)),
+    inert: [
+      ...groups.filter(name => copied.has(name) && !reduced.has(name)),
+      ...Object.keys(iris.density.standard),
     ],
   }
 }
 
 export async function renderThemeTokens() {
-  const { color, all } = themeTokenNames()
+  const { color, all, reduced, inert } = themeTokenNames()
   const colors = new Set(color)
   const literal = name => "'--erx-" + name + "'"
   const union = names => names.map(name => '\n  | ' + literal(name)).join('')
+  const list = names => names.map(name => '\n  ' + literal(name) + ',').join('')
+  // Color tokens are light and dark pairs, palette shades included. Optional
+  // tokens have no Iris value: components read them with a fallback.
   const value = name => {
-    const raw = shared[name] ?? [themes.light[name], themes.dark[name]]
-    return JSON.stringify(raw)
+    const raw = colors.has(name)
+      ? [themes.light[name] ?? shared[name], themes.dark[name] ?? shared[name]]
+      : shared[name]
+    return JSON.stringify(raw ?? null)
   }
+  const wide = all.filter(name => name in iris.wide)
   const source = [
     '// Generated from tokens/iris.json. Run pnpm generate:tokens.',
     '',
@@ -158,12 +168,26 @@ export async function renderThemeTokens() {
     ' */',
     'export type ThemeToken =\n  | ThemeColorToken' + union(all.filter(name => !colors.has(name))),
     '',
-    '/** Iris color values before var() references resolve: one value, or light and dark. */',
-    'export const irisColors: Readonly<',
-    '  Record<ThemeColorToken, string | readonly [light: string, dark: string]>',
+    '/**',
+    ' * Iris values before var() references resolve: light and dark values for',
+    ' * a color, one value otherwise, or null for an optional token without a default.',
+    ' */',
+    'export const irisValues: Readonly<',
+    '  Record<ThemeToken, string | readonly [light: string, dark: string] | null>',
     '> = {',
-    ...color.map(name => '  ' + literal(name) + ': ' + value(name) + ','),
+    ...all.map(name => '  ' + literal(name) + ': ' + value(name) + ','),
     '}',
+    '',
+    '/** Iris values that apply from a 48rem viewport width. */',
+    'export const irisWideValues: Readonly<Partial<Record<ThemeToken, string>>> = {',
+    ...wide.map(name => '  ' + literal(name) + ': ' + JSON.stringify(iris.wide[name]) + ','),
+    '}',
+    '',
+    '/** Motion tokens that reduced motion replaces, so a theme must not set them. */',
+    'export const reducedMotionTokens: readonly string[] = [' + list(reduced) + '\n]',
+    '',
+    '/** Tokens that root or density aliases copy, so setting them in a scope has no effect. */',
+    'export const inertThemeTokens: readonly string[] = [' + list(inert) + '\n]',
     '',
     '/** Documented contrast pairs: foreground, background and the minimum ratio. */',
     'export const contrastPairs: readonly (readonly [ThemeColorToken, ThemeColorToken, number])[] = [',

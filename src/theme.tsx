@@ -61,7 +61,8 @@ export interface ThemeState {
 
 interface ThemeContextValue {
   readonly state: ThemeState
-  // The scheme token the scope writes. It is undefined while the scope follows <html>.
+  // The tokens the scope writes. They are undefined while the scope follows <html>.
+  readonly theme: Accessor<string | undefined>
   readonly scheme: Accessor<ColorScheme | undefined>
   readonly systemDark: Accessor<boolean>
 }
@@ -91,10 +92,13 @@ function readDocumentTheme(): DocumentTheme {
 // once the component settles.
 function createDocumentTheme(): Accessor<DocumentTheme> {
   const deferred = isServer || isHydrating()
-  const [value, setValue] = createSignal<DocumentTheme>(deferred ? {} : readDocumentTheme())
+  // Read <html> now, before a root scope writes its own values there. During
+  // hydration, render without them and apply them once the component settles.
+  const initial = isServer ? {} : readDocumentTheme()
+  const [value, setValue] = createSignal<DocumentTheme>(deferred ? {} : initial)
   // Call onSettled exactly once. The server reserves one hydration ID for it.
   onSettled(() => {
-    if (deferred) setValue(readDocumentTheme())
+    if (deferred) setValue(initial)
   })
   return value
 }
@@ -198,7 +202,9 @@ export function ThemeScope(props: ThemeScopeProps): JSX.Element {
   const systemDark = parent ? parent.systemDark : createMediaQuery(darkQuery)
   const scheme = createMemo(() => own() ?? (parent ? parent.scheme() : documentTheme!().scheme))
   const colorScheme = () => scheme() ?? 'system'
-  const theme = createMemo(() => {
+  // The theme token this scope writes. An explicit "iris" is written too, so
+  // that the reset rules of an ancestor's custom theme apply.
+  const themeToken = createMemo(() => {
     const value = props.theme
     if (value !== undefined) {
       const name = typeof value === 'string' ? value : value.name
@@ -210,14 +216,19 @@ export function ThemeScope(props: ThemeScopeProps): JSX.Element {
         themeDocs,
       )
     }
-    return parent ? parent.state.theme() : (documentTheme!().theme ?? 'iris')
+    return parent ? parent.theme() : documentTheme!().theme
   })
+  const theme = () => themeToken() ?? 'iris'
   const density = () =>
     props.density ?? (parent ? parent.state.density() : documentTheme!().density)
   const attribute = createMemo(() => {
-    const tokens = [theme(), scheme()].filter(token => token !== undefined && token !== 'iris')
+    const tokens = [themeToken(), scheme()].filter(token => token !== undefined)
     return tokens.length > 0 ? tokens.join(' ') : undefined
   })
+  // Until the first request, skip a value the scope already shows, such as one
+  // it continued from <html>. Later requests go to createControllableState,
+  // which compares with the latest queued value, so none is lost.
+  let requested = false
   const state: ThemeState = {
     colorScheme,
     resolvedColorScheme: () => resolve(colorScheme(), systemDark()),
@@ -230,7 +241,10 @@ export function ThemeScope(props: ThemeScopeProps): JSX.Element {
           themeDocs,
         )
       } else if (!owns) parent.state.setColorScheme(next)
-      else if (next !== untrack(colorScheme)) setOwn(next)
+      else if (requested || next !== untrack(colorScheme)) {
+        requested = true
+        setOwn(next)
+      }
     },
     theme,
     density,
@@ -281,7 +295,7 @@ export function ThemeScope(props: ThemeScopeProps): JSX.Element {
     'children',
   )
   return (
-    <ThemeContext value={{ state, scheme, systemDark }}>
+    <ThemeContext value={{ state, theme: themeToken, scheme, systemDark }}>
       <div
         {...others}
         class={['erx-theme-scope', props.class]}

@@ -51,20 +51,20 @@ test('Oxlint checks library-authored JSX data attributes and permits forwarded p
 
 test('a component stylesheet can consume a public hook, set a private value and select a part', async () => {
   const code = `${order}
-   @layer erx.components {
-     .erx-alert-dialog__title[data-erx-state="open"][aria-live] {
-       --_erx-title-color: var(--erx-color-primary);
-       color: var(--erx-alert-dialog-title-color, var(--_erx-title-color));
-     }
-     .erx-alert-dialog {
-       background-color: var(--erx-alert-dialog-bg, var(--erx-color-surface-elevated));
-       border-radius: var(--erx-alert-dialog-radius, var(--erx-radius-dialog));
-       padding: var(--erx-alert-dialog-padding, var(--erx-density-dialog-padding));
-     }
-   }
-   @layer erx.tokens {
-     :root { --erx-color-primary: #5145cd; }
-   }`
+  @layer erx.components {
+    .erx-alert-dialog__title[data-erx-state="open"][aria-live] {
+      --_erx-title-color: var(--erx-color-primary);
+      color: var(--erx-alert-dialog-title-color, var(--_erx-title-color));
+    }
+    .erx-alert-dialog {
+      background-color: var(--erx-alert-dialog-bg, var(--erx-color-surface-elevated));
+      border-radius: var(--erx-alert-dialog-radius, var(--erx-radius-dialog));
+      padding: var(--erx-alert-dialog-padding, var(--erx-density-dialog-padding));
+    }
+  }
+  @layer erx.tokens {
+    :root { --erx-color-primary: #5145cd; }
+  }`
   const result = await stylelint.lint({ code, configFile })
   assert.deepEqual(result.results[0].warnings, [])
 })
@@ -79,7 +79,7 @@ test('the Tailwind bridge may declare Tailwind theme variables outside the erx l
 test('library CSS rejects broken part, attribute, property and layer conventions', async () => {
   const layered = rule => `${order} @layer erx.components { ${rule} }`
   const fiveHooks = ['color', 'background-color', 'border-color', 'outline-color', 'caret-color']
-    .map((property, index) => `${property}: var(--erx-button-hook-${index});`)
+    .map((property, index) => `${property}: var(--erx-button-hook-${index}, red);`)
     .join(' ')
   const examples = [
     ['@layer erx.components { .erx-button {} }', 'eroxo/layer-order'],
@@ -94,7 +94,13 @@ test('library CSS rejects broken part, attribute, property and layer conventions
     [layered('.erx-button { color: red !important; }'), 'declaration-no-important'],
     [layered('.erx-button { --erx-button-bg: red; }'), 'eroxo/public-properties'],
     [layered('.erx-button { color: var(--erx-color-primry); }'), 'eroxo/component-hooks'],
-    [layered('.erx-button { color: var(--erx-dialog-color); }'), 'eroxo/component-hooks'],
+    [layered('.erx-button { color: var(--erx-dialog-color, red); }'), 'eroxo/component-hooks'],
+    [layered('.erx-button { color: var(--erx-button-color); }'), 'eroxo/component-hooks'],
+    [layered('.erx-icon { inline-size: var(--erx-icon-size-mdd); }'), 'eroxo/component-hooks'],
+    [
+      order + '@layer erx.components { @layer erx.tokens { :root { --erx-color-primary: red; } } }',
+      'eroxo/public-properties',
+    ],
     [layered(`.erx-button { ${fiveHooks} }`), 'eroxo/component-hooks'],
   ]
   for (const [code, rule] of examples) {
