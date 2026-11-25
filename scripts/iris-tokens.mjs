@@ -63,10 +63,23 @@ function media(query, rule) {
   return '  @media (' + query + ') {\n' + rule.trimEnd().replace(/^/gm, '  ') + '\n  }\n'
 }
 
+// data-erx-theme holds a space-separated list: an optional custom theme name
+// and a color scheme, for example "acme dark". Every selector here has zero
+// specificity so that custom theme rules in the same layer always win.
+const scheme = name => '[data-erx-theme~="' + name + '"]'
+
 export async function renderTokenCSS() {
-  const dark = ':where([data-erx-theme="dark"])'
-  const light = ':where([data-erx-theme="light"])'
-  const system = ':root:where(:not([data-erx-theme="light"], [data-erx-theme="dark"]))'
+  const dark = ':where(' + scheme('dark') + ')'
+  const light = ':where(' + scheme('light') + ', ' + scheme('system') + ')'
+  // The root follows the system preference unless it selects light or dark.
+  const system =
+    ':where(:root:not(' +
+    scheme('light') +
+    ', ' +
+    scheme('dark') +
+    ')),\n  :where(' +
+    scheme('system') +
+    ')'
   const motion = { ...iris.reduced, ...aliasesOf(Object.keys(iris.reduced)) }
 
   const rules = [
@@ -90,6 +103,79 @@ export async function renderTokenCSS() {
     '}\n'
   const filepath = fileURLToPath(new URL('../src/tokens.css', import.meta.url))
   return format(stylesheet, { filepath, ...(await resolveConfig(filepath)) })
+}
+
+// A custom theme scope can override a token only when every use reads it
+// inside the scope. Exclude tokens copied by root-only aliases or density
+// aliases, which resolve before the scope, and the motion tokens that reduced
+// motion replaces, so a theme can't defeat that preference.
+export function themeTokenNames() {
+  const themeAliases = new Set(Object.keys(aliasesOf(Object.keys(themes.light))))
+  const reduced = new Set([
+    ...Object.keys(iris.reduced),
+    ...Object.keys(aliasesOf(Object.keys(iris.reduced))),
+  ])
+  const copied = new Set()
+  for (const [name, value] of Object.entries(shared)) {
+    if (!themeAliases.has(name)) for (const reference of references(value)) copied.add(reference)
+  }
+  for (const values of Object.values(iris.density)) {
+    for (const value of Object.values(values)) {
+      for (const reference of references(value)) copied.add(reference)
+    }
+  }
+  const allowed = name => !copied.has(name) && !reduced.has(name)
+  const names = ({ primitives, roles }) => [...Object.keys(primitives), ...Object.keys(roles)]
+  return {
+    color: names(iris.groups.Color).filter(allowed),
+    all: [
+      ...new Set([
+        ...Object.values(iris.groups).flatMap(names).filter(allowed),
+        ...Object.keys(iris.optional),
+      ]),
+    ],
+  }
+}
+
+export async function renderThemeTokens() {
+  const { color, all } = themeTokenNames()
+  const colors = new Set(color)
+  const literal = name => "'--erx-" + name + "'"
+  const union = names => names.map(name => '\n  | ' + literal(name)).join('')
+  const value = name => {
+    const raw = shared[name] ?? [themes.light[name], themes.dark[name]]
+    return JSON.stringify(raw)
+  }
+  const source = [
+    '// Generated from tokens/iris.json. Run pnpm generate:tokens.',
+    '',
+    '/** An Iris color token that a custom theme can set separately for light and dark mode. */',
+    'export type ThemeColorToken =' + union(color),
+    '',
+    '/**',
+    ' * An Iris token that a custom theme can set. Tokens copied by root or density',
+    ' * aliases, and motion tokens that reduced motion replaces, are excluded.',
+    ' */',
+    'export type ThemeToken =\n  | ThemeColorToken' + union(all.filter(name => !colors.has(name))),
+    '',
+    '/** Iris color values before var() references resolve: one value, or light and dark. */',
+    'export const irisColors: Readonly<',
+    '  Record<ThemeColorToken, string | readonly [light: string, dark: string]>',
+    '> = {',
+    ...color.map(name => '  ' + literal(name) + ': ' + value(name) + ','),
+    '}',
+    '',
+    '/** Documented contrast pairs: foreground, background and the minimum ratio. */',
+    'export const contrastPairs: readonly (readonly [ThemeColorToken, ThemeColorToken, number])[] = [',
+    ...iris.contrast.map(
+      ([foreground, background, minimum]) =>
+        '  [' + literal(foreground) + ', ' + literal(background) + ', ' + minimum + '],',
+    ),
+    ']',
+    '',
+  ].join('\n')
+  const filepath = fileURLToPath(new URL('../src/internal/theme-tokens.ts', import.meta.url))
+  return format(source, { filepath, ...(await resolveConfig(filepath)) })
 }
 
 export function resolveToken(name, mode, trail = []) {

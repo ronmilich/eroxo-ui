@@ -1,12 +1,43 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { test } from 'node:test'
-import { contrastRatio, iris, renderTokenCSS, resolveToken } from '../scripts/iris-tokens.mjs'
+import {
+  contrastRatio,
+  iris,
+  renderThemeTokens,
+  renderTokenCSS,
+  resolveToken,
+  themeTokenNames,
+} from '../scripts/iris-tokens.mjs'
 
 test('checked-in token CSS matches the Iris source', async () => {
   const css = await readFile(new URL('../src/tokens.css', import.meta.url), 'utf8')
   const generated = await renderTokenCSS()
   assert.equal(css.replaceAll('\r\n', '\n'), generated, 'Run pnpm generate:tokens')
+})
+
+test('checked-in theme token types match the Iris source', async () => {
+  const source = await readFile(new URL('../src/internal/theme-tokens.ts', import.meta.url), 'utf8')
+  assert.equal(
+    source.replaceAll('\r\n', '\n'),
+    await renderThemeTokens(),
+    'Run pnpm generate:tokens',
+  )
+})
+
+test('custom themes can set only tokens that every use reads inside the scope', () => {
+  const { color, all } = themeTokenNames()
+  for (const name of ['color-primary', 'iris-700', 'radius-control', 'font-sans', 'shadow-1']) {
+    assert.ok(all.includes(name), name + ' should be themeable')
+  }
+  // Root aliases copy these, density owns spacing, and reduced motion owns durations.
+  for (const name of ['radius-md', 'space-4', 'motion-duration-fast', 'density-card-padding']) {
+    assert.ok(!all.includes(name), name + ' should not be themeable')
+  }
+  assert.ok(color.every(name => all.includes(name)))
+  for (const [foreground, background] of iris.contrast) {
+    assert.ok(color.includes(foreground) && color.includes(background))
+  }
 })
 
 test('Iris tokens have unique names and resolve in both themes', () => {

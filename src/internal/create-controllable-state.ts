@@ -3,7 +3,7 @@ import { warnInDevelopment } from './warnings.js'
 
 interface StateOptions<T> {
   component: string
-  prop: 'value' | 'open' | 'checked'
+  prop: 'value' | 'open' | 'checked' | 'colorScheme'
   value?: T
   defaultValue?: T
   fallback: T

@@ -46,9 +46,12 @@ export async function buildPrimitiveFixture(
     for (const chunk of [...chunks(client), ...chunks(server)]) verifyChunk(chunk.code)
   }
   const serverEntry = chunks(server).find(file => file.isEntry)
-  const { html, hydrationScript } = await import(
-    pathToFileURL(path.join(dir, serverDir, serverEntry.fileName)).href
-  )
+  // A fixture can export markup for the start of <head>, such as a first-paint script.
+  const {
+    html,
+    hydrationScript,
+    head: firstHead = '',
+  } = await import(pathToFileURL(path.join(dir, serverDir, serverEntry.fileName)).href)
   let stylesheet = ''
   if (styles) {
     const dist = local ? 'dist' : 'node_modules/eroxo-ui/dist'
@@ -57,7 +60,7 @@ export async function buildPrimitiveFixture(
   }
   await writeFile(
     path.join(dir, clientDir, 'index.html'),
-    '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Primitive conformance</title>' +
+    `<!doctype html><html lang="en"><head><meta charset="utf-8">${firstHead}<title>Primitive conformance</title>` +
       `${stylesheet}${head}${hydrationScript}</head><body><main>${html}</main><button id="dispose">Dispose</button>` +
       '<script type="module" src="./fixture.js"></script></body></html>',
   )

@@ -1,5 +1,8 @@
 import { writeFile } from 'node:fs/promises'
-import { renderTokenCSS } from './iris-tokens.mjs'
+import { renderThemeTokens, renderTokenCSS } from './iris-tokens.mjs'
 
-const css = await renderTokenCSS()
-await writeFile(new URL('../src/tokens.css', import.meta.url), css)
+await writeFile(new URL('../src/tokens.css', import.meta.url), await renderTokenCSS())
+await writeFile(
+  new URL('../src/internal/theme-tokens.ts', import.meta.url),
+  await renderThemeTokens(),
+)

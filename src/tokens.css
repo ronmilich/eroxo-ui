@@ -300,7 +300,7 @@
   }
 
   :where(:root),
-  :where([data-erx-theme='light']) {
+  :where([data-erx-theme~='light'], [data-erx-theme~='system']) {
     color-scheme: light;
     --erx-color-canvas: var(--erx-neutral-25);
     --erx-color-surface: var(--erx-neutral-0);
@@ -439,7 +439,8 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    :root:where(:not([data-erx-theme='light'], [data-erx-theme='dark'])) {
+    :where(:root:not([data-erx-theme~='light'], [data-erx-theme~='dark'])),
+    :where([data-erx-theme~='system']) {
       color-scheme: dark;
       --erx-color-canvas: var(--erx-neutral-950);
       --erx-color-surface: var(--erx-neutral-925);
@@ -578,7 +579,7 @@
     }
   }
 
-  :where([data-erx-theme='dark']) {
+  :where([data-erx-theme~='dark']) {
     color-scheme: dark;
     --erx-color-canvas: var(--erx-neutral-950);
     --erx-color-surface: var(--erx-neutral-925);

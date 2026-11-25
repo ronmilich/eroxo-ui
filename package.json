@@ -39,6 +39,13 @@
       "node": "./dist/hello.server.js",
       "default": "./dist/hello.js"
     },
+    "./theme": {
+      "types": "./dist/theme.d.ts",
+      "solid": "./dist/theme.jsx",
+      "browser": "./dist/theme.js",
+      "node": "./dist/theme.server.js",
+      "default": "./dist/theme.js"
+    },
     "./tokens.css": {
       "types": "./dist/tokens.d.css.ts",
       "default": "./dist/tokens.css"
@@ -46,6 +53,10 @@
     "./hello.css": {
       "types": "./dist/hello.d.css.ts",
       "default": "./dist/hello.css"
+    },
+    "./theme.css": {
+      "types": "./dist/theme.d.css.ts",
+      "default": "./dist/theme.css"
     },
     "./styles.css": {
       "types": "./dist/styles.d.css.ts",

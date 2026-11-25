@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { isServer, renderToString } from '@solidjs/web'
-import { Hello, createHello } from '../src'
+import { Hello, createHello, createTheme, ThemeScope, themeScript, useTheme } from '../src'
 import { createControllableState } from '../src/internal/create-controllable-state.js'
 import { createElementId } from '../src/internal/dom.js'
 
@@ -67,4 +67,45 @@ it('renders stable ID relationships and initial state without a change request',
   expect(html).toMatch(/<label for="(erx-[^"]+)">Controlled<\/label><input id="\1"/)
   expect(new Set(Array.from(html.matchAll(/<input id="([^"]+)"/g), match => match[1])).size).toBe(2)
   expect(onChange).not.toHaveBeenCalled()
+})
+
+function ThemeReader() {
+  const theme = useTheme()
+  return (
+    <p>
+      {theme.theme()} {theme.colorScheme()} {theme.resolvedColorScheme()}{' '}
+      {theme.density() ?? 'inherited'}
+    </p>
+  )
+}
+
+it('renders nested theme scopes and theme helpers on the server', () => {
+  const acme = createTheme('acme', { dark: { '--erx-color-primary': '#8fb8ff' } })
+  const render = () =>
+    renderToString(() => (
+      <>
+        <ThemeReader />
+        <ThemeScope root>
+          <ThemeReader />
+          <ThemeScope theme={acme} colorScheme="dark" density="compact" class="panel">
+            <ThemeReader />
+            <ThemeScope colorScheme="system">
+              <ThemeReader />
+            </ThemeScope>
+          </ThemeScope>
+        </ThemeScope>
+      </>
+    ))
+  const html = render()
+  expect(render()).toBe(html)
+  expect(html).toBe(
+    '<p>iris system light inherited</p>' +
+      '<div class="erx-theme-scope"><p>iris system light inherited</p>' +
+      '<div class="erx-theme-scope panel" data-erx-theme="acme dark" data-erx-density="compact">' +
+      '<p>acme dark dark compact</p>' +
+      '<div class="erx-theme-scope" data-erx-theme="acme system" data-erx-density="compact">' +
+      '<p>acme system light compact</p></div></div></div>',
+  )
+  expect(acme.css).toContain("[data-erx-theme~='acme']")
+  expect(themeScript({ storageKey: 'scheme', theme: acme })).toContain('"acme "+s')
 })

@@ -9,7 +9,7 @@ export default defineConfig(({ isSsrBuild, mode }) => {
         'fixtures/size/src/dialog.tsx',
         'fixtures/size/src/index.tsx',
       ]
-    : ['src/index.tsx', 'src/hello.tsx']
+    : ['src/index.tsx', 'src/hello.tsx', 'src/theme.tsx']
   return {
     plugins: [
       solid({ ssr: true }),

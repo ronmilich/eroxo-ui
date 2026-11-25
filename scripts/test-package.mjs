@@ -14,6 +14,7 @@ import { checkInputPatterns } from '../test/browser/conformance.mjs'
 import { buildCoreUtilitiesFixture, checkCoreUtilities } from '../test/browser/core-utilities.mjs'
 import { buildPrimitiveFixture } from '../test/browser/primitive-fixture.mjs'
 import { checkInteraction } from '../test/browser/interaction.mjs'
+import { buildThemeFixture, checkTheme } from '../test/browser/theme.mjs'
 import {
   buildAccessibilityUtilitiesFixture,
   checkAccessibilityUtilities,
@@ -265,12 +266,12 @@ async function checkPage(browser, url, name) {
     await page.setViewportSize({ width: 640, height: 480 })
     await page.addStyleTag({
       content: `
-      @media (prefers-color-scheme: dark) {
-        :root { background: var(--erx-color-canvas); color: var(--erx-color-text); }
-        button { appearance: none; background: white; color: #161925; border: 1px solid white; }
-      }
-      html { zoom: 2; }
-    `,
+     @media (prefers-color-scheme: dark) {
+       :root { background: var(--erx-color-canvas); color: var(--erx-color-text); }
+       button { appearance: none; background: white; color: #161925; border: 1px solid white; }
+     }
+     html { zoom: 2; }
+   `,
     })
     await page.locator('main').evaluate(el => el.style.removeProperty('--erx-hello-color'))
     assert.equal(
@@ -303,6 +304,7 @@ async function checkInBrowsers(name, config) {
           await checkCoreUtilities(browser, url)
           await checkAccessibilityUtilities(browser, url)
           await checkInteraction(browser, url)
+          await checkTheme(browser, url)
         }
       } finally {
         await browser.close()
@@ -381,6 +383,7 @@ async function consumers(tarball) {
       await buildCoreUtilitiesFixture(dir)
       await buildAccessibilityUtilitiesFixture(dir)
       await buildPrimitiveFixture(dir, 'interaction', { styles: true })
+      await buildThemeFixture(dir)
     }
     await checkInBrowsers(name, { root: dir, configFile: false })
   }
@@ -439,6 +442,9 @@ try {
     'dist/hello.jsx.map',
     'dist/hello.server.js.map',
     'dist/hello.js.map',
+    'dist/theme.jsx',
+    'dist/theme.server.js',
+    'dist/theme.css',
     'dist/tokens.css',
     'dist/styles.css.map',
     'dist/docs/index.md',

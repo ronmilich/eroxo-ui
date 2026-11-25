@@ -1,0 +1,9 @@
+@layer erx.tokens, erx.components;
+
+@layer erx.components {
+  /* Paint the scope so a nested color scheme stays readable on any parent. */
+  .erx-theme-scope {
+    background-color: var(--erx-color-canvas);
+    color: var(--erx-color-text);
+  }
+}
