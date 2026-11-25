@@ -12,6 +12,8 @@ import { chromium, firefox, webkit } from 'playwright'
 import { checkAccessibility, checkGreeting } from '../test/browser/harness.mjs'
 import { checkInputPatterns } from '../test/browser/conformance.mjs'
 import { buildCoreUtilitiesFixture, checkCoreUtilities } from '../test/browser/core-utilities.mjs'
+import { buildPrimitiveFixture } from '../test/browser/primitive-fixture.mjs'
+import { checkInteraction } from '../test/browser/interaction.mjs'
 import {
   buildAccessibilityUtilitiesFixture,
   checkAccessibilityUtilities,
@@ -300,6 +302,7 @@ async function checkInBrowsers(name, config) {
           await checkInputPatterns(browser, url)
           await checkCoreUtilities(browser, url)
           await checkAccessibilityUtilities(browser, url)
+          await checkInteraction(browser, url)
         }
       } finally {
         await browser.close()
@@ -377,6 +380,7 @@ async function consumers(tarball) {
       })
       await buildCoreUtilitiesFixture(dir)
       await buildAccessibilityUtilitiesFixture(dir)
+      await buildPrimitiveFixture(dir, 'interaction', { styles: true })
     }
     await checkInBrowsers(name, { root: dir, configFile: false })
   }

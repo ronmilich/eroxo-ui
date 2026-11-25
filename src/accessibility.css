@@ -13,13 +13,15 @@
     border: 0;
   }
 
-  :where(.erx-focus-ring):focus-visible {
+  :where(.erx-focus-ring):focus-visible,
+  :where(.erx-focus-ring[data-erx-focus-visible]):focus {
     outline: var(--erx-focus-outline-width, 2px) solid var(--erx-color-focus-ring, Highlight);
     outline-offset: var(--erx-focus-outline-offset, 2px);
   }
 
   @media (forced-colors: active) {
-    :where(.erx-focus-ring):focus-visible {
+    :where(.erx-focus-ring):focus-visible,
+    :where(.erx-focus-ring[data-erx-focus-visible]):focus {
       outline-color: Highlight;
     }
 

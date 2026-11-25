@@ -178,7 +178,7 @@ A milestone is **Done** when every exit criterion is checked and merged. A code 
 | UL-13 | Default light and dark themes | P2 | canary | — | In progress |
 | UL-14 | Core component utilities | P3 | canary | — | In progress |
 | UL-15 | Accessibility, motion and localisation utilities | P3 | canary | TAO-12–TAO-15 | In progress |
-| UL-16 | Interaction primitives | P3 | canary | — | Planned |
+| UL-16 | Interaction primitives | P3 | canary | — | In progress |
 | UL-17 | Collection and navigation primitives | P3 | canary | — | Planned |
 | UL-18 | Theming API | P4 | canary | — | Planned |
 | UL-19 | Component customization contract | P4 | canary | — | Planned |
@@ -940,8 +940,11 @@ Manual screen-reader speech verification remains pending. Canary publication and
 
 
 **Exit criteria**
-- [ ] Primitive Definition of Done met.
-- [ ] Composition-event tests pass in all three engines, plus a manual check with a Chinese and a Korean input method.
+- [x] Primitive Definition of Done (§2.4) verified locally. See the [interaction contracts and fixture](ul-16-interaction-primitives.md).
+- [x] Automated Chinese and Korean composition-event tests pass in Chromium, Firefox and WebKit.
+- [ ] Manual candidate selection, cancellation and commit verified with Chinese and Korean input methods.
+
+Canary publication and registry verification are deferred until npm account access is restored and UL-10 publishes a canary.
 
 
 
